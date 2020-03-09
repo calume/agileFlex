@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu May 02 13:48:06 2019
-
 @author: Calum Edmunds
-
 Scripts to calculate probability of flexibility providers or 'agents' being called 
-
 """
 
 ######## Importing the OpenDSS Engine and other packages #########
@@ -61,7 +58,7 @@ pickle_in = open("SMDistsGMMChosen.pickle", "rb")
 SM_GM = pickle.load(pickle_in)
 
 pickle_in = open("SMDistsGMMWeights.pickle", "rb")
-SM_GMW = pickle.load(pickle_in)
+SM_GM = pickle.load(pickle_in)
 
 
 ######## Assign PV, Agent, EV Tags and Zone per Load Node ############
@@ -113,8 +110,9 @@ LB = {}
 CongSummary = {}
 AgentSummary = {}
 LoadBusByPhase = {}
-
-########## Assign day profile #########
+#   for z in range(0,len(Flags)):
+#       n=choice(range(0,len(SM[Flags['SM'][z]])), 1, p=SMW[Flags['SM'][z]])
+#       SMC[z]=SM[Flags['SM'][z]][n]
 
 for i in sims.tolist():
     print(i)
@@ -134,127 +132,197 @@ for i in sims.tolist():
     if (i.weekday() >= 5) & (i.weekday() <= 6):  ###Weekend######
         EV = EV_kde  # ['WkndDists']
         if (i.month == 12) | (i.month <= 2):  # Dec-Feb
-            SM = SM_GM["WintWkndDists"]
-            SMW = SM_GMW["WintWkndDists"]
+            SM = SM_kde["WintWkndDists"]
+            # SMW=SM_GM['WintWkndDists']
             HP = HP_kde["WintWkndDists"]
             PV = PV_kde["WintDists"]
         if (i.month >= 3) & (i.month <= 5):  # Mar-May
-            SM = SM_GM["SpringWkndDists"]
-            SMW = SM_GMW["SpringWkndDists"]
+            SM = SM_kde["SpringWkndDists"]
+            # SMW=SM_GM['SpringWkndDists']
             HP = HP_kde["SpringWkndDists"]
             PV = PV_kde["SpringDists"]
         if (i.month >= 6) & (i.month <= 8):  # Jun-Aug
-            SM = SM_GM["SummerWkndDists"]
-            SMW = SM_GMW["SummerWkndDists"]
+            SM = SM_kde["SummerWkndDists"]
+            # SMW=SM_GM['SummerWkndDists']
             HP = HP_kde["SummerWkndDists"]
             PV = PV_kde["SummerDists"]
         if (i.month >= 9) & (i.month <= 11):  # Sept-Nov
-            SM = SM_GM["AutumnWkndDists"]
-            SMW = SM_GMW["AutumnWkndDists"]
+            SM = SM_kde["AutumnWkndDists"]
+            # SMW=SM_GM['AutumnWkndDists']
             HP = HP_kde["AutumnWkndDists"]
             PV = PV_kde["AutumnDists"]
     if (i.weekday() >= 0) & (i.weekday() <= 4):  ##Weekday######
         EV = EV_kde  # ['WkdDists']
         if (i.month == 12) | (i.month <= 2):  # Dec-Feb
-            SM = SM_GM["WintWkdDists"]
-            SMW = SM_GMW["WintWkdDists"]
+            SM = SM_kde["WintWkdDists"]
+            # SMW=SM_GM['WintWkdDists']
             HP = HP_kde["WintWkdDists"]
             PV = PV_kde["WintDists"]
         if (i.month >= 3) & (i.month <= 5):  # Mar-May
-            SM = SM_GM["SpringWkdDists"]
-            SMW = SM_GMW["SpringWkdDists"]
+            SM = SM_kde["SpringWkdDists"]
+            # SMW=SM_GM['SpringWkdDists']
             HP = HP_kde["SpringWkdDists"]
             PV = PV_kde["SpringDists"]
         if (i.month >= 6) & (i.month <= 8):  # Jun-Aug
-            SM = SM_GM["SummerWkdDists"]
-            SMW = SM_GMW["SummerWkdDists"]
+            SM = SM_kde["SummerWkdDists"]
+            # SMW=SM_GM['SummerWkdDists']
             HP = HP_kde["SummerWkdDists"]
             PV = PV_kde["SummerDists"]
         if (i.month >= 9) & (i.month <= 11):  # Sept-Nov
-            SM = SM_GM["AutumnWkdDists"]
-            SMW = SM_GMW["AutumnWkdDists"]
+            SM = SM_kde["AutumnWkdDists"]
+            # SMW=SM_GM['AutumnWkdDists']
             HP = HP_kde["AutumnWkdDists"]
             PV = PV_kde["AutumnDists"]
 
-for z in range(0, len(Flags)):
-    n = choice(range(0, len(SM[Flags["SM"][z]])), 1, p=SMW[Flags["SM"][z]])
-    SMC[z] = SM[Flags["SM"][z]][n]
+    if PV[i.hour] != 0:
+        samp = max(PV[i.hour].resample(1), 0)
+    for z in range(0, len(Flags)):
+        SMd[i][z] = max(SM[Flags["SM"][z]][i.hour].resample(1), 0)
+        EVd[i][z] = max(EV[i.hour].resample(1), 0) * Flags["EV"][z]
+        if Flags["HP"][z] == 0:
+            HPd[i][z] = 0
+        else:
+            HPd[i][z] = max(HP[Flags["HP"][z]][i.hour].resample(1), 0)
+        if PV[i.hour] == 0:
+            PVd[i][z] = 0
+        else:
+            PVd[i][z] = samp * Flags["PV"][z]
 
-#
-#   if PV[i.hour] != 0:
-#       samp=max(PV[i.hour].resample(1),0)
-#   for z in range(0,len(Flags)):
-#      SMd[i][z]=max(SM[Flags['SM'][z]][i.hour].resample(1),0)
-#      EVd[i][z]=max(EV[i.hour].resample(1),0)*Flags['EV'][z]
-#      if Flags['HP'][z] ==0:
-#          HPd[i][z]=0
-#      else:
-#          HPd[i][z]=max(HP[Flags['HP'][z]][i.hour].resample(1),0)
-#      if PV[i.hour] == 0:
-#          PVd[i][z]=0
-#      else:
-#          PVd[i][z]=samp*Flags['PV'][z]
-#
-#      P[i][z] = SMd[i][z] + EVd[i][z] + HPd[i][z]
-#      Gen[i][z] = PVd[i][z]
-#      UB[i][z]=int(not(Flags['Agent'][z]))*Gen[i][z]   # Which equates to SMd[i][z]+HPd[i][z]+EVd[i][z]
-#      LB[i][z]=P[i][z]+Flags['Agent'][z]*(-EVd[i][z]-HPd[i][z])  # Which equates to  SMd[i][z]-PVd[i][z]
-#
-#
-#   u=0*P[i]
-#   ug=0*Gen[i]
-#
-#   P[i][np.isnan(P[i])] = 0
-#   PO[i]=copy.copy(P[i])
-#   GenO[i]=copy.copy(Gen[i])
-#   ###### Run DSS for initial network state ###########
-#   n=1
-#   Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P[i],Gen[i],u,ug)
-#
-#   ## Run Sensitivity ###
-#
-#   Violperphase,VmaxFlagInit, VminFlagInit, ThermalFlagInit,n,Locations = sensitivity(LoadsIn,P[i], Gen[i],Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit,n)
-#
-#   ### Generate LoadBus Summary  #######
-#
-#   LoadBusByPhase[i] = summary(LoadsIn,Violperphase,CurMaxInit, VmaxInit, VminInit,P[i],Gen[i],PO[i],LB[i],UB[i])
-#
-#
-#   P[i], Gen[i], LoadBusByPhase[i]  = actions(P[i],Gen[i],LB[i],UB[i],PVd[i],EVd[i],HPd[i],u,ug,n,LoadBusByPhase[i],CurMaxInit,VmaxInit,VminInit,LoadsIn,PO[i])
-#
-#   CongSummary[i]={}
-#   for p in range(0,3):
-#       CongSummary[i][p]={}
-#       CongSummary[i][p]['Voltages']=Locationsi['Voltages'][p]
-#       CongSummary[i][p]['Currents']=Locationsi['Current'][p]
-#       CongSummary[i][p]['Headroom']=Locationsi['Hdrm'][p]
-#       if ThermalFlagInit[p] ==True:
-#           CongSummary[i][p]['ThermalLineNos']=Locationsi['Cmax'][p]
-#       if VmaxFlagInit[p] ==True:
-#           CongSummary[i][p]['VhighBusNos']=Locationsi['Vmax'][p]
-#       if VminFlagInit[p] ==True:
-#           CongSummary[i][p]['VlowBusNos']=Locationsi['Vmin'][p]
-#
-#    ###### Create summary of agent actions ###########
-#   AgentSummary[i]=pd.DataFrame(index=range(0,len(LoadsIn)),columns=['Bus','Phase','BaseDemand','EV','PV','HP','LoadSetPoint','DemLB','GenLB','DemAdjust','FinalDem','FinalGen','GenAdjust'])
-#   AgentSummary[i]['Bus']=LoadsIn['Bus1'].str[5:-2]
-#   AgentSummary[i]['Phase']=LoadsIn['Phase']
-#   AgentSummary[i]['BaseDemand']=SMd[i]
-#   AgentSummary[i]['EV']=EVd[i]
-#   AgentSummary[i]['PV']=PVd[i]
-#   AgentSummary[i]['HP']=HPd[i]
-#   AgentSummary[i]['LoadSetPoint']=PO[i]
-#   AgentSummary[i]['DemLB']=LB[i]
-#   AgentSummary[i]['GenLB']=UB[i]
-#   AgentSummary[i]['DemAdjust']=P[i]-PO[i]
-#   AgentSummary[i]['FinalDem']=P[i]
-#   AgentSummary[i]['FinalGen']=Gen[i]
-#   AgentSummary[i]['GenAdjust']=Gen[i]-GenO[i]
-#
-# pickle_out = open('AgentSummarySummerFeed2_100PV.pickle',"wb")
-# pickle.dump(AgentSummary, pickle_out)
-# pickle_out.close()
-#
-# pickle_out = open('CongSummarySummerFeed2_100PV.pickle',"wb")
-# pickle.dump(CongSummary, pickle_out)
-# pickle_out.close()
+        P[i][z] = SMd[i][z] + EVd[i][z] + HPd[i][z]
+        Gen[i][z] = PVd[i][z]
+        UB[i][z] = (
+            int(not (Flags["Agent"][z])) * Gen[i][z]
+        )  # Which equates to SMd[i][z]+HPd[i][z]+EVd[i][z]
+        LB[i][z] = P[i][z] + Flags["Agent"][z] * (
+            -EVd[i][z] - HPd[i][z]
+        )  # Which equates to  SMd[i][z]-PVd[i][z]
+
+    u = 0 * P[i]
+    ug = 0 * Gen[i]
+
+    P[i][np.isnan(P[i])] = 0
+    PO[i] = copy.copy(P[i])
+    GenO[i] = copy.copy(Gen[i])
+    ###### Run DSS for initial network state ###########
+    n = 1
+    (
+        Loadarray,
+        CurArray,
+        VoltArray,
+        RateArray,
+        CurMaxInit,
+        VmaxInit,
+        VminInit,
+        Locationsi,
+    ) = runDSS(P[i], Gen[i], u, ug)
+
+    ## Run Sensitivity ###
+
+    (
+        Violperphase,
+        VmaxFlagInit,
+        VminFlagInit,
+        ThermalFlagInit,
+        n,
+        Locations,
+    ) = sensitivity(
+        LoadsIn,
+        P[i],
+        Gen[i],
+        Loadarray,
+        CurArray,
+        VoltArray,
+        RateArray,
+        CurMaxInit,
+        VmaxInit,
+        VminInit,
+        n,
+    )
+
+    ### Generate LoadBus Summary  #######
+
+    LoadBusByPhase[i] = summary(
+        LoadsIn,
+        Violperphase,
+        CurMaxInit,
+        VmaxInit,
+        VminInit,
+        P[i],
+        Gen[i],
+        PO[i],
+        LB[i],
+        UB[i],
+    )
+
+    P[i], Gen[i], LoadBusByPhase[i] = actions(
+        P[i],
+        Gen[i],
+        LB[i],
+        UB[i],
+        PVd[i],
+        EVd[i],
+        HPd[i],
+        u,
+        ug,
+        n,
+        LoadBusByPhase[i],
+        CurMaxInit,
+        VmaxInit,
+        VminInit,
+        LoadsIn,
+        PO[i],
+    )
+
+    CongSummary[i] = {}
+    for p in range(0, 3):
+        CongSummary[i][p] = {}
+        CongSummary[i][p]["Voltages"] = Locationsi["Voltages"][p]
+        CongSummary[i][p]["Currents"] = Locationsi["Current"][p]
+        CongSummary[i][p]["Headroom"] = Locationsi["Hdrm"][p]
+        if ThermalFlagInit[p] == True:
+            CongSummary[i][p]["ThermalLineNos"] = Locationsi["Cmax"][p]
+        if VmaxFlagInit[p] == True:
+            CongSummary[i][p]["VhighBusNos"] = Locationsi["Vmax"][p]
+        if VminFlagInit[p] == True:
+            CongSummary[i][p]["VlowBusNos"] = Locationsi["Vmin"][p]
+
+    ###### Create summary of agent actions ###########
+    AgentSummary[i] = pd.DataFrame(
+        index=range(0, len(LoadsIn)),
+        columns=[
+            "Bus",
+            "Phase",
+            "BaseDemand",
+            "EV",
+            "PV",
+            "HP",
+            "LoadSetPoint",
+            "DemLB",
+            "GenLB",
+            "DemAdjust",
+            "FinalDem",
+            "FinalGen",
+            "GenAdjust",
+        ],
+    )
+    AgentSummary[i]["Bus"] = LoadsIn["Bus1"].str[5:-2]
+    AgentSummary[i]["Phase"] = LoadsIn["Phase"]
+    AgentSummary[i]["BaseDemand"] = SMd[i]
+    AgentSummary[i]["EV"] = EVd[i]
+    AgentSummary[i]["PV"] = PVd[i]
+    AgentSummary[i]["HP"] = HPd[i]
+    AgentSummary[i]["LoadSetPoint"] = PO[i]
+    AgentSummary[i]["DemLB"] = LB[i]
+    AgentSummary[i]["GenLB"] = UB[i]
+    AgentSummary[i]["DemAdjust"] = P[i] - PO[i]
+    AgentSummary[i]["FinalDem"] = P[i]
+    AgentSummary[i]["FinalGen"] = Gen[i]
+    AgentSummary[i]["GenAdjust"] = Gen[i] - GenO[i]
+
+pickle_out = open("AgentSummarySummerFeed2_100PV.pickle", "wb")
+pickle.dump(AgentSummary, pickle_out)
+pickle_out.close()
+
+pickle_out = open("CongSummarySummerFeed2_100PV.pickle", "wb")
+pickle.dump(CongSummary, pickle_out)
+pickle_out.close()
