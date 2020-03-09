@@ -22,9 +22,8 @@ start = datetime.now()
 LoadsIn = pd.read_csv("Loads.txt",delimiter=' ', names=['New','Load','Phase','Bus1','kV','kW','PF','Daily'] )
 LoadsIn['Phase']=LoadsIn['Bus1'].str[-1:]
 
-def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminInit,LoadsIn,PO):
+def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,ug,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminInit,LoadsIn,PO):
     ########### Take Actions ############
-    Pgrad=0.5
     grad=1
     Cgrad=1
     CurMax=CurMaxInit
@@ -41,13 +40,13 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              if len(UpInd)==0:
                  #print('Insufficient Upward AGENT Flexibility')
                  UB=0
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
              if len(DownInd)==0:
                  #print('Low Voltage: Insufficient Downward AGENT Flexibility. Load shedding Required')
                  LB=PO-EVd-HPd
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
     
@@ -56,7 +55,7 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              print('Vmin (p.u)' +str(Vmin[:,p]))
              for z in UpInd:
                  if LoadBusByPhase[p]['VMin-Dem-UP'].loc[z] > 0 and LoadBusByPhase[p]['VMin-Dem-UP'][z] > LoadBusByPhase[p]['VMin-Dem-DOWN'][z]:
-                    u[z]= -(0.94 - Vmin[:,p])/LoadBusByPhase[p]['VMin-Dem-UP'][z]/(len(UpInd)*Pgrad)
+                    u[z]= -(0.94 - Vmin[:,p])/LoadBusByPhase[p]['VMin-Dem-UP'][z]/(len(UpInd)*grad)
                     #u[z]= -(0.94 - Vmin[:,p])/LoadBusByPhase[p]['VMin-Dem-UP'][UpInd].mean()/(len(UpInd)*grad)
                     Gen[z]= max((Gen[z]+u[z]),UB[z])
                     
@@ -74,7 +73,8 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              print('New Agent PV Set Points (kW)')
              print(Gen)
              u=P*0
-             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(P,Gen,u)
+             ug=Gen*0
+             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(P,Gen,u,ug)
              Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
              LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB)
              print(Vmin[:,p])
@@ -87,13 +87,13 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              if len(UpInd)==0:
                  #print('Insufficient AGENT Upward Flexibility: Non Agent Adjustments required')
                  UB=0
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
              if len(DownInd)==0:
                  #print('Insuficcient AGENT Downward Flexibility')
                  LB=PO-EVd-HPd
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
     
@@ -102,7 +102,7 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              for z in UpInd:
                  ########### Turn Down Generation ##########  
                  if LoadBusByPhase[p]['VMax-Dem-UP'][z] < 0 and LoadBusByPhase[p]['VMax-Dem-UP'][z] < LoadBusByPhase[p]['VMax-Dem-DOWN'][z]:
-                    u[z]= -(1.1 - Vmax[:,p])/LoadBusByPhase[p]['VMax-Dem-UP'][z]/(len(UpInd)*Pgrad)
+                    u[z]= -(1.1 - Vmax[:,p])/LoadBusByPhase[p]['VMax-Dem-UP'][z]/(len(UpInd)*grad)
                     #u[z]= (1.1 - Vmax[:,p])/LoadBusByPhase[p]['VMax-Dem-UP'][UpInd].mean()/(len(UpInd)*grad)
                     Gen[z]= max((Gen[z]+u[z]),UB[z])
              
@@ -121,7 +121,8 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              print(Gen)
              PN=copy.copy(P)  
              u=P*0
-             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(P,Gen,u)
+             ug=Gen*0
+             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(P,Gen,u,ug)
              Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
              LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB)
              print(Vmax[:,p])
@@ -133,13 +134,13 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              if len(UpInd)==0:
                  #print('Insufficient Upward Flexibility: ')
                  UB=0
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
              if len(DownInd)==0:
                  #print('Insuficcient Downward Flexibility')
                  LB=PO-EVd-HPd
-                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u)
+                 Loadarray,  CurArray, VoltArray, RateArray, CurMaxInit, VmaxInit, VminInit, Locationsi = runDSS(P,Gen,u,ug)
                  Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,P,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
                  LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,P,Gen,PO,LB,UB)
     
@@ -149,7 +150,7 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              for z in UpInd:
                  ########### Turn Down Generation ##########  
                  if LoadBusByPhase[p]['Cmax-Dem-UP'][z] < 0 and LoadBusByPhase[p]['Cmax-Dem-UP'][z] < LoadBusByPhase[p]['Cmax-Dem-DOWN'][z]:
-                    u[z]= CurMax[:,p]/LoadBusByPhase[p]['Cmax-Dem-UP'][z]/(len(UpInd)*Pgrad)
+                    u[z]= CurMax[:,p]/LoadBusByPhase[p]['Cmax-Dem-UP'][z]/(len(UpInd)*grad)
                     #u[z]= CurMax[:,p]/LoadBusByPhase[p]['Cmax-Dem-UP'][UpInd].mean()/(len(UpInd)*Cgrad)
                     Gen[z]= max((Gen[z]+u[z]),UB[z])
                     
@@ -160,7 +161,7 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
                     #u[z]= -CurMax[:,p]/LoadBusByPhase[p]['Cmax-Dem-DOWN'][DownInd].mean()/(len(DownInd)*Cgrad)
                     P[z]= max((P[z]-u[z]),LB[z])
     
-             print('Load Adjustments per agent (kW)')
+             print('Adjustments per agent (kW)')
              print(u)
              print('New Agent Set Points (kW)')
              print(P)
@@ -168,7 +169,8 @@ def actions(P,Gen,LB,UB,PVd,EVd,HPd,u,n,LoadBusByPhase,CurMaxInit,VmaxInit,VminI
              print(Gen)
              PN=copy.copy(P)  
              u=P*0
-             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(PN,Gen,u)
+             ug=Gen*0
+             Loadarray,  CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,Locations = runDSS(PN,Gen,u,ug)
              Violations,VmaxFlag, VminFlag, ThermalFlag,n,Locations = sensitivity(LoadsIn,PN,Gen,Loadarray,CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin,n)
              LoadBusByPhase = summary(LoadsIn,Violations,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB)
              print(CurMax[:,p])

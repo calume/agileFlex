@@ -8,6 +8,7 @@ Created on Fri Aug  2 11:54:13 2019
 import opendssdirect as dss
 import numpy as np
 import pandas as pd
+import pickle
 from opendssdirect.utils import run_command
 pd.options.mode.chained_assignment = None
 
@@ -18,7 +19,7 @@ DSSLoads= dss.Loads;
 DSSBus = dss.Bus
 DSSLines = dss.Lines
 DSSGens= dss.Generators
-
+DSSTransformers= dss.Transformers
 ####### Create a generator for each load #########
 
 LoadsIn = pd.read_csv("Loads.txt",delimiter=' ', names=['New','Load','Phases','Bus1','kV','kW','PF','Daily'] )
@@ -36,20 +37,14 @@ GensIn = pd.read_csv("Generators.txt",delimiter=' ', names=['New','Generator','B
 
 #dss.Basic.ClearAll()
 #dss.Basic.Start(0)
-#P= np.array([11.50034239,  2.47454889,  0.61089075,  4.40891062,  9.42233832,
-#        4.36033616,  1.25117596,  1.66008232,  1.86465633,  2.69840792,
-#        0.86844222,  4.56870632, 12.15824116,  4.91312382,  6.61092013,
-#        1.73990761,  2.61695063,  2.04417424,  0.75918933,  2.69252254,
-#        2.03992466,  1.66443946,  6.6702814 ,  0.7590303 , 10.23056161,
-#        4.02688667,  5.66458177,  4.80274726,  0.46542819,  8.86541455,
-#        0.35190725])
-#u=0*P
-#P=P*0+5
-#
-#Gen=P
-#Gen=Gen*0+10
+#pickle_in = open("P.pickle","rb")
+#P = pickle.load(pickle_in)
+#Gen=P*0
+#u=P*0
+#ug=P*0
+
 ####### Compile the OpenDSS file using the Master.txt directory#########
-def runDSS(P,Gen,u):
+def runDSS(P,Gen,u,ug):
     Voltages={}
     Currents={}
     Rates={}
@@ -65,12 +60,15 @@ def runDSS(P,Gen,u):
     ################### Calculating Gen for each Demand ############################
     iGen = DSSGens.First()
     while iGen>0:
-        DSSGens.kW(Gen[iGen-1])
+        DSSGens.kW(Gen[iGen-1]-ug[iGen-1])
+        DSSGens.Vmaxpu(1.2)
+        DSSGens.Vminpu(0.8)
+        DSSGens.Phases(1)
         iGen = DSSGens.Next()
     
     ######### Solve the Circuit ############
     run_command('Solve')
-      
+    
     ########## Export Voltages ###########
     bvs = list(DSSCircuit.AllBusMagPu())
     Voltages=bvs[0::3],bvs[1::3],bvs[2::3]  
@@ -102,32 +100,39 @@ def runDSS(P,Gen,u):
     
     CurMax = np.zeros((1,3))
     Locations['Cmax']={}
+    Locations['Current']={}
+    Locations['Hdrm']={}
     for i in range(0,3):
         CurMax[:,i]=(CurArray[:,i]-RateArray).max()
         C=pd.Series(CurArray[:,i]-RateArray)
         C=list(C[C>0.5].index)
+        Locations['Current'][i]=pd.Series(CurArray[:,i])
         Locations['Cmax'][i]=C
+        Locations['Hdrm'][i]=CurMax[:,i]
     #### Maximum Voltage ####
     Vmax = np.zeros((1,3))
     Locations['Vmax']={}
+    Locations['Voltages']={}
     for i in range(0,3):
         Vmax[:,i]=VoltArray[:,i].max()
-        Vmx=pd.Series(VoltArray[:,i])
-        Vmx=list(Vmx[Vmx>1.1].index)
+        Vs=pd.Series(VoltArray[:,i])
+        Vmx=list(Vs[Vs>1.1].index)
         Locations['Vmax'][i]=Vmx
+        Locations['Voltages'][i]=Vs
     #### Minimum Voltage ####
     Vmin = np.zeros((1,3))
     Locations['Vmin']={}
     for i in range(0,3):
         Vmin[:,i]=VoltArray[:,i].min()
-        Vmn=pd.Series(VoltArray[:,i])
-        Vmn=list(Vmn[Vmn<0.94].index)
+        Vs=pd.Series(VoltArray[:,i])
+        Vmn=list(Vs[Vs<0.94].index)
         Locations['Vmin'][i]=Vmn
     ################### Display Gen ############################
-
+    
     iGen = DSSGens.First()
     while iGen>0:
         iGen = DSSGens.Next()
-    return Loadarray, CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin, Locations
     
-
+    return Loadarray, CurArray, VoltArray, RateArray, CurMax, Vmax, Vmin, Locations
+    #from feedbackplot import plots
+    #plots(0,VoltArray,CurArray,RateArray)

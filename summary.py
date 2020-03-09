@@ -19,7 +19,7 @@ def summary(LoadsIn,Violperphase,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB):
         if Vmin[:,p] < 0.94:
             LoadBus['VMin-Dem-DOWN'] = Violperphase[p]['VminPercPercDown'].round(4)
             LoadBus['VMin-Dem-UP'] = Violperphase[p]['VminPercPercUp'].round(4)              
-        if CurMax[:,p] > 0:
+        if CurMax[:,p] > 0.5:
             LoadBus['Cmax-Dem-UP'] = Violperphase[p]['CurPercPercUp'].round(4)
             LoadBus['Cmax-Dem-DOWN'] = Violperphase[p]['CurPercPercDown'].round(4)
            
@@ -27,7 +27,7 @@ def summary(LoadsIn,Violperphase,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB):
            
         for i in range(0,len(LoadBus)):
            ###### Cmax Adjustments ##########
-           if CurMax[:,p] > 0:
+           if CurMax[:,p] > 0.5:
               if LoadBus['Cmax-Dem-DOWN'][i] < -tol:
                  LoadBus['Action'][i]='C-'#(Cmax)' 
               if LoadBus['Cmax-Dem-UP'][i] < -tol:
@@ -48,12 +48,12 @@ def summary(LoadsIn,Violperphase,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB):
            
            
            ####### Combined #########
-           if Vmax[:,p] > 1.1 and CurMax[:,p] > 0:
+           if Vmax[:,p] > 1.1 and CurMax[:,p] > 0.5:
               if LoadBus['VMax-Dem-UP'][i] < -tol and LoadBus['Cmax-Dem-UP'][i] < -tol:
                  LoadBus['Action'][i]='C/VU+'#+(Vmax/Cmax)' 
               if LoadBus['VMax-Dem-DOWN'][i] < -tol and LoadBus['Cmax-Dem-DOWN'][i] < -tol:
                  LoadBus['Action'][i]='C/VU-'#+(Vmax/Cmax)'              
-           if Vmin[:,p] < 0.94 and CurMax[:,p] > 0:
+           if Vmin[:,p] < 0.94 and CurMax[:,p] > 0.5:
               if LoadBus['VMin-Dem-DOWN'][i] > tol and LoadBus['Cmax-Dem-DOWN'][i] < -tol:
                  LoadBus['Action'][i]='VL/C-'#(Vmin/Cmax)'
               if LoadBus['VMin-Dem-UP'][i] > tol and LoadBus['Cmax-Dem-UP'][i] < -tol:
@@ -65,7 +65,7 @@ def summary(LoadsIn,Violperphase,CurMax, Vmax, Vmin,PN,Gen,PO,LB,UB):
               if LoadBus['VMax-Dem-UP'][i] < -tol and LoadBus['VMin-Dem-UP'][i] > tol:
                  LoadBus['Action'][i]='VU/VL+'#(Vmax/Vmin)'
                     
-           if Vmin[:,p] < 0.94 and Vmax[:,p] > 1.1 and CurMax[:,p] > 0: 
+           if Vmin[:,p] < 0.94 and Vmax[:,p] > 1.1 and CurMax[:,p] > 0.5: 
               if LoadBus['VMax-Dem-DOWN'][i] < -tol and LoadBus['VMin-Dem-DOWN'][i] > tol and LoadBus['Cmax-Dem-DOWN'][i] < -tol:
                  LoadBus['Action'][i]='VU/VL/C-'#-(Vmax/Vmin)'
               if LoadBus['VMax-Dem-UP'][i] < -tol and LoadBus['VMin-Dem-UP'][i] > tol and LoadBus['Cmax-Dem-UP'][i] < -tol:
