@@ -32,5 +32,5 @@ The script 'PVLoad.py' creates 2 pickle files with the data processed:
 The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
 
 ### PV Data Visualisation
-![Forest Road] (https://github.com/calume/agileFlex/blob/master/Data/DataExampleImages/Forest_Road.jpg)
+![Forest Road] (Forest_Road.jpg)
 
