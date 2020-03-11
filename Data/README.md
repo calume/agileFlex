@@ -33,5 +33,5 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 ### PV Data Visualisation
 
-![Forest Road] (Data/DataExampleImages/Forest_Road.jpg)
+![Forest Road] (./DataExampleImages/Forest_Road.jpg)
 
