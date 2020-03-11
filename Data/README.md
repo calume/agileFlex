@@ -1,4 +1,4 @@
-#Data Input Descriptors
+# Data Input Descriptors
 
 This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
@@ -7,14 +7,16 @@ Data inputs include the following
 - Heat Pump: London Datastore 
 - Electric Vehicle: Electric nation
 
-##PV 
+## PV 
 
 The script 'PVLoad.py' is used to process PV data for the AGILE Model. The raw data can be found in 'HourlyPV.csv'.
 The London DataStore PV data is used from: https://data.london.gov.uk/dataset/photovoltaic--pv--solar-panel-energy-generation-data
 Hourly Data is used and interpolated to half hourly. (Only 4 months of data was available for 10-minutely and 1-minutely)
 
 Data is available for the Following sites and Data ranges:
+~~~~~~~~~~
 
++------------------+--------------------------+-------------------------------------+
 Site               | Apparent capacity (kW)   | Date Range
 +------------------+--------------------------+-------------------------------------+
 Forest Road	   | 3.00                     | 2013-10-01 to 2014-10-03 (366 Days)  
@@ -35,5 +37,5 @@ The script creates 2 pickle files with the data processed:
 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
 'PV_Normalised.pickle' - Which has normalised output by season in 48h rows combined for all sites with timestamps removed.
 
-!Forest Road (DataExampleImages/Forest_Road.png)
+!Forest Road (https://github.com/calume/agileFlex/blob/pvdata/Data/DataExampleImages/Forest_Road.png)
 
