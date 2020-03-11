@@ -116,26 +116,35 @@ for z in range(0, len(Distkeys)):
 # ------------------ Visualisation of the Data ---------------------------
 
 # By site
-n = 0
+n = 1
 colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
 for item in PVOutput_BySiteName:
-    plt.figure(item)
+    plt.subplot(320 + n)
+    plt.title(item, fontsize=9)
     plt.scatter(
         PVOutput_BySiteName[item]["P_kW"].index,
         PVOutput_BySiteName[item]["P_kW"],
         s=0.5,
         c=colors[n],
     )
-    plt.ylabel("Output(kW)")
+    plt.ylabel("Output(kW)", fontsize=8)
+    plt.xticks(fontsize=7)
+    plt.yticks(fontsize=8)
     n = n + 1
 
+plt.figure(2)
 # By Season
+n = 1
+Seasons = ["Winter", "Spring", "Summer", "Autumn"]
 for item in NewDists:
-    plt.figure(item)
+    plt.subplot(220 + n)
+    plt.title(Seasons[n - 1], fontsize=9)
     for i in NewDists[item].index:
         plt.plot(NewDists[item].iloc[i], linewidth=0.1)
-    plt.xlabel("Settlement Period (half hourly)")
-    plt.ylabel("Output(fraction of capacity)")
+    plt.xlabel("Settlement Period (half hourly)", fontsize=8)
+    plt.ylabel("Output(fraction of capacity)", fontsize=8)
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
     n = n + 1
 
 qrts = {}
@@ -162,12 +171,15 @@ for item in NewDists:
 
 style = ["-", "-", "-", "-", "--"]
 colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+
+i = 1
 for item in qrts:
     n = 0
-    plt.figure(item)
+    plt.subplot(220 + i)
     for z in qrts[item]:
         plt.plot(
             qrts[item][z], color=colors[n], linewidth=1.8, label=z, linestyle=style[n]
         )
         n = n + 1
-    plt.legend()
+    plt.legend(fontsize=8)
+    i = i + 1
