@@ -112,74 +112,77 @@ for z in range(0, len(Distkeys)):
     NewDists[Distkeys[z]] = Dists[Distkeys[z]][Dists[Distkeys[z]].sum(axis=1) > 0]
     NewDists[Distkeys[z]].reset_index(drop=True, inplace=True)
 
+pickle_out = open("Pickle/PV_Normalised.pickle", "wb")
+pickle.dump(NewDists, pickle_out)
 
-# ------------------ Visualisation of the Data ---------------------------
 
-# By site
-n = 1
-colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
-for item in PVOutput_BySiteName:
-    plt.subplot(320 + n)
-    plt.title(item, fontsize=9)
-    plt.scatter(
-        PVOutput_BySiteName[item]["P_kW"].index,
-        PVOutput_BySiteName[item]["P_kW"],
-        s=0.5,
-        c=colors[n],
-    )
-    plt.ylabel("Output(kW)", fontsize=8)
-    plt.xticks(fontsize=7)
-    plt.yticks(fontsize=8)
-    n = n + 1
-
-plt.figure(2)
-# By Season
-n = 1
-Seasons = ["Winter", "Spring", "Summer", "Autumn"]
-for item in NewDists:
-    plt.subplot(220 + n)
-    plt.title(Seasons[n - 1], fontsize=9)
-    for i in NewDists[item].index:
-        plt.plot(NewDists[item].iloc[i], linewidth=0.1)
-    plt.xlabel("Settlement Period (half hourly)", fontsize=8)
-    plt.ylabel("Output(fraction of capacity)", fontsize=8)
-    plt.xticks(fontsize=8)
-    plt.yticks(fontsize=8)
-    n = n + 1
-
-qrts = {}
-for item in NewDists:
-    qrts[item] = {}
-    qrts[item]["q1"] = np.empty(1)
-    qrts[item]["q2"] = np.empty(1)
-    qrts[item]["q3"] = np.empty(1)
-    qrts[item]["max"] = np.empty(1)
-    qrts[item]["mean"] = np.empty(1)
-    for i in NewDists[item]:
-        qrts[item]["q1"] = np.append(qrts[item]["q1"], NewDists[item][i].quantile(0.25))
-        qrts[item]["q2"] = np.append(qrts[item]["q2"], NewDists[item][i].quantile(0.5))
-        qrts[item]["q3"] = np.append(qrts[item]["q3"], NewDists[item][i].quantile(0.75))
-        #        qrts[item]['max']=np.append(qrts[item]['max'],(NewDists[item][i].quantile(0.75)+((NewDists[item][i].quantile(0.75)-NewDists[item][i].quantile(0.25))*1.5)))
-        qrts[item]["max"] = np.append(qrts[item]["max"], NewDists[item][i].max())
-        qrts[item]["mean"] = np.append(qrts[item]["mean"], NewDists[item][i].mean())
-
-    qrts[item]["q1"] = np.delete(qrts[item]["q1"], 0)
-    qrts[item]["q2"] = np.delete(qrts[item]["q2"], 0)
-    qrts[item]["q3"] = np.delete(qrts[item]["q3"], 0)
-    qrts[item]["max"] = np.delete(qrts[item]["max"], 0)
-    qrts[item]["mean"] = np.delete(qrts[item]["mean"], 0)
-
-style = ["-", "-", "-", "-", "--"]
-colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
-
-i = 1
-for item in qrts:
-    n = 0
-    plt.subplot(220 + i)
-    for z in qrts[item]:
-        plt.plot(
-            qrts[item][z], color=colors[n], linewidth=1.8, label=z, linestyle=style[n]
-        )
-        n = n + 1
-    plt.legend(fontsize=8)
-    i = i + 1
+## ------------------ Visualisation of the Data ---------------------------
+#
+## By site
+#n = 1
+#colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+#for item in PVOutput_BySiteName:
+#    plt.subplot(320 + n)
+#    plt.title(item, fontsize=9)
+#    plt.scatter(
+#        PVOutput_BySiteName[item]["P_kW"].index,
+#        PVOutput_BySiteName[item]["P_kW"],
+#        s=0.5,
+#        c=colors[n],
+#    )
+#    plt.ylabel("Output(kW)", fontsize=8)
+#    plt.xticks(fontsize=7)
+#    plt.yticks(fontsize=8)
+#    n = n + 1
+#
+#plt.figure(2)
+## By Season
+#n = 1
+#Seasons = ["Winter", "Spring", "Summer", "Autumn"]
+#for item in NewDists:
+#    plt.subplot(220 + n)
+#    plt.title(Seasons[n - 1], fontsize=9)
+#    for i in NewDists[item].index:
+#        plt.plot(NewDists[item].iloc[i], linewidth=0.1)
+#    plt.xlabel("Settlement Period (half hourly)", fontsize=8)
+#    plt.ylabel("Output(fraction of capacity)", fontsize=8)
+#    plt.xticks(fontsize=8)
+#    plt.yticks(fontsize=8)
+#    n = n + 1
+#
+#qrts = {}
+#for item in NewDists:
+#    qrts[item] = {}
+#    qrts[item]["q1"] = np.empty(1)
+#    qrts[item]["q2"] = np.empty(1)
+#    qrts[item]["q3"] = np.empty(1)
+#    qrts[item]["max"] = np.empty(1)
+#    qrts[item]["mean"] = np.empty(1)
+#    for i in NewDists[item]:
+#        qrts[item]["q1"] = np.append(qrts[item]["q1"], NewDists[item][i].quantile(0.25))
+#        qrts[item]["q2"] = np.append(qrts[item]["q2"], NewDists[item][i].quantile(0.5))
+#        qrts[item]["q3"] = np.append(qrts[item]["q3"], NewDists[item][i].quantile(0.75))
+#        #        qrts[item]['max']=np.append(qrts[item]['max'],(NewDists[item][i].quantile(0.75)+((NewDists[item][i].quantile(0.75)-NewDists[item][i].quantile(0.25))*1.5)))
+#        qrts[item]["max"] = np.append(qrts[item]["max"], NewDists[item][i].max())
+#        qrts[item]["mean"] = np.append(qrts[item]["mean"], NewDists[item][i].mean())
+#
+#    qrts[item]["q1"] = np.delete(qrts[item]["q1"], 0)
+#    qrts[item]["q2"] = np.delete(qrts[item]["q2"], 0)
+#    qrts[item]["q3"] = np.delete(qrts[item]["q3"], 0)
+#    qrts[item]["max"] = np.delete(qrts[item]["max"], 0)
+#    qrts[item]["mean"] = np.delete(qrts[item]["mean"], 0)
+#
+#style = ["-", "-", "-", "-", "--"]
+#colors = ["#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"]
+#
+#i = 1
+#for item in qrts:
+#    n = 0
+#    plt.subplot(220 + i)
+#    for z in qrts[item]:
+#        plt.plot(
+#            qrts[item][z], color=colors[n], linewidth=1.8, label=z, linestyle=style[n]
+#        )
+#        n = n + 1
+#    plt.legend(fontsize=8)
+#    i = i + 1
