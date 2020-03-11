@@ -27,10 +27,11 @@ YMCA | 0.45 | 2013-09-25 to 2014-11-19 (420 Days)
 The script 'PVLoad.py' creates 2 pickle files with the data processed:
     
 - 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
-- 'PV_Normalised.pickle' - Which has normalised output by season in 48h rows combined for all sites with timestamps removed.
+- 'PV_Normalised.pickle' - Which has normalised output by season in rows of 48 half hours combined for all sites with timestamps removed.
 
 The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
 
 ### PV Data Visualisation
+
 ![Forest Road] (Data/DataExampleImages/Forest_Road.jpg)
 

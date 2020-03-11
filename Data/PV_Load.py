@@ -134,6 +134,7 @@ for item in NewDists:
     plt.figure(item)
     for i in NewDists[item].index:
         plt.plot(NewDists[item].iloc[i], linewidth=0.1)
+    plt.xlabel("Settlement Period (half hourly)")
     plt.ylabel("Output(fraction of capacity)")
     n = n + 1
 
