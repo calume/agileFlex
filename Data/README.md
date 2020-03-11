@@ -35,5 +35,8 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 Timeseries by Site
 
-![Forest Road](DataExampleImages/Forest_Road.jpg)
+![PV By Site](DataExampleImages/PV_BySite.jpg)
 
+Daily profile by Season (all sites)
+
+![PV By Site](DataExampleImages/PV_Seasonal.jpg)
