@@ -26,4 +26,4 @@ If you do not have the required python version install you will be prompted to i
 
 This will load the correct version of Python into your shell. From there you can run scripts using `python {script-name}.py`.
 
-![image] (https://raw.githubusercontent.com/calume/agileFlex/master/Data/DataExampleImages/Forest_Road.jpg)
+![image](https://raw.githubusercontent.com/calume/agileFlex/master/Data/DataExampleImages/Forest_Road.jpg)
