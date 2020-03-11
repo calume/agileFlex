@@ -36,8 +36,8 @@ YMCA	           | 0.45                     | 2013-09-25 to 2014-11-19 (420 Days)
 
 The script creates 2 pickle files with the data processed:
     
-'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
-'PV_Normalised.pickle' - Which has normalised output by season in 48h rows combined for all sites with timestamps removed.
+-'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
+-'PV_Normalised.pickle' - Which has normalised output by season in 48h rows combined for all sites with timestamps removed.
 
-!Forest Road (https://github.com/calume/agileFlex/blob/pvdata/Data/DataExampleImages/Forest_Road.png)
+![Forest Road] (https://github.com/calume/agileFlex/blob/pvdata/Data/DataExampleImages/Forest_Road.png)
 
