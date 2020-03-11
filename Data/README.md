@@ -24,10 +24,13 @@ Alverston Close | 3.00 | 2013-11-06 to 2014-11-14 (372 Days)
 Maple Drive East | 4.00 | 2013-08-21 to 2014-11-13 (448 Days)
 YMCA | 0.45 | 2013-09-25 to 2014-11-19 (420 Days)
 
-The script creates 2 pickle files with the data processed:
+The script 'PVLoad.py' creates 2 pickle files with the data processed:
     
 - 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
 - 'PV_Normalised.pickle' - Which has normalised output by season in 48h rows combined for all sites with timestamps removed.
 
+The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
+
+### PV Data Visualisation
 ![Forest Road] (/DataExampleImages/Forest_Road.png)
 
