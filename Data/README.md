@@ -33,4 +33,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 ### PV Data Visualisation
 
-![Forest Road] (https://raw.githubusercontent.com/calume/agileFlex/master/Data/DataExampleImages/Forest_Road.jpg)
+Timeseries by Site
+
+![Forest Road](Data/DataExampleImages/Forest_Road.jpg)
+
