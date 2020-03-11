@@ -32,6 +32,8 @@ Maple Drive East   | 4.00                     | 2013-08-21 to 2014-11-13 (448 Da
 YMCA	           | 0.45                     | 2013-09-25 to 2014-11-19 (420 Days)
 +------------------+--------------------------+-------------------------------------+
 
+~~~~~~~~~~~
+
 The script creates 2 pickle files with the data processed:
     
 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
