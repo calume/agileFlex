@@ -40,3 +40,9 @@ Timeseries by Site
 Daily profile by Season (all sites)
 
 ![PVSeason](PV_Seasonal.jpeg)
+
+Using the daily seasonal profiles above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
+
+The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability that would be used for choosing one of the mixtures for sampling)
+
+![PVSeason](PV_MixtureModels.jpeg)
