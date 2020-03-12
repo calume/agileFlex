@@ -15,11 +15,13 @@ import pandas as pd
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+
 pd.options.mode.chained_assignment = None
 from sklearn import mixture
 from PV_Load import PV_Visualisation
 
-#--------------------- Do the Multivariate bit --------------------
+# --------------------- Do the Multivariate bit --------------------
+
 
 def mixtures():
     Distkeys = ["WintDists", "SpringDists", "SummerDists", "AutumnDists"]
@@ -60,11 +62,11 @@ def mixtures():
         GMChosen[k][GMChosen[k] < 0.02] = 0
         GMWeights[k] = GMModels[k][nmix[k]].weights_
 
-    pickle_out = open("Pickle/PVDistsGMMChosen.pickle", "wb")  #means
+    pickle_out = open("Pickle/PVDistsGMMChosen.pickle", "wb")  # means
     pickle.dump(GMChosen, pickle_out)
     pickle_out.close()
 
-    pickle_out = open("Pickle/PVDistsGMMWeights.pickle", "wb") #weights
+    pickle_out = open("Pickle/PVDistsGMMWeights.pickle", "wb")  # weights
     pickle.dump(GMWeights, pickle_out)
     pickle_out.close()
 
@@ -116,11 +118,7 @@ def mix_Visualisation():
             linestyle="--",
         )
         plt.plot(
-            qrts[item]["max"], 
-            color="green", 
-            linewidth=0.5, 
-            label="max", 
-            linestyle="--"
+            qrts[item]["max"], color="green", linewidth=0.5, label="max", linestyle="--"
         )
         n = n + 1
         plt.legend(fontsize=8)

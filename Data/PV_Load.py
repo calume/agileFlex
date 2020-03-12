@@ -35,7 +35,7 @@ def PVLoad():
     # PVAll['P_GEN'] is the average kW output from the min and max hourly values
     # PVAll['P_GEN_Norm'] to contain P_Gen normalised by capacity
 
-    PVAll = pd.read_csv("HourlyPV.csv", index_col="datetime")
+    PVAll = pd.read_csv("Profiles/HourlyPV.csv", index_col="datetime")
     PVAll["P_GEN"] = (PVAll["P_GEN_MIN"] + PVAll["P_GEN_MAX"]) / 2
     PVAll["P_GEN_Norm"] = PVAll["P_GEN"]
     PVAll.index = pd.to_datetime(PVAll.index)
@@ -210,5 +210,5 @@ def PV_Visualisation():
 
 
 ## ----------to run the functions--------------
-#PVLoad()
-#PV_Visualisation()
+# PVLoad()
+# PV_Visualisation()
