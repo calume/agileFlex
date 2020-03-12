@@ -35,11 +35,11 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 Timeseries by Site
 
-![PVBySite](PV_BySite.jpeg)
+![PVBySite](Visualisation_JPGs/PV_BySite.jpeg)
 
 Daily profile by Season (all sites)
 
-![PVSeason](PV_Seasonal.jpeg)
+![PVSeason](Visualisation_JPGs/PV_Seasonal.jpeg)
 
 Using the daily seasonal profiles above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
 
