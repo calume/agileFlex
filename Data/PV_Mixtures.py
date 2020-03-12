@@ -116,7 +116,11 @@ def mix_Visualisation():
             linestyle="--",
         )
         plt.plot(
-            qrts[item]["max"], color="green", linewidth=0.5, label="max", linestyle="--"
+            qrts[item]["max"], 
+            color="green", 
+            linewidth=0.5, 
+            label="max", 
+            linestyle="--"
         )
         n = n + 1
         plt.legend(fontsize=8)

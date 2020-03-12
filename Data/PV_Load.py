@@ -179,12 +179,12 @@ def PV_Visualisation():
         qrts[item]["max"] = np.delete(qrts[item]["max"], 0)
         qrts[item]["mean"] = np.delete(qrts[item]["mean"], 0)
 
-    style = ["-", "-", "-", "-", "--"]
+    style = ["-", "-", "-", "--", "--"]
     colors = [
         "#d62728",
         "#9467bd",
         "#8c564b",
-        "#e377c2",
+        "black",
         "white",
         "#bcbd22",
         "#17becf",
@@ -198,7 +198,7 @@ def PV_Visualisation():
             plt.plot(
                 qrts[item][z],
                 color=colors[n],
-                linewidth=1.8,
+                linewidth=1.5,
                 label=z,
                 linestyle=style[n],
             )
