@@ -81,7 +81,7 @@ def SMData_load():
     pickle_out.close()
 
 
-SMData_load()
+#SMData_load()
 # ------------------------ DO stuff with the data -------------
 
 pickle_in = open("Pickle/SM_RawData.pickle", "rb")
@@ -96,7 +96,7 @@ SM_Summary = pd.DataFrame(
         "MaxDate",
         "Days",
         "PeakDemandkW",
-        "SumDemandkWh/Day",
+        "DemandkWh/Day",
         "AvDemandkW",
     ],
 )
@@ -110,5 +110,7 @@ for i in SM_Raw.keys():
     SM_Summary["MaxDate"][i] = SM_Raw[i].index.max()
     SM_Summary["Days"][i] = (SM_Raw[i].index.max() - SM_Raw[i].index.min()).days
     SM_Summary["PeakDemandkW"][i] = SM_Raw[i]["kW"].max()
-    SM_Summary["SumDemandkWh/Day"][i] = SM_Raw[i]["kWh"].sum() / SM_Summary["Days"][i]
+    SM_Summary["DemandkWh/Day"][i] = SM_Raw[i]["kWh"].sum() / SM_Summary["Days"][i]
     SM_Summary["AvDemandkW"][i] = SM_Raw[i]["kWh"].mean()
+
+#SM_Summary['PeakDemandkW'][SM_Summary['AcornGroup']=='Adversity'].mean()
