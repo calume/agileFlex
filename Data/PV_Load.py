@@ -185,7 +185,7 @@ def PV_Visualisation():
         "#9467bd",
         "#8c564b",
         "#e377c2",
-        "#7f7f7f",
+        "white",
         "#bcbd22",
         "#17becf",
     ]
@@ -209,6 +209,6 @@ def PV_Visualisation():
     return qrts
 
 
-# ----------to run the functions--------------
-PVLoad()
-PV_Visualisation()
+## ----------to run the functions--------------
+#PVLoad()
+#PV_Visualisation()

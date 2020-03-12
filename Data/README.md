@@ -45,4 +45,4 @@ Using the daily seasonal profiles above, Gaussian Mixture models can be fitted t
 
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability that would be used for choosing one of the mixtures for sampling)
 
-![PVSeason](PV_MixtureModels.jpeg)
+![PVSeason](Visualisation_JPGs/PV_MixtureModels.jpeg)

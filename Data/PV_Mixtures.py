@@ -2,21 +2,25 @@
 """
 Created on Wed Mar 11 17:00:40 2020
 
-This Script creates Gaussian Mixture Models of PV output for sampling
+This Script creates Gaussian Mixture Models (GMMs) of PV output for sampling
+
+The script outputs 2 pickle files which contains dictionaries of the GMMs
+'PVDistsGMMChosen.pickle' contains the means for each mixture
+'PVDistsGMMChosen.pickle' contains the weights for each mixture
+
 Created by Calum Edmunds
 
 """
 import pandas as pd
 import pickle
 import numpy as np
-import time
 import matplotlib.pyplot as plt
-
 pd.options.mode.chained_assignment = None
 from sklearn import mixture
 from PV_Load import PV_Visualisation
 
-################# Do the Multivariate bit ######################
+#--------------------- Do the Multivariate bit --------------------
+
 def mixtures():
     Distkeys = ["WintDists", "SpringDists", "SummerDists", "AutumnDists"]
     pickin = open("Pickle/PV_Normalised.pickle", "rb")
@@ -56,11 +60,11 @@ def mixtures():
         GMChosen[k][GMChosen[k] < 0.02] = 0
         GMWeights[k] = GMModels[k][nmix[k]].weights_
 
-    pickle_out = open("PVDistsGMMChosen.pickle", "wb")
+    pickle_out = open("Pickle/PVDistsGMMChosen.pickle", "wb")  #means
     pickle.dump(GMChosen, pickle_out)
     pickle_out.close()
 
-    pickle_out = open("PVDistsGMMWeights.pickle", "wb")
+    pickle_out = open("Pickle/PVDistsGMMWeights.pickle", "wb") #weights
     pickle.dump(GMWeights, pickle_out)
     pickle_out.close()
 
@@ -72,10 +76,10 @@ def mixtures():
 
 def mix_Visualisation():
     qrts = PV_Visualisation()  # This will also print the outputs from PV_Load
-    pickin = open("PVDistsGMMChosen.pickle", "rb")
+    pickin = open("Pickle/PVDistsGMMChosen.pickle", "rb")
     GMChosen = pickle.load(pickin)
 
-    pickin = open("PVDistsGMMWeights.pickle", "rb")
+    pickin = open("Pickle/PVDistsGMMWeights.pickle", "rb")
     GMWeights = pickle.load(pickin)
 
     plt.figure(3)
