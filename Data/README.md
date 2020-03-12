@@ -33,15 +33,19 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 ### PV Data Visualisation
 
-Timeseries by Site
+#### Timeseries by Site
 
 ![PVBySite](Visualisation_JPGs/PV_BySite.jpeg)
 
-Daily profile by Season (all sites)
+#### Daily profile by Season (all sites)
 
 ![PVSeason](Visualisation_JPGs/PV_Seasonal.jpeg)
 
+#### Gaussian Mixture Models
+
 Using the daily seasonal profiles above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
+
+The number of mixtures has been chosed by minimising the Aikaike Information Criterion, which leads to a large number of mixtures up to the limit of 60 chosen.
 
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability that would be used for choosing one of the mixtures for sampling)
 
