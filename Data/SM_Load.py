@@ -47,7 +47,7 @@ def SMData_load():
         names=["ID", "Tar", "Date", "kWh", "A", "Group"],
     )
     HS = {}
-    for i in range(2, 69):
+    for i in range(2, 364):
         if i < 10:
             s = "0" + str(i)
         else:
@@ -74,7 +74,7 @@ def SMData_load():
                 HS.pop(i)
     for i in HS.keys():
         HS[i]["kWh"] = HS[i]["kWh"].replace("Null", 0).astype(float)
-        HS[i].drop(columns=['Tar','Date','A'])
+        HS[i]=HS[i].drop(columns=['Tar','Date','A'])
 
     pickle_out = open("Pickle/SM_RawData.pickle", "wb")
     pickle.dump(HS, pickle_out)
