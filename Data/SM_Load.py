@@ -4,7 +4,7 @@ Created on Wed Nov  6 11:21:14 2019
 
 Script to process Smart Meter (SM) data for the AGILE Model
 The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households
-There is a data for 5,500 customers, The first 100 customers are chosen for sampling to keep data manageable size.
+There is a data for 5,500 customers, A random 368 customers are chosen for sampling to keep data manageable size.
 Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/
 Data is available for the Following Households and Data ranges:
 
@@ -22,119 +22,86 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime
-import matplotlib.dates as mdates
 import os
 
 # --------------------------- Create SM Data Pickle -------------------
-# This function takes in the raw smart meter data and dumps in a pickle file
-# Each dataframe in the dictionary is a smart meter
 
 
-def SMData_load():
-    H = pd.read_csv(
-        "Profiles/Power-Networks-LCL-June2015(withAcornGps)v2_1.csv",
-        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
-    )
-    H2 = pd.read_csv(
-        "Profiles/Power-Networks-LCL-June2015(withAcornGps)v2_2.csv",
-        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
-    )
-    H3 = pd.read_csv(
-        "Profiles/Power-Networks-LCL-June2015(withAcornGps)v2_10.csv",
-        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
-    )
-    H4 = pd.read_csv(
-        "Profiles/Power-Networks-LCL-June2015(withAcornGps)v2_11.csv",
-        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
-    )
-    HS = {}
-    for i in range(2, 364):
-        if i < 10:
-            s = "0" + str(i)
-        else:
-            s = i
-        if i <= 35:
-            HS[i] = H[H["ID"] == "MAC0000" + str(s)]
-            HS[i].index = pd.to_datetime(HS[i]["Date"], format="%Y/%m/%d %H:%M:%S")
-            if len(HS[i]) == 0:
-                HS.pop(i)
-        if i >= 36 and i <= 69:
-            HS[i] = H2[H2["ID"] == "MAC0000" + str(s)]
-            HS[i].index = pd.to_datetime(HS[i]["Date"], format="%Y/%m/%d %H:%M:%S")
-            if len(HS[i]) == 0:
-                HS.pop(i)
-        if i >= 295 and i <= 326:
-            HS[i] = H3[H3["ID"] == "MAC000" + str(s)]
-            HS[i].index = pd.to_datetime(HS[i]["Date"], format="%Y/%m/%d %H:%M:%S")
-            if len(HS[i]) == 0:
-                HS.pop(i)
-        if i >= 326 and i <= 363:
-            HS[i] = H4[H4["ID"] == "MAC000" + str(s)]
-            HS[i].index = pd.to_datetime(HS[i]["Date"], format="%Y/%m/%d %H:%M:%S")
-            if len(HS[i]) == 0:
-                HS.pop(i)
-    for i in HS.keys():
-        HS[i]["kWh"] = HS[i]["kWh"].replace("Null", 0).astype(float)
-        HS[i]=HS[i].drop(columns=['Tar','Date','A'])
+startdate =  datetime.date(2011,12,6)
+enddate   =  datetime.date(2014,3,1)
+delta = datetime.timedelta(hours=0.5)
 
-    pickle_out = open("Pickle/SM_RawData.pickle", "wb")
-    pickle.dump(HS, pickle_out)
-    pickle_out.close()
+dt = pd.date_range(startdate, enddate, freq=delta)
 
-
-#SMData_load()
-# ------------------------ DO stuff with the data -------------
-def stuff():
-    pickle_in = open("Pickle/SM_RawData.pickle", "rb")
-    SM_Raw = pickle.load(pickle_in)
+#Get list of Smart Meter IDs that are to be stored
+def SmartIDs():
+    path="Profiles/SM"
+    IDs=[]
+    for f in os.listdir(path):
+        SM_RawFile = pd.read_csv(path+"/"+f,
+                        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
+                        skiprows=1,
+            )
     
-    i = 2
+        print(f)
+        for i in SM_RawFile["ID"].unique():
+            IDs.append(i[-3:])
+    return IDs
+
+IDs=SmartIDs()
+
+#This function takes in the raw smart meter data and dumps in a pickle file
+#Condenses all timeseries into single dataframe
+
+def SMCondensed():
     SM_Summary = pd.DataFrame(
-        index=SM_Raw.keys(),
+        index=IDs,
         columns=[
             "AcornGroup",
             "MinDate",
             "MaxDate",
             "Days",
+            "Tariff",
             "PeakDemandkW",
             "DemandkWh/Day",
             "AvDemandkW",
-        ],
-    )
+        ])
     
-    for i in SM_Raw.keys():
-        SM_Raw[i]["kW"] = (
-            SM_Raw[i]["kWh"].replace("Null", 0).astype(float) * 2
-        )  # Convert kWh to kW
-        SM_Summary["AcornGroup"][i] = SM_Raw[i]["Group"][0]
-        SM_Summary["MinDate"][i] = SM_Raw[i].index.min()
-        SM_Summary["MaxDate"][i] = SM_Raw[i].index.max()
-        SM_Summary["Days"][i] = (SM_Raw[i].index.max() - SM_Raw[i].index.min()).days
-        SM_Summary["PeakDemandkW"][i] = SM_Raw[i]["kW"].max()
-        SM_Summary["DemandkWh/Day"][i] = SM_Raw[i]["kWh"].sum() / SM_Summary["Days"][i]
-        SM_Summary["AvDemandkW"][i] = SM_Raw[i]["kWh"].mean()
-    return SM_Summary
-    #SM_Summary['PeakDemandkW'][SM_Summary['AcornGroup']=='Adversity'].mean()
+    SM_DataFrame=pd.DataFrame(index=dt)
+    path="Profiles/SM"
+    
+    for f in os.listdir(path):
+        SM_RawFile = pd.read_csv(path+"/"+f,
+                        names=["ID", "Tar", "Date", "kWh", "A", "Group"],
+                        skiprows=1,
+            )
+    
+        print(f)
+        for i in SM_RawFile["ID"].unique():
+            SM_Individual = SM_RawFile[SM_RawFile["ID"] == i]
+            SM_Individual['Date'] = pd.to_datetime(SM_Individual["Date"], format="%Y/%m/%d %H:%M:%S")
+            z=i[-3:]
+            print(i)
+            SM_Summary["AcornGroup"][z] = SM_Individual["Group"].iloc[0]
+            SM_Summary["MinDate"][z] = SM_Individual['Date'].min()
+            SM_Summary["MaxDate"][z] = SM_Individual['Date'].max()
+            SM_Summary["Days"][z] = (SM_Individual['Date'].max() - SM_Individual['Date'].min()).days
+            SM_Summary["Tariff"][z] = SM_Individual["Tar"].unique()
+            SM_Individual['kWh']=SM_Individual['kWh'].replace("Null", 0).astype(float) * 2
+            SM_Summary["PeakDemandkW"][z] = SM_Individual["kWh"].max()*2
+            SM_Summary["DemandkWh/Day"][z] = SM_Individual["kWh"].sum() / SM_Summary["Days"][z]
+            SM_Summary["AvDemandkW"][z] = SM_Individual["kWh"].mean()
+            if len(SM_Individual) > 0:
+                SM_Stripped=SM_Individual['kWh'].replace("Null", 0).astype(float) * 2
+                SM_Stripped.index=pd.to_datetime(SM_Individual["Date"], format="%Y/%m/%d %H:%M:%S")
+                SM_Stripped.name=i[-3:]
+                SM_Stripped=SM_Stripped[~SM_Stripped.index.duplicated()]
+                SM_DataFrame=pd.concat([SM_DataFrame, SM_Stripped],axis=1,join='outer',sort=False)
 
-#-------------------Much better way of storing the data------------------
-startdate =  datetime.date(2011,12,6)
-enddate   =  datetime.date(2014,2,28)
-delta = datetime.timedelta(hours=0.5)
-
-dt = pd.date_range(startdate, enddate, freq=delta)
-
-NewDF=pd.DataFrame(index=dt)
-path="Profiles/SM"
-for f in os.listdir(path):
-    H = pd.read_csv(path+"/"+f,
-                    names=["ID", "Tar", "Date", "kWh", "A", "Group"],
-                    skiprows=1,
-        )
-    for i in H["ID"].unique():
-        H = H[H["ID"] == i]
-        print(i)
-        print(len(H))
-        if len(H) > 0:          
-            SM=H['kWh'].replace("Null", 0).astype(float) * 2
-            SM.index=pd.to_datetime(H["Date"], format="%Y/%m/%d %H:%M:%S")
-            NewDF=pd.merge(NewDF, SM,how='outer',right_index=True,left_index=True)
+    pickle_out = open("Pickle/SM_DataFrame.pickle", "wb")
+    pickle.dump(SM_DataFrame, pickle_out)
+    pickle_out.close()
+    
+    pickle_out = open("Pickle/SM_Summary.pickle", "wb")
+    pickle.dump(SM_Summary, pickle_out)
+    pickle_out.close()
