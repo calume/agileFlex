@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime
 import matplotlib.dates as mdates
+import os
 
 # --------------------------- Create SM Data Pickle -------------------
 # This function takes in the raw smart meter data and dumps in a pickle file
@@ -83,34 +84,57 @@ def SMData_load():
 
 #SMData_load()
 # ------------------------ DO stuff with the data -------------
+def stuff():
+    pickle_in = open("Pickle/SM_RawData.pickle", "rb")
+    SM_Raw = pickle.load(pickle_in)
+    
+    i = 2
+    SM_Summary = pd.DataFrame(
+        index=SM_Raw.keys(),
+        columns=[
+            "AcornGroup",
+            "MinDate",
+            "MaxDate",
+            "Days",
+            "PeakDemandkW",
+            "DemandkWh/Day",
+            "AvDemandkW",
+        ],
+    )
+    
+    for i in SM_Raw.keys():
+        SM_Raw[i]["kW"] = (
+            SM_Raw[i]["kWh"].replace("Null", 0).astype(float) * 2
+        )  # Convert kWh to kW
+        SM_Summary["AcornGroup"][i] = SM_Raw[i]["Group"][0]
+        SM_Summary["MinDate"][i] = SM_Raw[i].index.min()
+        SM_Summary["MaxDate"][i] = SM_Raw[i].index.max()
+        SM_Summary["Days"][i] = (SM_Raw[i].index.max() - SM_Raw[i].index.min()).days
+        SM_Summary["PeakDemandkW"][i] = SM_Raw[i]["kW"].max()
+        SM_Summary["DemandkWh/Day"][i] = SM_Raw[i]["kWh"].sum() / SM_Summary["Days"][i]
+        SM_Summary["AvDemandkW"][i] = SM_Raw[i]["kWh"].mean()
+    return SM_Summary
+    #SM_Summary['PeakDemandkW'][SM_Summary['AcornGroup']=='Adversity'].mean()
 
-pickle_in = open("Pickle/SM_RawData.pickle", "rb")
-SM_Raw = pickle.load(pickle_in)
+#-------------------Much better way of storing the data------------------
+startdate =  datetime.date(2011,12,6)
+enddate   =  datetime.date(2014,2,28)
+delta = datetime.timedelta(hours=0.5)
 
-i = 2
-SM_Summary = pd.DataFrame(
-    index=SM_Raw.keys(),
-    columns=[
-        "AcornGroup",
-        "MinDate",
-        "MaxDate",
-        "Days",
-        "PeakDemandkW",
-        "DemandkWh/Day",
-        "AvDemandkW",
-    ],
-)
+dt = pd.date_range(startdate, enddate, freq=delta)
 
-for i in SM_Raw.keys():
-    SM_Raw[i]["kW"] = (
-        SM_Raw[i]["kWh"].replace("Null", 0).astype(float) * 2
-    )  # Convert kWh to kW
-    SM_Summary["AcornGroup"][i] = SM_Raw[i]["Group"][0]
-    SM_Summary["MinDate"][i] = SM_Raw[i].index.min()
-    SM_Summary["MaxDate"][i] = SM_Raw[i].index.max()
-    SM_Summary["Days"][i] = (SM_Raw[i].index.max() - SM_Raw[i].index.min()).days
-    SM_Summary["PeakDemandkW"][i] = SM_Raw[i]["kW"].max()
-    SM_Summary["DemandkWh/Day"][i] = SM_Raw[i]["kWh"].sum() / SM_Summary["Days"][i]
-    SM_Summary["AvDemandkW"][i] = SM_Raw[i]["kWh"].mean()
-
-#SM_Summary['PeakDemandkW'][SM_Summary['AcornGroup']=='Adversity'].mean()
+NewDF=pd.DataFrame(index=dt)
+path="Profiles/SM"
+for f in os.listdir(path):
+    H = pd.read_csv(path+"/"+f,
+                    names=["ID", "Tar", "Date", "kWh", "A", "Group"],
+                    skiprows=1,
+        )
+    for i in H["ID"].unique():
+        H = H[H["ID"] == i]
+        print(i)
+        print(len(H))
+        if len(H) > 0:          
+            SM=H['kWh'].replace("Null", 0).astype(float) * 2
+            SM.index=pd.to_datetime(H["Date"], format="%Y/%m/%d %H:%M:%S")
+            NewDF=pd.merge(NewDF, SM,how='outer',right_index=True,left_index=True)
