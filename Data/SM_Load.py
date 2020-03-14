@@ -5,10 +5,24 @@ Created on Wed Nov  6 11:21:14 2019
 Script to process Smart Meter (SM) data for the AGILE Model
 The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households
 There is a data for 5,500 customers, A random 368 customers are chosen for sampling to keep data manageable size.
+From Files:
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+-Power-Networks-LCL-June2015(withAcornGps)v2_1
+
 Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/
-Data is available for the Following Households and Data ranges:
+Data is available for the Following 368 Households, by Acorn Group:
 
+Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW) | Average Daily Demand (kWh/day) | Average demand (kW)
+----------------------------------
+Adversity | 106 | 689 | 8.6 | 16.8 | 0.35
+Comfortable | 97 | 668 | 8.7 | 18.7    0.39
+Affluent | 163 | 668| 10.7 | 24.6 | 0.5
 
+      
 The script creates 2 pickle files with the data processed:
     
 "SM_RawData.pickle" - Smart meter raw data for 115 Smart meters (subset of the 5,500 LCL customers)
@@ -20,7 +34,6 @@ import pandas as pd
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import datetime
 import os
 
@@ -45,15 +58,14 @@ def SmartIDs():
     
         print(f)
         for i in SM_RawFile["ID"].unique():
-            IDs.append(i[-3:])
+            IDs.append(i[-4:])
     return IDs
-
-IDs=SmartIDs()
 
 #This function takes in the raw smart meter data and dumps in a pickle file
 #Condenses all timeseries into single dataframe
 
 def SMCondensed():
+    IDs=SmartIDs()
     SM_Summary = pd.DataFrame(
         index=IDs,
         columns=[
@@ -80,7 +92,7 @@ def SMCondensed():
         for i in SM_RawFile["ID"].unique():
             SM_Individual = SM_RawFile[SM_RawFile["ID"] == i]
             SM_Individual['Date'] = pd.to_datetime(SM_Individual["Date"], format="%Y/%m/%d %H:%M:%S")
-            z=i[-3:]
+            z=i[-4:]
             print(i)
             SM_Summary["AcornGroup"][z] = SM_Individual["Group"].iloc[0]
             SM_Summary["MinDate"][z] = SM_Individual['Date'].min()
@@ -94,10 +106,15 @@ def SMCondensed():
             if len(SM_Individual) > 0:
                 SM_Stripped=SM_Individual['kWh'].replace("Null", 0).astype(float) * 2
                 SM_Stripped.index=pd.to_datetime(SM_Individual["Date"], format="%Y/%m/%d %H:%M:%S")
-                SM_Stripped.name=i[-3:]
+                SM_Stripped.name=i[-4:]
                 SM_Stripped=SM_Stripped[~SM_Stripped.index.duplicated()]
                 SM_DataFrame=pd.concat([SM_DataFrame, SM_Stripped],axis=1,join='outer',sort=False)
-
+    SM_Summary[['PeakDemandkW','DemandkWh/Day','Days','AvDemandkW']]=SM_Summary[['PeakDemandkW','DemandkWh/Day','Days','AvDemandkW']].astype(float)
+    
+    SM_DataFrame.columns=SM_DataFrame.columns.astype(int)
+    SM_DataFrame=SM_DataFrame.sort_index(axis=1)
+    SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
+    
     pickle_out = open("Pickle/SM_DataFrame.pickle", "wb")
     pickle.dump(SM_DataFrame, pickle_out)
     pickle_out.close()
@@ -105,3 +122,73 @@ def SMCondensed():
     pickle_out = open("Pickle/SM_Summary.pickle", "wb")
     pickle.dump(SM_Summary, pickle_out)
     pickle_out.close()
+
+
+###----------------------------- Data Visualisation ------------------------
+#    
+def Consolidate():
+    pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
+    SM_DataFrame = pickle.load(pick_in)
+    
+    pick_in = open("Pickle/SM_Summary.pickle", "rb")
+    SM_Summary = pickle.load(pick_in)
+    
+    SM_ByAcorn={}
+    AcornGroup=['Adversity','Comfortable','Affluent']
+    smkeys=['WinterWknd', 'WinterWkd','SpringWknd','SpringWkd','SummerWknd','SummerWkd','AutumnWknd','AutumnWkd']
+    NewDists = {}
+    
+    for i in AcornGroup:
+        SM_ByAcorn[i]={}
+        Acorn_Cols=list(SM_Summary['AcornGroup'][SM_Summary['AcornGroup']==i].index)
+        Acorn_Cols=sorted(list(map(int,Acorn_Cols)))
+        Locs=[]
+        for z in Acorn_Cols:
+            Locs.append(SM_DataFrame.columns.get_loc(z))
+        print(len(Acorn_Cols))
+        Winter=SM_DataFrame.iloc[:,Locs][(SM_DataFrame.index.month==12) | (SM_DataFrame.index.month<=2)]    #Dec-Feb
+        Spring=SM_DataFrame.iloc[:,Locs][(SM_DataFrame.index.month>=3) & (SM_DataFrame.index.month<=5)]    #Mar-May
+        Summer=SM_DataFrame.iloc[:,Locs][(SM_DataFrame.index.month>=6) & (SM_DataFrame.index.month<=8)]    #Jun-Aug
+        Autumn=SM_DataFrame.iloc[:,Locs][(SM_DataFrame.index.month>=9) & (SM_DataFrame.index.month<=11)]    #Sept-Nov
+        print(len(Winter.columns))
+        ### Wkday/Wkend########
+        
+        SM_ByAcorn[i]['WinterWknd']=Winter[(Winter.index.weekday>=5) & (Winter.index.weekday<=6)]
+        SM_ByAcorn[i]['WinterWkd']=Winter[(Winter.index.weekday>=0) & (Winter.index.weekday<=4)]
+        SM_ByAcorn[i]['SpringWknd']=Spring[(Spring.index.weekday>=5) & (Spring.index.weekday<=6)]
+        SM_ByAcorn[i]['SpringWkd']=Spring[(Spring.index.weekday>=0) & (Spring.index.weekday<=4)]
+        
+        SM_ByAcorn[i]['SummerWknd']=Summer[(Summer.index.weekday>=5) & (Summer.index.weekday<=6)]
+        SM_ByAcorn[i]['SummerWkd']=Summer[(Summer.index.weekday>=0) & (Summer.index.weekday<=4)]
+        
+        SM_ByAcorn[i]['AutumnWknd']=Autumn[(Autumn.index.weekday>=5) & (Autumn.index.weekday<=6)]
+        SM_ByAcorn[i]['AutumnWkd']=Autumn[(Autumn.index.weekday>=0) & (Autumn.index.weekday<=4)]
+    
+    #-------- Converting the data from a single column to rows of 48 hours of Data
+    #'Newdists' contains seasonal normalised output for all sites combined
+        NewDists[i]={}
+        for z in range(0, len(smkeys)):
+            SM_ByAcorn[i][smkeys[z]]=SM_ByAcorn[i][smkeys[z]].loc[:,~SM_ByAcorn[i][smkeys[z]].columns.duplicated()]
+            SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
+            n=0
+            print(z)
+            NewDists[i][smkeys[z]]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
+            for c in SM_ByAcorn[i][smkeys[z]]:
+                print(c)
+                for d in range(0, int(len(SM_ByAcorn[i][smkeys[z]])/48)):
+                    NewDists[i][smkeys[z]].iloc[n] = SM_ByAcorn[i][smkeys[z]][c].iloc[48*d:48*d+48].values.astype(float)
+                    n=n+1
+            NewDists[i][smkeys[z]] = NewDists[i][smkeys[z]][NewDists[i][smkeys[z]].sum(axis=1) > 0]
+            NewDists[i][smkeys[z]].reset_index(drop=True, inplace=True)
+    
+        pickle_out = open("Pickle/SM_Normalised.pickle", "wb")
+        pickle.dump(NewDists, pickle_out)
+        pickle_out.close()
+    
+
+pick_in = open("Pickle/SM_Normalised.pickle", "rb")
+SM_Normalised = pickle.load(pick_in)
+
+plt.plot(SM_Normalised['Adversity']['AutumnWknd'].mean())
+plt.plot(SM_Normalised['Affluent']['AutumnWknd'].mean())
+plt.plot(SM_Normalised['Comfortable']['AutumnWknd'].mean())

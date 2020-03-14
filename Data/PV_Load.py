@@ -80,11 +80,6 @@ def PVLoad():
     PVS["SummerDists"] = PV[(PV.index.month >= 6) & (PV.index.month <= 8)]  # Jun-Aug
     PVS["AutumnDists"] = PV[(PV.index.month >= 9) & (PV.index.month <= 11)]  # Sept-Nov
 
-    PVS["WintDists"] = PV[(PV.index.month == 12) | (PV.index.month <= 2)]  # Dec-Feb
-    PVS["SpringDists"] = PV[(PV.index.month >= 3) & (PV.index.month <= 5)]  # Mar-May
-    PVS["SummerDists"] = PV[(PV.index.month >= 6) & (PV.index.month <= 8)]  # Jun-Aug
-    PVS["AutumnDists"] = PV[(PV.index.month >= 9) & (PV.index.month <= 11)]
-
     # Converting the data from a single column to rows of 48 hours of Data
     #'Newdists' contains seasonal normalised output for all sites combined
     Dists = {}
