@@ -178,27 +178,50 @@ def Consolidate(smkeys):
         SM_ByAcorn[i]['AutumnWknd']=Autumn[(Autumn.index.weekday>=5) & (Autumn.index.weekday<=6)]
         SM_ByAcorn[i]['AutumnWkd']=Autumn[(Autumn.index.weekday>=0) & (Autumn.index.weekday<=4)]
     
-    #-------- Converting the data from a single column to rows of 48 hours of Data
-    #'Newdists' contains seasonal normalised output for all sites combined
-        NewDists[i]={}
-        for z in range(0, len(smkeys)):
-            SM_ByAcorn[i][smkeys[z]]=SM_ByAcorn[i][smkeys[z]].loc[:,~SM_ByAcorn[i][smkeys[z]].columns.duplicated()]
-            SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
+#    #-------- Converting the data from a single column to rows of 48 hours of Data
+#    #'Newdists' contains seasonal normalised output for all sites combined
+#        NewDists[i]={}
+#        for z in range(0, len(smkeys)):
+#            SM_ByAcorn[i][smkeys[z]]=SM_ByAcorn[i][smkeys[z]].loc[:,~SM_ByAcorn[i][smkeys[z]].columns.duplicated()]
+#            SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
+#            n=0
+#            print(z)
+#            NewDists[i][smkeys[z]]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
+#            for c in SM_ByAcorn[i][smkeys[z]]:
+#                print(c)
+#                for d in range(0, int(len(SM_ByAcorn[i][smkeys[z]])/48)):
+#                    NewDists[i][smkeys[z]].iloc[n] = SM_ByAcorn[i][smkeys[z]][c].iloc[48*d:48*d+48].values.astype(float)
+#                    n=n+1
+#            NewDists[i][smkeys[z]] = NewDists[i][smkeys[z]][NewDists[i][smkeys[z]].sum(axis=1) > 0]
+#            NewDists[i][smkeys[z]].reset_index(drop=True, inplace=True)
+#    
+#        pickle_out = open("Pickle/SM_Normalised.pickle", "wb")
+#        pickle.dump(NewDists, pickle_out)
+#        pickle_out.close()
+        return SM_ByAcorn
+
+#Do profiles by Smartmeter by Acorn and Season
+AcornGroup=['Adversity','Comfortable','Affluent']
+SMDistsByAcorn= {}
+for i in AcornGroup:
+    SMDistsByAcorn[i]= {}
+    for z in smkeys:
+        SM_Acorn[i][z]=SM_Acorn[i][z].loc[:,~SM_Acorn[i][z].columns.duplicated()]
+        print(z)
+        SMDistsByAcorn[i][z]={}
+        for c in SM_Acorn[i][z]:
             n=0
-            print(z)
-            NewDists[i][smkeys[z]]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
-            for c in SM_ByAcorn[i][smkeys[z]]:
-                print(c)
-                for d in range(0, int(len(SM_ByAcorn[i][smkeys[z]])/48)):
-                    NewDists[i][smkeys[z]].iloc[n] = SM_ByAcorn[i][smkeys[z]][c].iloc[48*d:48*d+48].values.astype(float)
-                    n=n+1
-            NewDists[i][smkeys[z]] = NewDists[i][smkeys[z]][NewDists[i][smkeys[z]].sum(axis=1) > 0]
-            NewDists[i][smkeys[z]].reset_index(drop=True, inplace=True)
-    
-        pickle_out = open("Pickle/SM_Normalised.pickle", "wb")
-        pickle.dump(NewDists, pickle_out)
-        pickle_out.close()
-    
+            print(c)
+            SMDistsByAcorn[i][z][c]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
+            for d in range(0, int(len(SM_Acorn[i][z][c])/48)):
+                SMDistsByAcorn[i][z][c].iloc[n] = SM_Acorn[i][z][c].iloc[48*d:48*d+48].values.astype(float)
+                n=n+1
+            SMDistsByAcorn[i][z][c] = SMDistsByAcorn[i][z][c][SMDistsByAcorn[i][z][c].sum(axis=1) > 0]
+            SMDistsByAcorn[i][z][c].reset_index(drop=True, inplace=True)
+pickle_out = open("Pickle/SM_DailyByAcorn.pickle", "wb")
+pickle.dump(SMDistsByAcorn, pickle_out)
+pickle_out.close()
+
 #------------------- Data Visualisation -----------------------------#
 def SM_Visualise(smkeys):
     pick_in = open("Pickle/SM_Normalised.pickle", "rb")
@@ -231,9 +254,15 @@ def SM_Visualise(smkeys):
         n = n + 1
         plt.xticks(range(0,47,8),times)
 #SM_Visualise(smkeys)
-        
+
+#SM_Acorn=Consolidate(smkeys)
+
 #---------- Removing heating loads
-pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
-SM_DataFrame = pickle.load(pick_in)
-Heaters=(SM_DataFrame[SM_DataFrame.index.hour==0]>4).sum()>1
-Heaters=Heaters[Heaters]
+#pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
+#SM_DataFrame = pickle.load(pick_in)
+#Heaters=(SM_DataFrame[SM_DataFrame.index.hour==0]>4).sum()>1
+#Heaters=Heaters[Heaters]
+        
+#for i in SMDistsByAcorn['Affluent']['WinterWkd'][358].index:
+#   plt.plot(SMDistsByAcorn['Affluent']['WinterWkd'][358].loc[i], linewidth=0.1)
+    

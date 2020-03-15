@@ -47,13 +47,13 @@ Using the daily seasonal profiles above, Gaussian Mixture models can be fitted t
 
 The number of mixtures has been chosed by minimising the Aikaike Information Criterion, which leads to a large number of mixtures up to the limit of 60 chosen.
 
-The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability that would be used for choosing one of the mixtures for sampling)
+The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling)
 
 ![PVSeason](Visualisation_JPGs/PV_MixtureModels.jpeg)
 
-# Smart Meter
+## Smart Meter
 
-The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households .
+The London DataStore (or Low Carbon London (LCL)) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households .
 
 There is a data for 5,500 customers, a random 187 customers are chosen for sampling to keep data manageable size.
 From Files:
