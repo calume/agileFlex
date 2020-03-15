@@ -229,4 +229,5 @@ def SM_Visualise(smkeys):
             plt.ylabel(Seasons[r], rotation=15, fontsize=9, fontweight="bold")
             r=r+1
         n = n + 1
-        plt.xticks(range(0,56,8),times)
+        plt.xticks(range(0,47,8),times)
+SM_Visualise(smkeys)
