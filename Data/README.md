@@ -50,3 +50,40 @@ The number of mixtures has been chosed by minimising the Aikaike Information Cri
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability that would be used for choosing one of the mixtures for sampling)
 
 ![PVSeason](Visualisation_JPGs/PV_MixtureModels.jpeg)
+
+#Smart Meter
+
+The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households
+There is a data for 5,500 customers, A random 187 customers are chosen for sampling to keep data manageable size.
+From Files:
+-'Power-Networks-LCL-June2015(withAcornGps)v2_1.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_2.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_10.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_11.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_100.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_101.csv'
+
+Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/
+Data is available for the Following 187 Households, by Acorn Group:
+
+Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW)| Average Daily Demand (kWh/day) | Average demand (kW)
+-----------|-------------------|--------------------------------|------------------|-------------------------------|--------------------
+Adversity | 55 | 662 | 7.75 | 15.99 | 0.33
+Comfortable | 46 | 655 | 9.24 | 19.24 | 0.40
+Affluent | 86 | 676 | 11.17 | 25.59 | 0.53
+
+The script creates 3 pickle files with the data processed:
+    
+- "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
+
+- "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
+
+- "SM_Normalised.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group
+
+### SM Data Visualisation
+
+#### Seasonal Mean Demand by Acorn Group
+
+The daily mean demand (kW) profiles for the subset of 187 househoulds, categorised by Season, weekend/Weekday and AcornGroup is shown below:
+
+![PVSeason](Visualisation_JPGs/SM_Consolidated.png)

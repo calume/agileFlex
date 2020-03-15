@@ -4,28 +4,31 @@ Created on Wed Nov  6 11:21:14 2019
 
 Script to process Smart Meter (SM) data for the AGILE Model
 The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households
-There is a data for 5,500 customers, A random 368 customers are chosen for sampling to keep data manageable size.
+There is a data for 5,500 customers, A random 187 customers are chosen for sampling to keep data manageable size.
 From Files:
--Power-Networks-LCL-June2015(withAcornGps)v2_1
--Power-Networks-LCL-June2015(withAcornGps)v2_1
--Power-Networks-LCL-June2015(withAcornGps)v2_1
--Power-Networks-LCL-June2015(withAcornGps)v2_1
--Power-Networks-LCL-June2015(withAcornGps)v2_1
--Power-Networks-LCL-June2015(withAcornGps)v2_1
+-'Power-Networks-LCL-June2015(withAcornGps)v2_1.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_2.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_10.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_11.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_100.csv'
+-'Power-Networks-LCL-June2015(withAcornGps)v2_101.csv'
 
 Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/
-Data is available for the Following 368 Households, by Acorn Group:
+Data is available for the Following 187 Households, by Acorn Group:
 
 Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW) | Average Daily Demand (kWh/day) | Average demand (kW)
 ----------------------------------
-Adversity | 106 | 689 | 8.6 | 16.8 | 0.35
-Comfortable | 97 | 668 | 8.7 | 18.7    0.39
-Affluent | 163 | 668| 10.7 | 24.6 | 0.5
+Adversity | 55 | 662 | 7.75 |   15.99 | 0.33
+Comfortable | 46 | 655 | 9.24 |   19.24 | 0.40
+Affluent | 86 | 676 | 11.17 |   25.59 | 0.53
 
-      
-The script creates 2 pickle files with the data processed:
+The script creates 3 pickle files with the data processed:
     
-"SM_RawData.pickle" - Smart meter raw data for 115 Smart meters (subset of the 5,500 LCL customers)
+- "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
+
+- "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
+
+- "SM_Normalised.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group
 
 @author: Calum Edmunds
 """
@@ -122,11 +125,23 @@ def SMCondensed():
     pickle_out = open("Pickle/SM_Summary.pickle", "wb")
     pickle.dump(SM_Summary, pickle_out)
     pickle_out.close()
+    
+    
+###SMCondensed()
 
+def generate_summaryData():
+    pickle_in = open("Pickle/SM_Summary.pickle", "rb")
+    SM_Summary = pickle.load(pickle_in)
+    
+    print(round(SM_Summary.groupby(['AcornGroup']).mean(),2))
+    for i in SM_Summary['AcornGroup'].unique():
+        print(i)
+        print(sum(SM_Summary['AcornGroup']==i))
 
-###----------------------------- Data Visualisation ------------------------
-#    
-def Consolidate():
+###----------------------------- Converting to Daily Profiles ------------------------
+#
+smkeys=['WinterWknd', 'WinterWkd','SpringWknd','SpringWkd','SummerWknd','SummerWkd','AutumnWknd','AutumnWkd']
+def Consolidate(smkeys):
     pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
     SM_DataFrame = pickle.load(pick_in)
     
@@ -135,7 +150,6 @@ def Consolidate():
     
     SM_ByAcorn={}
     AcornGroup=['Adversity','Comfortable','Affluent']
-    smkeys=['WinterWknd', 'WinterWkd','SpringWknd','SpringWkd','SummerWknd','SummerWkd','AutumnWknd','AutumnWkd']
     NewDists = {}
     
     for i in AcornGroup:
@@ -185,10 +199,34 @@ def Consolidate():
         pickle.dump(NewDists, pickle_out)
         pickle_out.close()
     
-
-pick_in = open("Pickle/SM_Normalised.pickle", "rb")
-SM_Normalised = pickle.load(pick_in)
-
-plt.plot(SM_Normalised['Adversity']['AutumnWknd'].mean())
-plt.plot(SM_Normalised['Affluent']['AutumnWknd'].mean())
-plt.plot(SM_Normalised['Comfortable']['AutumnWknd'].mean())
+#------------------- Data Visualisation -----------------------------#
+def SM_Visualise(smkeys):
+    pick_in = open("Pickle/SM_Normalised.pickle", "rb")
+    SM_Normalised = pickle.load(pick_in)
+    plt.figure(1)
+    times = ['00:00','04:00','08:00','12:00','16:00','20:00','24:00']
+    Seasons = ["Winter", "Spring", "Summer", "Autumn"]
+    n=1
+    r=0
+    for item in smkeys:
+        plt.subplot(420 + n)
+        
+        plt.plot(SM_Normalised['Affluent'][item].mean(),color='#33FF92', label="Affluent")
+        plt.plot(SM_Normalised['Comfortable'][item].mean(),color='#17becf', label="Comfortable")
+        plt.plot(SM_Normalised['Adversity'][item].mean(),color='#FA8072', label="Adversity")
+        plt.xlabel("Settlement Period (half hourly)", fontsize=8)
+        #plt.ylabel("Demand (kW)", fontsize=8)
+        plt.xlim([0,47])
+        plt.ylim([0,2])
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        if n==1:
+            plt.legend(fontsize=8)
+            plt.title('Weekend (Sat-Sun)', fontsize=9, fontweight="bold")
+        if n==2:
+            plt.title('Week Day (Mon-Fri)', fontsize=9, fontweight="bold")
+        if n%2==1:
+            plt.ylabel(Seasons[r], rotation=15, fontsize=9, fontweight="bold")
+            r=r+1
+        n = n + 1
+        plt.xticks(range(0,56,8),times)
