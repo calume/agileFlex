@@ -51,20 +51,20 @@ The means of the seasonal Gaussian mixture models can be seen below. The line we
 
 ![PVSeason](Visualisation_JPGs/PV_MixtureModels.jpeg)
 
-#Smart Meter
+# Smart Meter
 
 The London DataStore (or Low Carbon London (LCL) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households
 There is a data for 5,500 customers, A random 187 customers are chosen for sampling to keep data manageable size.
 From Files:
--'Power-Networks-LCL-June2015(withAcornGps)v2_1.csv'
--'Power-Networks-LCL-June2015(withAcornGps)v2_2.csv'
--'Power-Networks-LCL-June2015(withAcornGps)v2_10.csv'
--'Power-Networks-LCL-June2015(withAcornGps)v2_11.csv'
--'Power-Networks-LCL-June2015(withAcornGps)v2_100.csv'
--'Power-Networks-LCL-June2015(withAcornGps)v2_101.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_1.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_2.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_10.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_11.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_100.csv'
+- 'Power-Networks-LCL-June2015(withAcornGps)v2_101.csv'
 
 Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/
-Data is available for the Following 187 Households, by Acorn Group:
+The data for the 187 Households used in Agile is summarised below, by Acorn Group:
 
 Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW)| Average Daily Demand (kWh/day) | Average demand (kW)
 -----------|-------------------|--------------------------------|------------------|-------------------------------|--------------------
