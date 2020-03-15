@@ -230,4 +230,10 @@ def SM_Visualise(smkeys):
             r=r+1
         n = n + 1
         plt.xticks(range(0,47,8),times)
-SM_Visualise(smkeys)
+#SM_Visualise(smkeys)
+        
+#---------- Removing heating loads
+pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
+SM_DataFrame = pickle.load(pick_in)
+Heaters=(SM_DataFrame[SM_DataFrame.index.hour==0]>4).sum()>1
+Heaters=Heaters[Heaters]
