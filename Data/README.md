@@ -97,4 +97,5 @@ amongst the highest of the sample set, of up to 30,000 kWh/year. As a reference,
 of electricity on Economy 7 Tariff (as customers with storage heating typically are), is 7,100 kWh/year.
 
 ![PVSeason](Visualisation_JPGs/SM_Heating.png)
+
 y axis is demand in kW, y labels are the customer ID
