@@ -89,8 +89,10 @@ The daily mean demand (kW) profiles for the subset of 187 househoulds, categoris
 
 ![PVSeason](Visualisation_JPGs/SM_Consolidated.png)
 
-#### Customers with storage heating: removed from dataset
+#### Customers with storage heating
 From Inspection there are unexpected peaks in the data from midnight and at around 4pm. This suggests controlled storage heating and/or water heating.
+As Heat pump demand is to be added to Electric heating demand in some cases, it is important to separate customers with electric heating, so that
+heat demand is not added twice to any customers.
 
 Some of the Customers with the highest overnight and 4pm demand are shown below. These are all Affluent type customers with very high annual demands, 
 amongst the highest of the sample set, of up to 30,000 kWh/year. As a reference, the Ofgem Typical Domestic Consumption Values (TCVD) for a high user 
