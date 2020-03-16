@@ -88,3 +88,13 @@ The script creates 3 pickle files with the data processed:
 The daily mean demand (kW) profiles for the subset of 187 househoulds, categorised by Season, weekend/weekday and Acorn Group (Adversity, Comfortable, Affluent) is shown below:
 
 ![PVSeason](Visualisation_JPGs/SM_Consolidated.png)
+
+#### Customers with storage heating: removed from dataset
+From Inspection there are unexpected peaks in the data from midnight and at around 4pm. This suggests controlled storage heating and/or water heating.
+
+Some of the Customers with the highest overnight and 4pm demand are shown below. These are all Affluent type customers with very high annual demands, 
+amongst the highest of the sample set, of up to 30,000 kWh/year. As a reference, the Ofgem Typical Domestic Consumption Values (TCVD) for a high user 
+of electricity on Economy 7 Tariff (as customers with storage heating typically are), is 7,100 kWh/year.
+
+![PVSeason](Visualisation_JPGs/SM_Heating.png)
+y axis is demand in kW, y labels are the customer ID
