@@ -312,7 +312,7 @@ def nowdf(SM_DataFrame):
     
 
 #Convert from Individual SMs by Acorn to consolidated by ACorn
-def ConsolidatefromAcornSMs(SMDistsByAcorn_NH):
+def ConsolidatefromAcornSMs(SMDistsByAcorn):
     SM_DistsConsolidated={}
     for i in AcornGroup:
         SM_DistsConsolidated[i]= {}
@@ -329,14 +329,17 @@ def createnewDailyByAcorn():
     pickle_out = open("Pickle/SM_DailyByAcorn.pickle", "wb")
     pickle.dump(SMDistsByAcorn, pickle_out)
     pickle_out.close()
-
-ToRemove,HeatersSort=Heaters(SM_DataFrame)
-HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort)
-SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
-
-pickle_out = open("Pickle/SMDistsByAcorn_NH.pickle", "wb")
-pickle.dump(SMDistsByAcorn_NH, pickle_out)
-pickle_out.close()
+    
+pick_in = open("Pickle/SMDistsByAcorn_NH.pickle", "rb")
+SMDistsByAcorn_NH = pickle.load(pick_in)
+SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn_NH)
+SM_Visualise(SM_DistsConsolidated,smkeys,times)
+#ToRemove,HeatersSort=Heaters(SM_DataFrame)
+#HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort)
+#SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
+#pickle_out = open("Pickle/SMDistsByAcorn_NH.pickle", "wb")
+#pickle.dump(SMDistsByAcorn_NH, pickle_out)
+#pickle_out.close()
 
 #SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn)
 #pickle_out = open("Pickle/SM_DistsConsolidated.pickle", "wb")

@@ -101,3 +101,9 @@ of electricity on Economy 7 Tariff (as customers with storage heating typically 
 ![PVSeason](Visualisation/SM_Heating.png)
 
 y axis is demand in kW, y labels are the customer ID
+
+#### Demand profiles with high overnight demand removed
+
+Customers with demands above 2000kWh/year in the hours of midnight to 2am were removed. This removed 22 customer profiles with 166 remaining.
+
+![PVSeason](Visualisation/SM_Consolidated_NH.png)
