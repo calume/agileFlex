@@ -3,7 +3,7 @@
 This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
 - PV: London Datastore for 6 PV sites over ~400 days
-- Smart Meter: London Datastore for 187 customers over ~650 days
+- Smart Meter: London Datastore for 185 customers over ~650 days
 - Heat Pump: London Datastore 
 - Electric Vehicle: Electric nation
 
