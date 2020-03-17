@@ -152,8 +152,7 @@ pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 SM_DataFrame=SM_DataFrame.resample('30T').mean()
 SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
-pick_in = open("Pickle/SM_Normalised.pickle", "rb")
-SM_Normalised = pickle.load(pick_in)
+
 
 smkeys=['WinterWknd', 'WinterWkd','SpringWknd','SpringWkd','SummerWknd','SummerWkd','AutumnWknd','AutumnWkd']
 AcornGroup=['Adversity','Comfortable','Affluent']
@@ -191,26 +190,6 @@ def DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup):
     return SM_ByAcorn
     
 #-------- Converting the data from a single column to rows of 48 hours of Data
-#'Newdists' contains seasonal normalised output for all sites combined
-def Consolidate(SM_DataFrame,SM_ByAcorn,AcornGroup):
-    NewDists = {}
-    for i in AcornGroup:
-        NewDists[i]={}
-        for z in range(0, len(smkeys)):
-            SM_ByAcorn[i][smkeys[z]]=SM_ByAcorn[i][smkeys[z]].loc[:,~SM_ByAcorn[i][smkeys[z]].columns.duplicated()]
-            n=0
-            print(z)
-            NewDists[i][smkeys[z]]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
-            for c in SM_ByAcorn[i][smkeys[z]]:
-                print(c)
-                for d in range(0, int(len(SM_ByAcorn[i][smkeys[z]])/48)):
-                    NewDists[i][smkeys[z]].iloc[n] = SM_ByAcorn[i][smkeys[z]][c].iloc[48*d:48*d+48].values.astype(float)
-                    n=n+1
-            NewDists[i][smkeys[z]] = NewDists[i][smkeys[z]][NewDists[i][smkeys[z]].sum(axis=1) > 0]
-            NewDists[i][smkeys[z]].reset_index(drop=True, inplace=True)
-    return NewDists
-
-
 #Do profiles by Smartmeter by Acorn and Season
 def profilesBySM(SM_ByAcorn):
     SMDistsByAcorn= {}
@@ -233,14 +212,8 @@ def profilesBySM(SM_ByAcorn):
                 SMDistsByAcorn[i][z][c].reset_index(drop=True, inplace=True)
     return SMDistsByAcorn
 
-SM_ByAcorn=DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup)
-SMDistsByAcorn=profilesBySM(SM_ByAcorn)
-pickle_out = open("Pickle/SM_DailyByAcorn.pickle", "wb")
-pickle.dump(SMDistsByAcorn, pickle_out)
-pickle_out.close()
-
 #------------------- Data Visualisation -----------------------------#
-def SM_Visualise(SM_Normalised,smkeys,times):
+def SM_Visualise(SM_DistsConsolidated,smkeys,times):
 
     plt.figure(1)
     
@@ -250,14 +223,15 @@ def SM_Visualise(SM_Normalised,smkeys,times):
     for item in smkeys:
         plt.subplot(420 + n)
         
-        plt.plot(SM_Normalised['Affluent'][item].mean(),color='#33FF92', label="Affluent")
-        plt.plot(SM_Normalised['Comfortable'][item].mean(),color='#17becf', label="Comfortable")
-        plt.plot(SM_Normalised['Adversity'][item].mean(),color='#FA8072', label="Adversity")
+        plt.plot(SM_DistsConsolidated['Affluent'][item].mean(),color='#33FF92', label="Affluent")
+        plt.plot(SM_DistsConsolidated['Comfortable'][item].mean(),color='#17becf', label="Comfortable")
+        plt.plot(SM_DistsConsolidated['Adversity'][item].mean(),color='#FA8072', label="Adversity")
         plt.xlabel("Settlement Period (half hourly)", fontsize=8)
         #plt.ylabel("Demand (kW)", fontsize=8)
         plt.xlim([0,47])
-        plt.ylim([0,1.6])
-        plt.yticks([0,0.4,0.8,1.2,1.6])
+        plt.ylim([0,2])
+        #plt.yticks([0,0.5,1,1.5,2])
+        #plt.yticks([0,0.4,0.8,1.2,1.6])
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         if n==1:
@@ -322,16 +296,17 @@ def removeHeating(SM_DataFrame,SM_Summary,ToRemove):
     SM_DataFrame_NH=SM_DataFrame.drop(columns=ToRemove)
     SM_Summary_NH=SM_Summary.drop(index=ToRemove)
     SM_Summary_NH=SM_Summary_NH[~SM_Summary_NH.index.duplicated()]
-#    SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
-#    SMDistsByAcorn_NH=profilesBySM(SM_ByAcorn_NH)
+    SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
+    SMDistsByAcorn_NH=profilesBySM(SM_ByAcorn_NH)
     
-    return SM_Summary_NH,SM_DataFrame_NH
+    return SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH
 
 #Create new DF with heat demand removed
     
 def nowdf(SM_DataFrame):
     pick_in = open("Pickle/SM_DailyByAcorn_NH.pickle", "rb")
     SMDistsByAcorn_NH = pickle.load(pick_in)
+    
     ToRemove,HeatersSort=Heaters(SM_DataFrame)
     SM_Summary_NH,SM_DataFrame_NH = removeHeating(SM_DataFrame,SM_Summary)
     ToRemove_NH,HeatersSort_NH=Heaters(SM_DataFrame_NH)
@@ -348,7 +323,26 @@ def ConsolidatefromAcornSMs(SMDistsByAcorn_NH):
             for k in DFkeys[1:]:
                 SM_DistsConsolidated[i][z]=SM_DistsConsolidated[i][z].append(SMDistsByAcorn_NH[i][z][k].astype(float),ignore_index=True)
     return SM_DistsConsolidated
-#HeatVisuals(times,SMDistsByAcorn_NH,SM_DataFrame_NH,HeatersSort_NH)
-#SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn_NH)
+
+def createnewDailyByAcorn():
+    SM_ByAcorn=DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup)
+    SMDistsByAcorn=profilesBySM(SM_ByAcorn)
+    pickle_out = open("Pickle/SM_DailyByAcorn.pickle", "wb")
+    pickle.dump(SMDistsByAcorn, pickle_out)
+    pickle_out.close()
+
+ToRemove,HeatersSort=Heaters(SM_DataFrame)
+HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort)
+SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
+
+pickle_out = open("Pickle/SMDistsByAcorn_NH.pickle", "wb")
+pickle.dump(SMDistsByAcorn_NH, pickle_out)
+pickle_out.close()
+
+#SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn)
+#pickle_out = open("Pickle/SM_DistsConsolidated.pickle", "wb")
+#pickle.dump(SM_DistsConsolidated, pickle_out)
+#pickle_out.close()
+#
 #SM_Visualise(SM_DistsConsolidated,smkeys,times)
-#SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
+##SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)

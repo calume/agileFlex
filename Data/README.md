@@ -35,11 +35,11 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 #### Timeseries by Site
 
-![PVBySite](Visualisation_JPGs/PV_BySite.jpeg)
+![PVBySite](Visualisation/PV_BySite.jpeg)
 
 #### Daily profile by Season (all sites)
 
-![PVSeason](Visualisation_JPGs/PV_Seasonal.jpeg)
+![PVSeason](Visualisation/PV_Seasonal.jpeg)
 
 #### Gaussian Mixture Models
 
@@ -49,7 +49,7 @@ The number of mixtures has been chosed by minimising the Aikaike Information Cri
 
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling)
 
-![PVSeason](Visualisation_JPGs/PV_MixtureModels.jpeg)
+![PVSeason](Visualisation/PV_MixtureModels.jpeg)
 
 ## Smart Meter
 
@@ -87,7 +87,7 @@ The script creates 3 pickle files with the data processed:
 
 The daily mean demand (kW) profiles for the subset of 187 househoulds, categorised by Season, weekend/weekday and Acorn Group (Adversity, Comfortable, Affluent) is shown below:
 
-![PVSeason](Visualisation_JPGs/SM_Consolidated.png)
+![PVSeason](Visualisation/SM_Consolidated.png)
 
 #### Customers with storage heating
 From Inspection there are unexpected peaks in the data from midnight and at around 4pm. This suggests controlled storage heating and/or water heating.
@@ -98,6 +98,6 @@ Some of the Customers with the highest overnight and 4pm demand are shown below.
 amongst the highest of the sample set, of up to 30,000 kWh/year. As a reference, the Ofgem Typical Domestic Consumption Values (TCVD) for a high user 
 of electricity on Economy 7 Tariff (as customers with storage heating typically are), is 7,100 kWh/year.
 
-![PVSeason](Visualisation_JPGs/SM_Heating.png)
+![PVSeason](Visualisation/SM_Heating.png)
 
 y axis is demand in kW, y labels are the customer ID
