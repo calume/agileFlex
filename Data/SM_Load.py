@@ -297,9 +297,9 @@ def removeHeating(SM_DataFrame,SM_Summary,ToRemove):
     SM_Summary_NH=SM_Summary.drop(index=ToRemove)
     SM_Summary_NH=SM_Summary_NH[~SM_Summary_NH.index.duplicated()]
     SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
-    SMDistsByAcorn_NH=profilesBySM(SM_ByAcorn_NH)
+    #SMDistsByAcorn_NH=profilesBySM(SM_ByAcorn_NH)
     
-    return SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH
+    return SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH#, SMDistsByAcorn_NH
 
 #Create new DF with heat demand removed
     
@@ -330,13 +330,18 @@ def createnewDailyByAcorn():
     pickle.dump(SMDistsByAcorn, pickle_out)
     pickle_out.close()
     
-pick_in = open("Pickle/SMDistsByAcorn_NH.pickle", "rb")
-SMDistsByAcorn_NH = pickle.load(pick_in)
-SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn_NH)
-SM_Visualise(SM_DistsConsolidated,smkeys,times)
-#ToRemove,HeatersSort=Heaters(SM_DataFrame)
+#pick_in = open("Pickle/SMDistsByAcorn_NH.pickle", "rb")
+#SMDistsByAcorn_NH = pickle.load(pick_in)
+#SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn_NH)
+#SM_Visualise(SM_DistsConsolidated,smkeys,times)
+
+ToRemove,HeatersSort=Heaters(SM_DataFrame)
 #HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort)
-#SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH, SMDistsByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
+SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
+print(round(SM_Summary_NH.groupby(['AcornGroup']).mean(),2))
+for i in SM_Summary_NH['AcornGroup'].unique():
+    print(i)
+    print(sum(SM_Summary_NH['AcornGroup']==i))
 #pickle_out = open("Pickle/SMDistsByAcorn_NH.pickle", "wb")
 #pickle.dump(SMDistsByAcorn_NH, pickle_out)
 #pickle_out.close()

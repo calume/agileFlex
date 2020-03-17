@@ -55,7 +55,7 @@ The means of the seasonal Gaussian mixture models can be seen below. The line we
 
 The London DataStore (or Low Carbon London (LCL)) Smart Meter data is used from: https://data.london.gov.uk/dataset/smartmeter-energy-use-data-in-london-households .
 
-There is a data for 5,500 customers, a random 187 customers are chosen for sampling to keep data manageable size.
+There is a data for 5,500 customers, a random 185 customers are chosen for sampling to keep data manageable size.
 From Files:
 - 'Power-Networks-LCL-June2015(withAcornGps)v2_1.csv'
 - 'Power-Networks-LCL-June2015(withAcornGps)v2_2.csv'
@@ -75,7 +75,7 @@ Affluent | 86 | 676 | 11.17 | 25.59 | 0.53
 
 The script creates 3 pickle files with the data processed:
     
-- "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
+- "SM_DataFrame.pickle" - Smart meter raw data for 185 Smart meters (subset of the 5,500 LCL customers).Timestamped
 
 - "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
 
@@ -85,7 +85,7 @@ The script creates 3 pickle files with the data processed:
 
 #### Seasonal Mean Demand by Acorn Group
 
-The daily mean demand (kW) profiles for the subset of 187 househoulds, categorised by Season, weekend/weekday and Acorn Group (Adversity, Comfortable, Affluent) is shown below:
+The daily mean demand (kW) profiles for the subset of 185 househoulds, categorised by Season, weekend/weekday and Acorn Group (Adversity, Comfortable, Affluent) is shown below:
 
 ![PVSeason](Visualisation/SM_Consolidated.png)
 
@@ -104,6 +104,18 @@ y axis is demand in kW, y labels are the customer ID
 
 #### Demand profiles with high overnight demand removed
 
-Customers with demands above 2000kWh/year in the hours of midnight to 2am were removed. This removed 22 customer profiles with 166 remaining.
+Customers with demands above 2000kWh/year in the hours of midnight to 2am were removed. This removed 32 customer profiles with 163 remaining.
+
+The resulting customer mix is with 5 Adversity and 20 Affluent customers. The remaining customers are summarised as follows;
+
+Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW)| Average Daily Demand (kWh/day) | Average demand (kW)
+-----------|-------------------|--------------------------------|------------------|-------------------------------|--------------------
+Adversity | 50 | 662 | 7.51 | 15.25 | 0.32
+Comfortable | 46 | 655 | 9.24 | 19.24 | 0.40
+Affluent | 66 | 666 | 9.16 | 17.88 | 0.37
+
+As can be seen from the table above and the mean daily demand profiles below. There is now little difference between Affluent and Comfortable customers in terms of demand.
+
+In fact Comfortable customers now have a higher average daily demand and peak. This highlights the significant effect the 20 high demand Affluent customers had on the averaged data.
 
 ![PVSeason](Visualisation/SM_Consolidated_NH.png)
