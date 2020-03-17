@@ -65,11 +65,11 @@ From Files:
 - 'Power-Networks-LCL-June2015(withAcornGps)v2_101.csv'
 
 Some example analysis of the data is found https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/ .
-The data for the 187 Households used in Agile is summarised below, by Acorn Group:
+The data for the 185 Households used in Agile is summarised below, by Acorn Group:
 
 Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW)| Average Daily Demand (kWh/day) | Average demand (kW)
 -----------|-------------------|--------------------------------|------------------|-------------------------------|--------------------
-Adversity | 55 | 662 | 7.75 | 15.99 | 0.33
+Adversity | 57 | 662 | 7.75 | 15.99 | 0.33
 Comfortable | 46 | 655 | 9.24 | 19.24 | 0.40
 Affluent | 86 | 676 | 11.17 | 25.59 | 0.53
 
@@ -104,13 +104,13 @@ y axis is demand in kW, y labels are the customer ID
 
 #### Demand profiles with high overnight demand removed
 
-Customers with demands above 2000kWh/year in the hours of midnight to 2am were removed. This removed 32 customer profiles with 163 remaining.
+Customers with demands above 2000kWh/year in the hours of midnight to 2am were removed. This removed 23 customer profiles with 162 remaining.
 
-The resulting customer mix is with 5 Adversity and 20 Affluent customers. The remaining customers are summarised as follows;
+3 Adversity and 20 Affluent customers were removed. The remaining customers are summarised as follows;
 
 Acorn Group|Number of customers| Avg Days of Data (per customer)| Peak Demand (kW)| Average Daily Demand (kWh/day) | Average demand (kW)
 -----------|-------------------|--------------------------------|------------------|-------------------------------|--------------------
-Adversity | 50 | 662 | 7.51 | 15.25 | 0.32
+Adversity | 54 | 662 | 7.51 | 15.25 | 0.32
 Comfortable | 46 | 655 | 9.24 | 19.24 | 0.40
 Affluent | 66 | 666 | 9.16 | 17.88 | 0.37
 
