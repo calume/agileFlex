@@ -90,7 +90,7 @@ The daily mean demand (kW) profiles for the subset of 187 househoulds, categoris
 ![PVSeason](Visualisation/SM_Consolidated.png)
 
 #### Customers with storage heating
-From Inspection there are unexpected peaks in the data from midnight and at around 4pm. This suggests controlled storage heating and/or water heating.
+From Inspection there are unexpected peaks in the winter demand from midnight till around 4am. This suggests controlled storage heating and/or water heating.
 As Heat pump demand is to be added to customers base load, it is important to separate customers with electric heating, so that
 heat demand is not added twice to any customers.
 
