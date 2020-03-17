@@ -306,7 +306,6 @@ def removeHeating(SM_DataFrame,SM_Summary,ToRemove):
 def nowdf(SM_DataFrame):
     pick_in = open("Pickle/SM_DailyByAcorn_NH.pickle", "rb")
     SMDistsByAcorn_NH = pickle.load(pick_in)
-    
     ToRemove,HeatersSort=Heaters(SM_DataFrame)
     SM_Summary_NH,SM_DataFrame_NH = removeHeating(SM_DataFrame,SM_Summary)
     ToRemove_NH,HeatersSort_NH=Heaters(SM_DataFrame_NH)
