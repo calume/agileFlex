@@ -10,8 +10,8 @@ The feeder has 55 customers spread across the 3 phases. The network schematic is
 
 
 ## Customer Summary Table
-|   ID |   Node |   Agent | Acorn Group   |   X |   Y |   Phase |   Home Battery kW |   Home Battery kWh |   EV Charger Size kW |   EV Battery Size kWh |   PVkW |   Heat Pump kW |
-|------|--------|---------|---------------|-----|-----|---------|-------------------|--------------------|----------------------|-----------------------|--------|----------------|
+|   ID |   Node |   Agent | Acorn Group   |   X |   Y |   Phase |   Home Battery kW |   Home Battery kWh |   EV Charger Size kW |   EV Battery Size kWh |   PV kW |   Heat Pump kW |
+|------|--------|---------|---------------|-----|-----|---------|-------------------|--------------------|----------------------|-----------------------|---------|----------------|
 |    1 |    134 |0 | Adversity     | 372 | 155 |1 |0 |0   | 0   |    0 |     0   |0 |
 |    2 |    147 |0 | Adversity     | 380 | 149 |2 |0 |0   | 0   |    0 |     0   |0 |
 |    3 |    170 |0 | Adversity     | 368 | 159 |1 |0 |0   | 0   |    0 |     0   |0 |
