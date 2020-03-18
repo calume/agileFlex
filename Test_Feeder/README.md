@@ -6,7 +6,7 @@ The test feeder used to demonstrate the AGILE aggregation model is the Low Volta
 
 The feeder has 55 customers spread across the 3 phases. The network schematic is shown below:
 
-![Feeder1](Feed1/feeder_map.jpeg)
+![Feeder1](Feed1/feeder_map.png)
 
 
 ## Customer Summary Table
