@@ -6,11 +6,11 @@ The test feeder used to demonstrate the AGILE aggregation model is the Low Volta
 
 The feeder has 55 customers spread across the 3 phases. The network schematic is shown below:
 
-![Feeder12:41 18/03/2020Schematic](Feed1/feeder_map.jpeg)
+![Feeder1](Feed1/feeder_map.jpeg)
 
 
 ## Customer Summary Table
-|   ID |   Node |   Agent | Acorn_Group   |   X |   Y |   Phase |   Home Battery kW |   Home Battery kWh |   EV Charger Size kW |   EV Battery Size kWh |   PVkW |   Heat Pump kW |
+|   ID |   Node |   Agent | Acorn Group   |   X |   Y |   Phase |   Home Battery kW |   Home Battery kWh |   EV Charger Size kW |   EV Battery Size kWh |   PVkW |   Heat Pump kW |
 |------|--------|---------|---------------|-----|-----|---------|-------------------|--------------------|----------------------|-----------------------|--------|----------------|
 |    1 |    134 |0 | Adversity     | 372 | 155 |1 |0 |0   | 0   |    0 |     0   |0 |
 |    2 |    147 |0 | Adversity     | 380 | 149 |2 |0 |0   | 0   |    0 |     0   |0 |
