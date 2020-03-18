@@ -127,4 +127,5 @@ def Network_plot(Coords,Lines,Loads):
     plt.tight_layout()
 
 Network_plot(Coords,Lines,Loads)
-print(tabulate(Customer_Summary, tablefmt="pipe", headers="keys"))
+Customer_Summary.style.hide_index()
+print(tabulate(Customer_Summary.drop(columns='Color'), tablefmt="pipe", headers="keys", showindex=False))
