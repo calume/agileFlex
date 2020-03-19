@@ -28,6 +28,7 @@ pd.options.mode.chained_assignment = None
 from tabulate import tabulate
 from numpy.random import choice
 
+#---------------Load Network Data-----------------------------
 Feeder='Feed1'
 Coords = pd.read_csv(str(Feeder)+"/XY_Position.csv")
 Lines = pd.read_csv(str(Feeder)+"/Lines.txt",delimiter=' ', names=['New','Line','Bus1','Bus2','phases','Linecode','Length','Units'] )
@@ -77,7 +78,7 @@ for i in range(0,3):
 #------------------- Plot the network with icons for each LCT type
     
 def Network_plot(Coords,Lines,Loads):
-    ##### Set Up NetworkX Graph from coordinates and network outputs ####
+    ####  Import Icons
     EV_Icon = mpimg.imread('Feed1/EVIcon2.png')
     EVbox = OffsetImage(EV_Icon, zoom=0.3)
     
@@ -94,7 +95,7 @@ def Network_plot(Coords,Lines,Loads):
     Housebox = OffsetImage(House, zoom=0.15)
     
     G = nx.Graph()
-   
+    ##### Set Up NetworkX Graph from coordinates and network outputs ####
     Edge={}
     
     for index, value in Lines['Bus1'].items():
@@ -109,7 +110,7 @@ def Network_plot(Coords,Lines,Loads):
     G.add_nodes_from(Coords['Node'])
     G.add_edges_from(Edge.values())
    
-    ##### Plot Currents for each Phase ####
+    ##### network and icons ####
     fig, ax = plt.subplots()
     nx.draw(G, pos, with_labels=False, width=1, node_size=2)
     for i in Loads.index:

@@ -16,14 +16,14 @@ The network schematic is shown below:
 
 ### PV Capacity Distribution
 
-The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
+The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs in the UK.
 
 This is reported by Ofgem in https://www.ofgem.gov.uk/environmental-programmes/fit/contacts-guidance-and-resources/public-reports-and-data-fit/installation-reports
 The installation report for January 2020 is used and filtered by Domestic PV. The resulting histogram is shown below:
 
 ![Feeder1](PV_Capacity_Histo.jpg)
 
-This translates to the following capacities and weights (the 1% of installations above 4kW are mostly 10kW installations and are not included):
+This translates to the following capacities and weights. 
 
 kW|Weight
 --|------
@@ -31,9 +31,11 @@ kW|Weight
 1.5 |0.08
 2|0.13
 2.5|0.15
-3Z0.14
+3|0.14
 3.5|0.12
 4|0.37
+
+The 1% of installations above 4kW are mostly 10kW installations and are not included:
 
 ### Customer Summary Table
 
@@ -60,12 +62,12 @@ The details of each of the 55 customers is listed below, including acorn group, 
 |   16 |   1320 |0 | Adversity     | 433 | 123 |3 |0 |0   | 0   |    0 |     0   |0 |
 |   17 |   1327 |0 | Adversity     | 439 | 128 |3 |0 |0   | 0   |    0 |     0   |0 |
 |   18 |   1337 |0 | Adversity     | 422 |  75 |3 |0 |0   | 0   |    0 |     0   |0 |
-|   19 |   1342 |0 | Comfortable   | 410 |  91 |3 |0 |0   | 0   |    0 |     4   |4 |
-|   20 |   1349 |0 | Comfortable   | 416 |  82 |1 |0 |0   | 0   |    0 |     4   |4 |
-|   21 |   1387 |0 | Comfortable   | 405 |  94 |1 |0 |0   | 0   |    0 |     1.5 |4 |
-|   22 |   1388 |0 | Comfortable   | 413 |  87 |1 |0 |0   | 0   |    0 |     4   |4 |
-|   23 |   1406 |0 | Comfortable   | 424 |  73 |2 |0 |0   | 0   |    0 |     1   |4 |
-|   24 |   1458 |0 | Comfortable   | 381 |  72 |3 |0 |0   | 0   |    0 |     3.5 |4 |
+|   19 |   1342 |1 | Comfortable   | 410 |  91 |3 |0 |0   | 0   |    0 |     4   |4 |
+|   20 |   1349 |1 | Comfortable   | 416 |  82 |1 |0 |0   | 0   |    0 |     4   |4 |
+|   21 |   1387 |1 | Comfortable   | 405 |  94 |1 |0 |0   | 0   |    0 |     1.5 |4 |
+|   22 |   1388 |1 | Comfortable   | 413 |  87 |1 |0 |0   | 0   |    0 |     4   |4 |
+|   23 |   1406 |1 | Comfortable   | 424 |  73 |2 |0 |0   | 0   |    0 |     1   |4 |
+|   24 |   1458 |1 | Comfortable   | 381 |  72 |3 |0 |0   | 0   |    0 |     3.5 |4 |
 |   25 |   1502 |0 | Comfortable   | 451 |  97 |1 |0 |0   | 0   |    0 |     0   |4 |
 |   26 |   1522 |0 | Comfortable   | 395 |  54 |2 |0 |0   | 0   |    0 |     0   |4 |
 |   27 |   1539 |0 | Comfortable   | 391 |  59 |3 |0 |0   | 0   |    0 |     0   |4 |
