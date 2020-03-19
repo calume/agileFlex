@@ -160,6 +160,8 @@ SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
 smkeys=['WinterWknd', 'WinterWkd','SpringWknd','SpringWkd','SummerWknd','SummerWkd','AutumnWknd','AutumnWkd']
 AcornGroup=['Adversity','Comfortable','Affluent']
 times = ['00:00','04:00','08:00','12:00','16:00','20:00','24:00']
+elexon_class1=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class1', index_col=0)
+elexon_class2=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class2',index_col=0)
 
 def DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup):
     SM_ByAcorn={}
@@ -225,7 +227,7 @@ def SM_Visualise(SM_DistsConsolidated,smkeys,times):
     r=0
     for item in smkeys:
         plt.subplot(420 + n)
-        
+        plt.plot(elexon_class1[smkeys(i)])
         plt.plot(SM_DistsConsolidated['Affluent'][item].mean(),color='#33FF92', label="Affluent")
         plt.plot(SM_DistsConsolidated['Comfortable'][item].mean(),color='#17becf', label="Comfortable")
         plt.plot(SM_DistsConsolidated['Adversity'][item].mean(),color='#FA8072', label="Adversity")
@@ -335,9 +337,4 @@ pick_in = open("Pickle/SM_DistsConsolidated_NH.pickle", "rb")
 SM_DistsConsolidated_NH = pickle.load(pick_in)
 
 #SM_Visualise(SM_DistsConsolidated_NH,smkeys,times)
-
-elexon_class1=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class1', index_col=0)
-elexon_class2=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class2',index_col=0)
-
-for i in elexon_class1:
-    plt.plot(elexon_class1[i])
+    

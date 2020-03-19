@@ -90,8 +90,8 @@ def Network_plot(Coords,Lines,Loads):
     PV_Icon = mpimg.imread('Feed1/PV_Icon.png')
     PVbox = OffsetImage(PV_Icon, zoom=0.3)
     
-    House = mpimg.imread('Feed1/House.png')
-    Housebox = OffsetImage(House, zoom=0.3)
+    House = mpimg.imread('Feed1/house.png')
+    Housebox = OffsetImage(House, zoom=0.15)
     
     G = nx.Graph()
    
