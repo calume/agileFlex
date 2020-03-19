@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed March 18 13:49:06 2020
+
+This script produces a plot of the test feeder (Feeder1 from LVNS)
+
+From:  https://www.enwl.co.uk/zero-carbon/innovation/smaller-projects/low-carbon-networks-fund/low-voltage-network-solutions/
+
+The feeder has 55 customers spread across the 3 phases. Flexibility is assigned as per Acorn Group.
+
+- Affluent: are assumed to be full adopters of Low carbon technologies, all have Heat Pumps, Electric Vehicles, PV and Home Batteries.
+- Comfortable: half of these are assumed to have PV and all are assumed to have solar.
+- Adversity: are assumed to not have any low carbon technologies (LCTs) due high capital costs required.
+
+@author: qsb15202
+"""
+
+
+
 import pandas as pd
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -16,7 +35,7 @@ Lines = Lines[Lines['Line'].map(len) > 5]
 Lines.reset_index(drop=True, inplace=True)
 Loads = pd.read_csv(str(Feeder)+"/Loads.txt",delimiter=' ', names=['New','Load','Phases','Bus1','kV','kW','PF','Daily'] )
 
-#------------Define Network Agents[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]
+# The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
 
 pvcaplist=[1,1.5,2,2.5,3,3.5,4]
 weights=[.01,.08,.13,.15,.14,.12,.37]
@@ -28,6 +47,8 @@ LoadsByAcorn['Adversity']=list(range(1,18))
 
 for i in LoadsByAcorn['Affluent']:    
     PVcap=choice(pvcaplist, int(len(LoadsByAcorn['Affluent'])), weights)
+
+#------------------------Define Network Agents----------------------------
 
 Customer_Summary=pd.DataFrame(0, index=(range(0,len(Loads))), columns=['ID','Node','Agent','Acorn_Group','X','Y','Phase','Home_Battery_kW','Home_Battery_kWh','EV_Charger_Size_kW','EV_Battery_Size_kWh','PV_kW','Heat_Pump_kW','Color'])
 Customer_Summary['ID']=Loads.index+1
@@ -53,6 +74,8 @@ colors=['green','#17becf','#FA8072']
 for i in range(0,3):
     Customer_Summary['Color'][Customer_Summary['Acorn_Group']==acorns[i]]=colors[i]
 
+#------------------- Plot the network with icons for each LCT type
+    
 def Network_plot(Coords,Lines,Loads):
     ##### Set Up NetworkX Graph from coordinates and network outputs ####
     EV_Icon = mpimg.imread('Feed1/EVIcon2.png')
@@ -67,8 +90,8 @@ def Network_plot(Coords,Lines,Loads):
     PV_Icon = mpimg.imread('Feed1/PV_Icon.png')
     PVbox = OffsetImage(PV_Icon, zoom=0.3)
     
-    Slum = mpimg.imread('Feed1/Slum.png')
-    Slumbox = OffsetImage(Slum, zoom=0.3)
+    House = mpimg.imread('Feed1/House.png')
+    Housebox = OffsetImage(House, zoom=0.3)
     
     G = nx.Graph()
    
@@ -100,10 +123,10 @@ def Network_plot(Coords,Lines,Loads):
             ab = AnnotationBbox(EVbox, [Customer_Summary['X'][i], Customer_Summary['Y'][i]-3],frameon=False, pad=0)
             ax.add_artist(ab)
         if Customer_Summary['Acorn_Group'][i]=='Adversity':
-            ab = AnnotationBbox(Slumbox, [Customer_Summary['X'][i], Customer_Summary['Y'][i]],frameon=False, pad=0)
+            ab = AnnotationBbox(Housebox, [Customer_Summary['X'][i], Customer_Summary['Y'][i]],frameon=False, pad=0)
             ax.add_artist(ab)
         if Customer_Summary['Acorn_Group'][i]=='Comfortable' and Customer_Summary['PV_kW'][i]==0:
-            ab = AnnotationBbox(Slumbox, [Customer_Summary['X'][i], Customer_Summary['Y'][i]],frameon=False, pad=0)
+            ab = AnnotationBbox(Housebox, [Customer_Summary['X'][i], Customer_Summary['Y'][i]],frameon=False, pad=0)
             ax.add_artist(ab)
         if Customer_Summary['Home_Battery_kW'][i]>0:
             ab = AnnotationBbox(powerwallbox, [Customer_Summary['X'][i]+2, Customer_Summary['Y'][i]],frameon=False, pad=0)
@@ -116,7 +139,7 @@ def Network_plot(Coords,Lines,Loads):
     for i in range(0,3):
         plt.annotate(acorns[i], (480,35-offset[i]),fontsize=9,color=colors[i],weight="bold")
         
-    boxes=[PVbox,EVbox,powerwallbox,HPbox,Slumbox]
+    boxes=[PVbox,EVbox,powerwallbox,HPbox,Housebox]
     intros=['PV Owner','EV Owner','Home Battery Owner','Heat Pump Owner','Non-Agent']
     plt.annotate('Legend', (449,160),fontsize=10,color="black",weight="bold")
     for i in range(0,5):

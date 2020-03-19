@@ -30,6 +30,9 @@ The script creates 3 pickle files with the data processed:
 
 - "SM_Normalised.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group
 
+- 'SMDistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
+
+
 @author: Calum Edmunds
 """
 
@@ -304,15 +307,13 @@ def removeHeating(SM_DataFrame,SM_Summary,ToRemove):
 #Create new DF with heat demand removed
     
 def nowdf(SM_DataFrame):
-    pick_in = open("Pickle/SM_DailyByAcorn_NH.pickle", "rb")
-    SMDistsByAcorn_NH = pickle.load(pick_in)
     ToRemove,HeatersSort=Heaters(SM_DataFrame)
     SM_Summary_NH,SM_DataFrame_NH = removeHeating(SM_DataFrame,SM_Summary)
     ToRemove_NH,HeatersSort_NH=Heaters(SM_DataFrame_NH)
     
 
 #Convert from Individual SMs by Acorn to consolidated by ACorn
-def ConsolidatefromAcornSMs(SMDistsByAcorn):
+def ConsolidatefromAcornSMs(SMDistsByAcorn_NH):
     SM_DistsConsolidated={}
     for i in AcornGroup:
         SM_DistsConsolidated[i]= {}
@@ -330,26 +331,13 @@ def createnewDailyByAcorn():
     pickle.dump(SMDistsByAcorn, pickle_out)
     pickle_out.close()
     
-#pick_in = open("Pickle/SMDistsByAcorn_NH.pickle", "rb")
-#SMDistsByAcorn_NH = pickle.load(pick_in)
-#SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn_NH)
-#SM_Visualise(SM_DistsConsolidated,smkeys,times)
+pick_in = open("Pickle/SM_DistsConsolidated_NH.pickle", "rb")
+SM_DistsConsolidated_NH = pickle.load(pick_in)
 
-ToRemove,HeatersSort=Heaters(SM_DataFrame)
-#HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort)
-SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH = removeHeating(SM_DataFrame,SM_Summary,ToRemove)
-print(round(SM_Summary_NH.groupby(['AcornGroup']).mean(),2))
-for i in SM_Summary_NH['AcornGroup'].unique():
-    print(i)
-    print(sum(SM_Summary_NH['AcornGroup']==i))
-#pickle_out = open("Pickle/SMDistsByAcorn_NH.pickle", "wb")
-#pickle.dump(SMDistsByAcorn_NH, pickle_out)
-#pickle_out.close()
+#SM_Visualise(SM_DistsConsolidated_NH,smkeys,times)
 
-#SM_DistsConsolidated=ConsolidatefromAcornSMs(SMDistsByAcorn)
-#pickle_out = open("Pickle/SM_DistsConsolidated.pickle", "wb")
-#pickle.dump(SM_DistsConsolidated, pickle_out)
-#pickle_out.close()
-#
-#SM_Visualise(SM_DistsConsolidated,smkeys,times)
-##SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
+elexon_class1=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class1', index_col=0)
+elexon_class2=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class2',index_col=0)
+
+for i in elexon_class1:
+    plt.plot(elexon_class1[i])

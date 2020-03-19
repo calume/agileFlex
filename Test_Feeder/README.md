@@ -4,12 +4,42 @@
 
 The test feeder used to demonstrate the AGILE aggregation model is the Low Voltage Network Solutions (LVNS) Network 1 Feeder 1. https://www.enwl.co.uk/zero-carbon/innovation/smaller-projects/low-carbon-networks-fund/low-voltage-network-solutions/
 
-The feeder has 55 customers spread across the 3 phases. The network schematic is shown below:
+The feeder has 55 customers spread across the 3 phases. Flexibility is assigned as per Acorn Group.
+
+- Affluent: are assumed to be full adopters of Low carbon technologies, all have Heat Pumps, Electric Vehicles, PV and Home Batteries.
+- Comfortable: half of these are assumed to have PV and all are assumed to have solar.
+- Adversity: are assumed to not have any low carbon technologies (LCTs) due high capital costs required.
+
+The network schematic is shown below:
 
 ![Feeder1](Feed1/feeder_map.png)
 
+### PV Capacity Distribution
 
-## Customer Summary Table
+The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
+
+This is reported by Ofgem in https://www.ofgem.gov.uk/environmental-programmes/fit/contacts-guidance-and-resources/public-reports-and-data-fit/installation-reports
+The installation report for January 2020 is used and filtered by Domestic PV. The resulting histogram is shown below:
+
+![Feeder1](PV_Capacity_Histo.jpg)
+
+This translates to the following capacities and weights (the 1% of installations above 4kW are mostly 10kW installations and are not included):
+
+kW|Weight
+--|------
+1 |.01
+1.5 |0.08
+2|0.13
+2.5|0.15
+3Z0.14
+3.5|0.12
+4|0.37
+
+### Customer Summary Table
+
+The details of each of the 55 customers is listed below, including acorn group, coordinates (X,Y), Phase, and LCT capacity.
+
+
 |   ID |   Node |   Agent | Acorn Group   |   X |   Y |   Phase |   Home Battery kW |   Home Battery kWh |   EV Charger Size kW |   EV Battery Size kWh |   PV kW |   Heat Pump kW |
 |------|--------|---------|---------------|-----|-----|---------|-------------------|--------------------|----------------------|-----------------------|---------|----------------|
 |    1 |    134 |0 | Adversity     | 372 | 155 |1 |0 |0   | 0   |    0 |     0   |0 |
