@@ -22,16 +22,15 @@ Adversity | 55 | 662 | 7.75 |   15.99 | 0.33
 Comfortable | 46 | 655 | 9.24 |   19.24 | 0.40
 Affluent | 86 | 676 | 11.17 |   25.59 | 0.53
 
-The script creates 3 pickle files with the data processed:
+The script creates 4 pickle files with the data processed:
     
 - "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
 
 - "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
 
-- "SM_Normalised.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group
+- 'SM_DistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
 
-- 'SMDistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
-
+- "SM_Consolidated_NH.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group, Heating demand removed
 
 @author: Calum Edmunds
 """
@@ -105,10 +104,9 @@ def SMCondensed():
             SM_Summary["MaxDate"][z] = SM_Individual['Date'].max()
             SM_Summary["Days"][z] = (SM_Individual['Date'].max() - SM_Individual['Date'].min()).days
             SM_Summary["Tariff"][z] = SM_Individual["Tar"].unique()
-            SM_Individual['kWh']=SM_Individual['kWh'].replace("Null", 0).astype(float) * 2
             SM_Summary["PeakDemandkW"][z] = SM_Individual["kWh"].max()*2
             SM_Summary["DemandkWh/Day"][z] = SM_Individual["kWh"].sum() / SM_Summary["Days"][z]
-            SM_Summary["AvDemandkW"][z] = SM_Individual["kWh"].mean()
+            SM_Summary["AvDemandkW"][z] = (SM_Individual["kWh"]*2).mean()
             if len(SM_Individual) > 0:
                 SM_Stripped=SM_Individual['kWh'].replace("Null", 0).astype(float) * 2
                 SM_Stripped.index=pd.to_datetime(SM_Individual["Date"], format="%Y/%m/%d %H:%M:%S")
@@ -133,7 +131,7 @@ def SMCondensed():
     pickle_out.close()
     
     
-###SMCondensed()
+#This function prints summary data for the customers
 
 def generate_summaryData():
     pickle_in = open("Pickle/SM_Summary.pickle", "rb")
@@ -163,6 +161,7 @@ times = ['00:00','04:00','08:00','12:00','16:00','20:00','24:00']
 elexon_class1=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class1', index_col=0)
 elexon_class2=pd.read_excel('Profiles/Average_Profiling_data_Elexon.xlsx', sheet_name='class2',index_col=0)
 
+#This function categorises the data by Acorn Group and by Season
 def DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup):
     SM_ByAcorn={}
    
@@ -195,27 +194,27 @@ def DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup):
     return SM_ByAcorn
     
 #-------- Converting the data from a single column to rows of 48 hours of Data
-#Do profiles by Smartmeter by Acorn and Season
+#Daily profiles are created by Smartmeter categorised Acorn and Season
 def profilesBySM(SM_ByAcorn):
-    SMDistsByAcorn= {}
+    SM_DistsByAcorn= {}
     for i in AcornGroup:
-        SMDistsByAcorn[i]= {}
+        SM_DistsByAcorn[i]= {}
         for z in smkeys:
             SM_ByAcorn[i][z]=SM_ByAcorn[i][z].loc[:,~SM_ByAcorn[i][z].columns.duplicated()]
             print(z)
-            SMDistsByAcorn[i][z]={}
+            SM_DistsByAcorn[i][z]={}
             for c in SM_ByAcorn[i][z]:
                 n=0
                 print(c)
-                SMDistsByAcorn[i][z][c]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
+                SM_DistsByAcorn[i][z][c]=pd.DataFrame(index=range(0,20000),columns=range(0,48))
                 for d in range(0, int(len(SM_ByAcorn[i][z][c])/48)):
-                    SMDistsByAcorn[i][z][c].iloc[n] = SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].values.astype(float)
+                    SM_DistsByAcorn[i][z][c].iloc[n] = SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].values.astype(float)
                     #print(SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].index.min())
                     #print(SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].index.max())
                     n=n+1
-                SMDistsByAcorn[i][z][c] = SMDistsByAcorn[i][z][c][SMDistsByAcorn[i][z][c].sum(axis=1) > 0]
-                SMDistsByAcorn[i][z][c].reset_index(drop=True, inplace=True)
-    return SMDistsByAcorn
+                SM_DistsByAcorn[i][z][c] = SM_DistsByAcorn[i][z][c][SM_DistsByAcorn[i][z][c].sum(axis=1) > 0]
+                SM_DistsByAcorn[i][z][c].reset_index(drop=True, inplace=True)
+    return SM_DistsByAcorn
 
 #------------------- Data Visualisation -----------------------------#
 def SM_Visualise(SM_DistsConsolidated,smkeys,times):
@@ -227,16 +226,17 @@ def SM_Visualise(SM_DistsConsolidated,smkeys,times):
     r=0
     for item in smkeys:
         plt.subplot(420 + n)
-        plt.plot(elexon_class1[smkeys(i)])
+        plt.plot(elexon_class1[item].values, linestyle="--",label="Elexon Class 1")
+        plt.plot(elexon_class2[item].values, linestyle=":",label="Elexon Class 2")
         plt.plot(SM_DistsConsolidated['Affluent'][item].mean(),color='#33FF92', label="Affluent")
         plt.plot(SM_DistsConsolidated['Comfortable'][item].mean(),color='#17becf', label="Comfortable")
         plt.plot(SM_DistsConsolidated['Adversity'][item].mean(),color='#FA8072', label="Adversity")
         plt.xlabel("Settlement Period (half hourly)", fontsize=8)
         #plt.ylabel("Demand (kW)", fontsize=8)
         plt.xlim([0,47])
-        plt.ylim([0,2])
+        plt.ylim([0,1.5])
         #plt.yticks([0,0.5,1,1.5,2])
-        #plt.yticks([0,0.4,0.8,1.2,1.6])
+        plt.yticks([0,0.5,1,1.5])
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         if n==1:
@@ -250,48 +250,45 @@ def SM_Visualise(SM_DistsConsolidated,smkeys,times):
         n = n + 1
         plt.xticks(range(0,47,8),times)
 
-#SM_Visualise(smkeys)
-
-#SM_ByAcorn=Consolidate(smkeys)
 
 #---------- Removing heating loads
-pick_in = open("Pickle/SM_DailyByAcorn.pickle", "rb")
-SMDistsByAcorn = pickle.load(pick_in)
+pick_in = open("Pickle/SM_DistsByAcorn.pickle", "rb")
+SM_DistsByAcorn = pickle.load(pick_in)
 
 def Heaters(SM_DataFrame):
     Heaters=(SM_DataFrame[SM_DataFrame.index.hour==0]>4).sum()>1
     Heaters=Heaters[Heaters]
     HeatersSort=(SM_DataFrame[SM_DataFrame[Heaters.index].index.hour==0].sum()+SM_DataFrame[SM_DataFrame[Heaters.index].index.hour==1].sum()).sort_values()
-    ToRemove = HeatersSort[HeatersSort>4000].index
+    ToRemove = HeatersSort[HeatersSort>2000].index
     return ToRemove,HeatersSort
 
-def HeatVisuals(times,SMDistsByAcorn,SM_DataFrame,HeatersSort):
 #----------------- Visualise Heat Loads ----------
+def HeatVisuals(times,SM_DistsByAcorn,SM_DataFrame,HeatersSort):
     n=1
     for z in HeatersSort[-4:].index:
         plt.subplot(420 + n)
         plt.xlim([0,47])
-        plt.ylim([0,20])
+        plt.ylim([0,12])
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(range(0,47,8),times)
         if n==1:
             plt.title('Weekend (Sat-Sun)', fontsize=9, fontweight="bold")
-        for i in SMDistsByAcorn['Affluent']['WinterWknd'][z].index:
-           plt.plot(SMDistsByAcorn['Affluent']['WinterWknd'][z].loc[i], linewidth=0.5)
-        plt.plot(SMDistsByAcorn['Affluent']['WinterWknd'][z].mean(),linestyle="--",color="black")
+        for i in SM_DistsByAcorn['Affluent']['WinterWknd'][z].index:
+           plt.plot(SM_DistsByAcorn['Affluent']['WinterWknd'][z].loc[i], linewidth=0.5)
+        plt.plot(SM_DistsByAcorn['Affluent']['WinterWknd'][z].mean(),linestyle="--",color="black")
         n=n+1
         if n%2==0:
             plt.ylabel(z, rotation=25, fontsize=9, fontweight="bold")
         plt.subplot(420 + n)
         plt.xlim([0,47])
-        plt.ylim([0,20])
+        plt.ylim([0,12])
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(range(0,47,8),times)
-        for i in SMDistsByAcorn['Affluent']['WinterWkd'][z].index:
-           plt.plot(SMDistsByAcorn['Affluent']['WinterWkd'][z].loc[i], linewidth=0.5)
-        plt.plot(SMDistsByAcorn['Affluent']['WinterWkd'][z].mean(),linestyle="--",color="black")
+        for i in SM_DistsByAcorn['Affluent']['WinterWkd'][z].index:
+           plt.plot(SM_DistsByAcorn['Affluent']['WinterWkd'][z].loc[i], linewidth=0.5)
+        plt.plot(SM_DistsByAcorn['Affluent']['WinterWkd'][z].mean(),linestyle="--",color="black")
         if n==2:
             plt.title('Week Day (Mon-Fri)', fontsize=9, fontweight="bold")
         n=n+1
@@ -302,12 +299,10 @@ def removeHeating(SM_DataFrame,SM_Summary,ToRemove):
     SM_Summary_NH=SM_Summary.drop(index=ToRemove)
     SM_Summary_NH=SM_Summary_NH[~SM_Summary_NH.index.duplicated()]
     SM_ByAcorn_NH=DataFramebySeason(SM_DataFrame_NH,SM_Summary_NH,smkeys,AcornGroup)
-    #SMDistsByAcorn_NH=profilesBySM(SM_ByAcorn_NH)
     
-    return SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH#, SMDistsByAcorn_NH
+    return SM_Summary_NH,SM_DataFrame_NH, SM_ByAcorn_NH
 
 #Create new DF with heat demand removed
-    
 def nowdf(SM_DataFrame):
     ToRemove,HeatersSort=Heaters(SM_DataFrame)
     SM_Summary_NH,SM_DataFrame_NH = removeHeating(SM_DataFrame,SM_Summary)
@@ -315,26 +310,26 @@ def nowdf(SM_DataFrame):
     
 
 #Convert from Individual SMs by Acorn to consolidated by ACorn
-def ConsolidatefromAcornSMs(SMDistsByAcorn_NH):
+def ConsolidatefromAcornSMs(SM_DistsByAcorn_NH):
     SM_DistsConsolidated={}
     for i in AcornGroup:
         SM_DistsConsolidated[i]= {}
         for z in smkeys:
-            DFkeys=list(SMDistsByAcorn_NH[i][z].keys())
-            SM_DistsConsolidated[i][z]=SMDistsByAcorn_NH[i][z][DFkeys[0]].astype(float)
+            DFkeys=list(SM_DistsByAcorn_NH[i][z].keys())
+            SM_DistsConsolidated[i][z]=SM_DistsByAcorn_NH[i][z][DFkeys[0]].astype(float)
             for k in DFkeys[1:]:
-                SM_DistsConsolidated[i][z]=SM_DistsConsolidated[i][z].append(SMDistsByAcorn_NH[i][z][k].astype(float),ignore_index=True)
+                SM_DistsConsolidated[i][z]=SM_DistsConsolidated[i][z].append(SM_DistsByAcorn_NH[i][z][k].astype(float),ignore_index=True)
     return SM_DistsConsolidated
 
 def createnewDailyByAcorn():
     SM_ByAcorn=DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup)
-    SMDistsByAcorn=profilesBySM(SM_ByAcorn)
-    pickle_out = open("Pickle/SM_DailyByAcorn.pickle", "wb")
-    pickle.dump(SMDistsByAcorn, pickle_out)
+    SM_DistsByAcorn=profilesBySM(SM_ByAcorn)
+    pickle_out = open("Pickle/SM_DistsByAcorn.pickle", "wb")
+    pickle.dump(SM_DistsByAcorn, pickle_out)
     pickle_out.close()
-    
-pick_in = open("Pickle/SM_DistsConsolidated_NH.pickle", "rb")
-SM_DistsConsolidated_NH = pickle.load(pick_in)
 
-#SM_Visualise(SM_DistsConsolidated_NH,smkeys,times)
-    
+#HeatersSort=Heaters(SM_DataFrame)[1]
+#HeatVisuals(times,SM_DistsByAcorn,SM_DataFrame,HeatersSort)
+
+pick_in = open("Pickle/SM_DistsByAcorn_NH.pickle", "rb")
+SM_DistsByAcorn_NH = pickle.load(pick_in)
