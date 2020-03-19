@@ -26,10 +26,8 @@ YMCA | 0.45 | 2013-09-25 to 2014-11-19 (420 Days)
 
 The script 'PVLoad.py' creates 4 pickle files with the data processed:
     
-- "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
-- "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
-- 'SM_DistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
-- "SM_Consolidated_NH.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group, Heating demand removed
+- 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
+- 'PV_Normalised.pickle' - Which has normalised output by season in rows of 48 half hours combined for all sites with timestamps removed.
 
 The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
 
@@ -76,13 +74,12 @@ Comfortable | 46 | 655|4.62|9.62|0.40
 Affluent | 84 |679|5.58|12.87| 0.54
 
 
-The script creates 3 pickle files with the data processed:
+The script creates 4 pickle files with the data processed:
     
-- "SM_DataFrame.pickle" - Smart meter raw data for 184 Smart meters (subset of the 5,500 LCL customers).Timestamped
-
+- "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
 - "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
-
-- "SM_Normalised.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group
+- 'SM_DistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
+- "SM_Consolidated_NH.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group, Heating demand removed
 
 ### SM Data Visualisation
 
