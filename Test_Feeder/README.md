@@ -6,13 +6,21 @@ The test feeder used to demonstrate the AGILE aggregation model is the Low Volta
 
 The feeder has 55 customers spread across the 3 phases. Flexibility is assigned as per Acorn Group.
 
-- Affluent: are assumed to be full adopters of Low carbon technologies, all have Heat Pumps, Electric Vehicles, PV and Home Batteries.
-- Comfortable: half of these are assumed to have PV and all are assumed to have solar.
-- Adversity: are assumed to not have any low carbon technologies (LCTs) due high capital costs required.
+Based on the Low Carbon London data for london customers, https://data.london.gov.uk/blog/electricity-consumption-in-a-sample-of-london-households/,
+there is a roughly even spread of households per acorn group (with slightly more Adversity customers).
+
+The test network has a slightly higher share of Affluent customers to represent a feeder with higher LCT uptage as follows;
+
+- Affluent (24 Customers): are assumed to be full adopters of Low carbon technologies, all have Heat Pumps, Electric Vehicles, PV and Home Batteries.
+- Comfortable (18 Customers): half of these are assumed to have PV and all are assumed to have solar.
+- Adversity (17 Customers): are assumed to not have any low carbon technologies (LCTs) due high capital costs required.
+
 
 The network schematic is shown below:
 
 ![Feeder1](Feed1/feeder_map.png)
+
+**Figure 1:** Feeder Map with customers and LCT technologies
 
 ### PV Capacity Distribution
 
@@ -22,6 +30,8 @@ This is reported by Ofgem in https://www.ofgem.gov.uk/environmental-programmes/f
 The installation report for January 2020 is used and filtered by Domestic PV. The resulting histogram is shown below:
 
 ![Feeder1](PV_Capacity_Histo.jpg)
+
+**Figure 2:** PV capacity histogram
 
 This translates to the following capacities and weights. 
 
