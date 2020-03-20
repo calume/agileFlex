@@ -45,6 +45,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 #### Timeseries by Site
 
 ![PVBySite](Visualisation/PV_BySite.jpeg)
+
 **Figure 1:** PV output timeseries by Site
 
 #### Daily profile by Season (all sites)
@@ -61,7 +62,9 @@ The number of mixtures has been chosed by minimising the Aikaike Information Cri
 
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling)
 
-![PVSeason](Visualisation/PV_MixtureModels.jpeg)
+![PV_MixtureModels](Visualisation/PV_MixtureModels.jpeg)
+
+**Figure 3:**  PV Mixture Models
 
 ## Smart Meter
 
@@ -111,7 +114,9 @@ The daily mean demand (kW) profiles for the subset of 184 househoulds, categoris
 Elexon average customer demand profiles from https://www.elexon.co.uk/operations-settlement/profiling/ are superimposed for comparison. 
 Class 1 customers are Domestic Unrestricted Customers and Class 2 customers are Domestic Economy 7 Customers which would typically include overnight storage heating and hot water.
 
-![PVSeason](Visualisation/SM_Consolidated.png)
+![SM_Consolidated](Visualisation/SM_Consolidated.png)
+
+**Figure 4:**  Smart Meter Daily Profiles by Acorn Group (Means) 
 
 #### Customers with storage heating
 From Inspection there are unexpected peaks in the winter demand from midnight till around 4am. This suggests controlled storage heating and/or water heating.
@@ -122,7 +127,9 @@ The winter daily profiles of some of the Customers with the highest overnight an
 amongst the highest of the sample set, of up to 10,000 kWh/year. As a reference, the Ofgem Typical Domestic Consumption Values (TCVD) for a high user 
 of electricity on Economy 7 Tariff (as customers with storage heating typically are), is 7,100 kWh/year.
 
-![PVSeason](Visualisation/SM_Heating.png)
+![SM_Heating](Visualisation/SM_Heating.png)
+
+**Figure 5:**  Smart Meter Customers with Storage Heating 
 
 y axis is demand in kW, y labels are the customer ID
 
@@ -145,7 +152,9 @@ In fact Comfortable customers now have a higher average daily demand and peak. T
 The demand in the LCL subset is lower than the Elexon class 1 and class 2 profiles. Therefore heat pump and EV demand can be added with some confidence that there is not already a
 significant amounts already there.
 
-![PVSeason](Visualisation/SM_Consolidated_NH.png)
+![SM_Consolidated_NH](Visualisation/SM_Consolidated_NH.png)
+
+**Figure 6:**  Smart Meter Daily profiles with heating costomers removed 
 
 #### Smart Meter Gaussian Mixture Models
 
@@ -155,12 +164,15 @@ The number of mixtures has been chosed by minimising the Aikaike Information Cri
 
 The means of the seasonal Gaussian mixture models for the Comfortable Acorn group can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling).
 
-![SM_Comfortable](Visualisation/SM_Comfortable_GMM.png)
+![SM_Comfortable_GMM](Visualisation/SM_Comfortable_GMM.png)
+
+**Figure 7:**  Smart Meter Gaussian mixtures: Comfortable acorn group
 
 The mixtures for the Comfortable Acorn group show that they capture some of the variation up to and above the 95th percentile. In the case of smart meter data, to capture the outliers (small number of points up to 8kW)
 would require a large number of mixtures. A limitation of using the means of gaussian mixtures is that these outliers are not captured although they are very unfrequent, which is why the mixture model does not fit to them.
 
 This is particularly the case for the Affluent mixtures (shown below), particularly in Summer week days, where there are very few fits to data above the mean, due to less variation in demand profiles than in the weekend.
 
-![SM_Comfortable](Visualisation/SM_Adversity_GMM.png)
+![SM_Adversity_GMM](Visualisation/SM_Affluent_GMM.png)
 
+**Figure 8:**  Smart Meter Gaussian mixtures: Adversity acorn group
