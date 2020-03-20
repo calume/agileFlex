@@ -50,7 +50,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 #### Daily profile by Season (all sites)
 
 ![PVSeason](Visualisation/PV_Seasonal.jpeg)
-.center[PV output (all sites) by Season]
+**Figure 1:** PV output (all sites) by Season]
 
 #### PV Gaussian Mixture Models
 
