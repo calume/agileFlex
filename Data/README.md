@@ -45,10 +45,12 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 #### Timeseries by Site
 
 ![PVBySite](Visualisation/PV_BySite.jpeg)
+.center[PV output timeseries by Site]
 
 #### Daily profile by Season (all sites)
 
 ![PVSeason](Visualisation/PV_Seasonal.jpeg)
+.center[PV output (all sites) by Season]
 
 #### PV Gaussian Mixture Models
 
@@ -115,7 +117,7 @@ From Inspection there are unexpected peaks in the winter demand from midnight ti
 As Heat pump demand is to be added to customers base load, it is important to separate customers with electric heating, so that
 heat demand is not added twice to any customers.
 
-Some of the Customers with the highest overnight and 4pm demand are shown below. These are all Affluent type customers with high annual demands, 
+The winter daily profiles of some of the Customers with the highest overnight and 4pm demand are shown below. These are all Affluent type customers with high annual demands, 
 amongst the highest of the sample set, of up to 10,000 kWh/year. As a reference, the Ofgem Typical Domestic Consumption Values (TCVD) for a high user 
 of electricity on Economy 7 Tariff (as customers with storage heating typically are), is 7,100 kWh/year.
 
@@ -150,14 +152,14 @@ Using the daily seasonal profiles per Acorn Group above, Gaussian Mixture models
 
 The number of mixtures has been chosed by minimising the Aikaike Information Criterion, which leads to a large number of mixtures up to the limit of 80 chosen.
 
-The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling).
+The means of the seasonal Gaussian mixture models for the Comfortable Acorn group can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling).
 
 ![SM_Comfortable](Visualisation/SM_Comfortable_GMM.png)
 
-The mixtures for Comfortable show that they capture some of the variation up to and above the 95th percentile. In the case of smart meter data, to capture the outliers (small number of points up to 8kW)
-would require a large number of mixtures. A limitation of using the means is that these outliers are not captured although they are very unfrequent, which is why the mixture model does not fit to them.
+The mixtures for the Comfortable Acorn group show that they capture some of the variation up to and above the 95th percentile. In the case of smart meter data, to capture the outliers (small number of points up to 8kW)
+would require a large number of mixtures. A limitation of using the means of gaussian mixtures is that these outliers are not captured although they are very unfrequent, which is why the mixture model does not fit to them.
 
-This is particularly the case for the Affluent mixtures, where there are very few fits to data above the mean as shown below;
+This is particularly the case for the Affluent mixtures (shown below), particularly in Summer week days, where there are very few fits to data above the mean, due to less variation in demand profiles than in the weekend.
 
 ![SM_Comfortable](Visualisation/SM_Adversity_GMM.png)
 
