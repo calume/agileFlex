@@ -62,11 +62,11 @@ def mixtures():
         GMChosen[k][GMChosen[k] < 0.02] = 0
         GMWeights[k] = GMModels[k][nmix[k]].weights_
 
-    pickle_out = open("Pickle/PVDistsGMMChosen.pickle", "wb")  # means
+    pickle_out = open("Pickle/PV_DistsGMMChosen.pickle", "wb")  # means
     pickle.dump(GMChosen, pickle_out)
     pickle_out.close()
 
-    pickle_out = open("Pickle/PVDistsGMMWeights.pickle", "wb")  # weights
+    pickle_out = open("Pickle/PV_DistsGMMWeights.pickle", "wb")  # weights
     pickle.dump(GMWeights, pickle_out)
     pickle_out.close()
 
@@ -78,10 +78,10 @@ def mixtures():
 
 def mix_Visualisation():
     qrts = PV_Visualisation()  # This will also print the outputs from PV_Load
-    pickin = open("Pickle/PVDistsGMMChosen.pickle", "rb")
+    pickin = open("Pickle/PV_DistsGMMChosen.pickle", "rb")
     GMChosen = pickle.load(pickin)
 
-    pickin = open("Pickle/PVDistsGMMWeights.pickle", "rb")
+    pickin = open("Pickle/PV_DistsGMMWeights.pickle", "rb")
     GMWeights = pickle.load(pickin)
 
     plt.figure(3)

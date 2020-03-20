@@ -2,8 +2,8 @@
 
 This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
-- PV: London Datastore for 6 PV sites over ~400 days
-- Smart Meter: London Datastore for 184 customers over ~650 days
+- [PV](##pv): London Datastore for 6 PV sites over ~400 days
+- [Smart Meter](##smart-meter): London Datastore for 184 customers over ~650 days
 - Heat Pump: London Datastore 
 - Electric Vehicle: Electric nation
 
@@ -24,10 +24,19 @@ Alverston Close | 3.00 | 2013-11-06 to 2014-11-14 (372 Days)
 Maple Drive East | 4.00 | 2013-08-21 to 2014-11-13 (448 Days)
 YMCA | 0.45 | 2013-09-25 to 2014-11-19 (420 Days)
 
-The script 'PVLoad.py' creates 4 pickle files with the data processed:
+The script 'PV_Load.py' creates 4 pickle files with the data processed:
     
 - 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
 - 'PV_Normalised.pickle' - Which has normalised output by season in rows of 48 half hours combined for all sites with timestamps removed.
+
+Furthermore, in the script 'PV_Mixtures', Gaussian mixture models (GMMs) are fitted to the data in 'PV_Normalised'. 
+
+This produces the following pickle files which contain GMMs by season:
+
+- 'PV_DistsGMMChosen.pickle' - Mean of normalised output each mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
+- 'PV_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
+
+These are shown in [PV Gaussian Mixture models](####pv-gaussian-mixture-models).
 
 The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
 
@@ -41,7 +50,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 ![PVSeason](Visualisation/PV_Seasonal.jpeg)
 
-#### Gaussian Mixture Models
+#### PV Gaussian Mixture Models
 
 Using the daily seasonal profiles above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
 
@@ -81,7 +90,16 @@ The script creates 4 pickle files with the data processed:
 - 'SM_DistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
 - "SM_Consolidated_NH.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group, Heating demand removed
 
-### SM Data Visualisation
+Furthermore, in the script 'SM_Mixtures', Gaussian mixture models (GMMs) are fitted to the data in 'SM_Consolidated_NH'. 
+
+This produces the following pickle files which contain GMMs by season:
+
+- 'SM_DistsGMMChosen.pickle' - Mean of each demand mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
+- 'SM_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
+
+These are shown in [Smart Meter Gaussian Mixture models](####smart-meter-gaussian-mixture-models).
+
+### Smart meter Data Visualisation
 
 #### Seasonal Mean Demand by Acorn Group
 
@@ -126,4 +144,20 @@ significant amounts already there.
 
 ![PVSeason](Visualisation/SM_Consolidated_NH.png)
 
+#### Smart Meter Gaussian Mixture Models
+
+Using the daily seasonal profiles per Acorn Group above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
+
+The number of mixtures has been chosed by minimising the Aikaike Information Criterion, which leads to a large number of mixtures up to the limit of 80 chosen.
+
+The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling).
+
+![SM_Comfortable](Visualisation/SM_Comfortable_GMM.png)
+
+The mixtures for Comfortable show that they capture some of the variation up to and above the 95th percentile. In the case of smart meter data, to capture the outliers (small number of points up to 8kW)
+would require a large number of mixtures. A limitation of using the means is that these outliers are not captured although they are very unfrequent, which is why the mixture model does not fit to them.
+
+This is particularly the case for the Affluent mixtures, where there are very few fits to data above the mean as shown below;
+
+![SM_Comfortable](Visualisation/SM_Adversity_GMM.png)
 
