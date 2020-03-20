@@ -2,8 +2,8 @@
 
 This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
-- [PV](##pv): London Datastore for 6 PV sites over ~400 days
-- [Smart Meter](##smart-meter): London Datastore for 184 customers over ~650 days
+- [PV](#pv): London Datastore for 6 PV sites over ~400 days
+- [Smart Meter](#smart-meter): London Datastore for 184 customers over ~650 days
 - Heat Pump: London Datastore 
 - Electric Vehicle: Electric nation
 
@@ -36,7 +36,7 @@ This produces the following pickle files which contain GMMs by season:
 - 'PV_DistsGMMChosen.pickle' - Mean of normalised output each mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
 - 'PV_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
 
-These are shown in [PV Gaussian Mixture models](####pv-gaussian-mixture-models).
+These are shown in [PV Gaussian Mixture models](#pv-gaussian-mixture-models).
 
 The script 'PVLoad.py' also plots the data both by site and by season. Some of the displays are shown below.
 
@@ -97,7 +97,7 @@ This produces the following pickle files which contain GMMs by season:
 - 'SM_DistsGMMChosen.pickle' - Mean of each demand mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
 - 'SM_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
 
-These are shown in [Smart Meter Gaussian Mixture models](####smart-meter-gaussian-mixture-models).
+These are shown in [Smart Meter Gaussian Mixture models](#smart-meter-gaussian-mixture-models).
 
 ### Smart meter Data Visualisation
 
