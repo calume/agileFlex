@@ -4,7 +4,7 @@ This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
 - [PV](#pv): London Datastore for 6 PV sites over ~400 days
 - [Smart Meter](#smart-meter): London Datastore for 184 customers over ~650 days
-- Heat Pump: London Datastore 
+- [Heat Pump](#heat-pump: London Datastore 
 - Electric Vehicle: Electric nation
 
 ## PV 
@@ -176,3 +176,37 @@ This is particularly the case for the Affluent mixtures (shown below), particula
 ![SM_Adversity_GMM](Visualisation/SM_Affluent_GMM.png)
 
 **Figure 8:**  Smart Meter Gaussian mixtures: Adversity acorn group
+
+## Heat Pump
+
+Heat pump data is taken from the UK governmoent Renewable Heat Premium Payment Scheme: https://beta.ukdataservice.ac.uk/datacatalogue/studies/study?id=8151&type=data%20catalogue
+
+Lowe, R., Department of Energy and Climate Change. (2017). Renewable Heat Premium Payment Scheme: Heat Pump Monitoring: Cleaned Data, 2013-2015. [data collection]. UK Data Service. SN: 8151, http://doi.org/10.5255/UKDA-SN-8151-1
+
+Data is available for 700 heat pumps between October 2013 and March 2015  (although the heat pumps dont all have data for the date entire range).
+
+For AGILE the data has been filtered by Domestic Air Source heat pumps (many of the heat pumps were ground source and for social landlords) which took the 
+dataset down to 84 customers.
+
+The capacities of the heat pumps have been inferred by the maximum power drawn. Note: the data is supplied 2 minutely, therefore
+capacities calculated from 2mins are higher than those averaged over 30mins. In this work the 30min capacity is used along with the
+power averaged over 30mins. The powers calculated over 2 mins and 3 mins are shown below:
+
+kW|Weight
+--|------
+1|0.05
+2|0.07
+3|0.29
+4|0.21
+5|0.25
+6|0.08
+7|0.03
+8|0.03
+
+![HP_peak2min](Visualisation/HP_peak_2min.png)
+
+**Figure 9:**  Heat pump capacity histogram - 2 mins
+
+![HP_peak30min](Visualisation/HP_peak_30min.png)
+
+**Figure 10:**  Heat pump capacity histogram - 30 mins
