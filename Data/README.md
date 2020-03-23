@@ -210,17 +210,6 @@ However this highlights an important point about peak power flows: short term po
 
 The powers calculated over 2 mins and 30 mins are shown below:
 
-kW|Weight
---|------
-3|0.05
-4|0.07
-5|0.29
-6|0.21
-7|0.25
-8|0.08
-9|0.03
-10|0.03
-
 ![HP_peak2min](Visualisation/HP_peak_2min.png)
 
 **Figure 9:**  Heat pump capacity histogram - 2 mins
