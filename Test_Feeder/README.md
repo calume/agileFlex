@@ -12,9 +12,8 @@ there is a roughly even spread of households per acorn group (with slightly more
 The test network has a slightly higher share of Affluent customers to represent a feeder with higher LCT uptage as follows;
 
 - Affluent (24 Customers): are assumed to be full adopters of Low carbon technologies, all have Heat Pumps, Electric Vehicles, PV and Home Batteries.
-- Comfortable (18 Customers): half of these are assumed to have PV and all are assumed to have solar.
+- Comfortable (18 Customers): half of these are assumed to have PV and all are assumed to have heat pumps.
 - Adversity (17 Customers): are assumed to not have any low carbon technologies (LCTs) due high capital costs required.
-
 
 The network schematic is shown below:
 
