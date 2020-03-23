@@ -1,0 +1,3 @@
+Edit Vsource.Source BasekV=33 pu=1 ISC3=3000 ISC1=1500
+
+!New Generator.2MWGen Bus1=450 kV=4.16  kW=2000  PF=1 

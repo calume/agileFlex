@@ -1,0 +1,21 @@
+New Transformer.TP1 Buses=[Sourcebus GIBSON] Conns=[Delta Wye] kVs=[33 11] r=9.17405 x=23.5738 kVAs=[10500 10500]
+New Transformer.TS1 Buses=[GIBSON 11] Conns=[Delta Wye] kVs=[11 0.416] r=1.68965 x=6.2128 kVAs=[800 800]
+
+!New Transformer.TP1 Buses=[Sourcebus GIBSON] Conns=[Delta Wye] kVs=[33 11] kVAs=[800 800]
+!New Transformer.TS1 Buses=[GIBSON 111] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800]
+!New Transformer.TS2 Buses=[HOPE 211] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800]
+!New Transformer.TS2 Buses=[ROSE 311] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800]
+!New Transformer.TS2 Buses=[MADRAS 411] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800]
+!New Transformer.TS2 Buses=[SOUTH 511] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800]
+	
+	
+	
+	
+	
+	
+	
+
+	
+
+
+
