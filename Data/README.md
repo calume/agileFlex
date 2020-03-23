@@ -192,7 +192,7 @@ dataset down to 84 customers. Demand for space heating and water heating is comb
 
 The script 'HP_Load' creates 3 pickle files with the data processed:
     
-- "HP_DataFrame.pickle" - Heat Pump raw data for 84 Smart meters (subset of the 5,500 LCL customers).Timestamped
+- "HP_DataFrame.pickle" - Heat Pump raw data for 84 customers (subset of the 700 LCL customers).Timestamped
 - 'HP_DistsBySeason.pickle' Daily heat pump demand for each customer by season. Timestamp removed
 - "HP_Consolidated.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles
 
