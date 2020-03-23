@@ -122,11 +122,11 @@ def SMCondensed():
     SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
     SM_DataFrame=SM_DataFrame.resample('30T').mean()
     
-    pickle_out = open("Pickle/SM_DataFrame.pickle", "wb")
+    pickle_out = open("../../Data/SM_DataFrame.pickle", "wb")
     pickle.dump(SM_DataFrame, pickle_out)
     pickle_out.close()
     
-    pickle_out = open("Pickle/SM_Summary.pickle", "wb")
+    pickle_out = open("../../Data/SM_Summary.pickle", "wb")
     pickle.dump(SM_Summary, pickle_out)
     pickle_out.close()
     
@@ -134,7 +134,7 @@ def SMCondensed():
 #This function prints summary data for the customers
 
 def generate_summaryData():
-    pickle_in = open("Pickle/SM_Summary.pickle", "rb")
+    pickle_in = open("../../Data/SM_Summary.pickle", "rb")
     SM_Summary = pickle.load(pickle_in)
     
     print(round(SM_Summary.groupby(['AcornGroup']).mean(),2))
@@ -143,13 +143,13 @@ def generate_summaryData():
         print(sum(SM_Summary['AcornGroup']==i))
 
 ###----------------------------- Converting to Daily Profiles ------------------------
-pick_in = open("Pickle/SM_Summary.pickle", "rb")
+pick_in = open("../../Data/SM_Summary.pickle", "rb")
 SM_Summary = pickle.load(pick_in)
 SM_Summary=SM_Summary[~SM_Summary.index.duplicated()]
 SM_Summary.index=SM_Summary.index.astype(int)
 SM_Summary=SM_Summary.sort_index(axis=0)
 
-pick_in = open("Pickle/SM_DataFrame.pickle", "rb")
+pick_in = open("../../Data/SM_DataFrame.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 SM_DataFrame=SM_DataFrame.resample('30T').mean()
 SM_DataFrame=SM_DataFrame.loc[:,~SM_DataFrame.columns.duplicated()]
@@ -252,7 +252,7 @@ def SM_Visualise(SM_DistsConsolidated,smkeys,times):
 
 
 #---------- Removing heating loads
-pick_in = open("Pickle/SM_DistsByAcorn.pickle", "rb")
+pick_in = open("../../Data/SM_DistsByAcorn.pickle", "rb")
 SM_DistsByAcorn = pickle.load(pick_in)
 
 def Heaters(SM_DataFrame):
@@ -324,12 +324,12 @@ def ConsolidatefromAcornSMs(SM_DistsByAcorn_NH):
 def createnewDailyByAcorn():
     SM_ByAcorn=DataFramebySeason(SM_DataFrame,SM_Summary,smkeys,AcornGroup)
     SM_DistsByAcorn=profilesBySM(SM_ByAcorn)
-    pickle_out = open("Pickle/SM_DistsByAcorn.pickle", "wb")
+    pickle_out = open("../../Data/SM_DistsByAcorn.pickle", "wb")
     pickle.dump(SM_DistsByAcorn, pickle_out)
     pickle_out.close()
 
 #HeatersSort=Heaters(SM_DataFrame)[1]
 #HeatVisuals(times,SM_DistsByAcorn,SM_DataFrame,HeatersSort)
 
-pick_in = open("Pickle/SM_DistsByAcorn_NH.pickle", "rb")
+pick_in = open("../../Data/SM_DistsByAcorn_NH.pickle", "rb")
 SM_DistsByAcorn_NH = pickle.load(pick_in)

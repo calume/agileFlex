@@ -4,7 +4,7 @@ This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
 - [PV](#pv): London Datastore for 6 PV sites over ~400 days
 - [Smart Meter](#smart-meter): London Datastore for 184 customers over ~650 days
-- [Heat Pump](#heat-pump: London Datastore 
+- [Heat Pump](#heat-pump): London Datastore 
 - Electric Vehicle: Electric nation
 
 ## PV 
@@ -88,6 +88,8 @@ Adversity | 54 | 670|3.88|8.04|0.33
 Comfortable | 46 | 655|4.62|9.62|0.40
 Affluent | 84 |679|5.58|12.87| 0.54
 
+The smart meter dates per customer ranges between 06/12/2011 up to 28/02/2014.
+However complete data for most customers is available between 06/2012 and 06/2013.
 
 The script creates 4 pickle files with the data processed:
     
