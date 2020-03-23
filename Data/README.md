@@ -196,14 +196,14 @@ power averaged over 30mins. The powers calculated over 2 mins and 3 mins are sho
 
 kW|Weight
 --|------
-1|0.05
-2|0.07
-3|0.29
-4|0.21
-5|0.25
-6|0.08
-7|0.03
-8|0.03
+3|0.05
+4|0.07
+5|0.29
+6|0.21
+7|0.25
+8|0.08
+9|0.03
+10|0.03
 
 ![HP_peak2min](Visualisation/HP_peak_2min.png)
 

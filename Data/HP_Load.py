@@ -32,7 +32,7 @@ HP_Summary=pd.read_excel('../../Data/RHPP-Beis-Summary.xlsx', sheet_name=0)
 HP_Summary_ASHP=HP_Summary[HP_Summary['Heat pump Type']=='ASHP']
 HP_Summary_ASHP_Domestic=HP_Summary_ASHP['RHPP Name'][HP_Summary_ASHP['Site Type']=='Domestic']
 
-path="../../Data/heatpump/processed_rhpp"
+#path="../../Data/heatpump/processed_rhpp"
 
 #lst=[]
 #for f in range(0,len(HP_Summary_ASHP_Domestic)):
@@ -55,8 +55,8 @@ hist2=[]
 hist30=[]
 for f in HP_DataFrame.columns:
     print(f, end=": ")
-    HP_RawFile = pd.read_csv(path+f+".csv", index_col=['Matlab_time'], usecols=['Matlab_time','Year','Month','Ehp','Edhw'])      
-    hist2.append(round(((HP_RawFile['Ehp']+HP_RawFile['Edhw'])/1000*30).max(),1))
+    #HP_RawFile = pd.read_csv(path+f+".csv", index_col=['Matlab_time'], usecols=['Matlab_time','Year','Month','Ehp','Edhw'])      
+    #hist2.append(round(((HP_RawFile['Ehp']+HP_RawFile['Edhw'])/1000*30).max(),1))
     hist30.append(round(HP_DataFrame[f].max()))
 #    out_datetime=pd.Series(index=range(0,len(HP_RawFile.index)))
 #    for i in range(0,len(HP_RawFile.index)):
@@ -90,16 +90,16 @@ for f in HP_DataFrame.columns:
 #HP_DataFrame = pickle.load(pick_in)
     
 #------------- Visualise 
-histo2,binz2 = np.histogram(hist2,bins=range(0,int(max(hist2)),1))
-
-fig,ax = plt.subplots(figsize=(5,4))
-ax.bar(binz2[:-1],histo2,width=1,align='edge')
-ax.set_xlim(left=0)#,right=5000)
-ax.set_ylabel('Number of households',fontsize=9)
-ax.set_xlabel('Peak Heat Pump Demand / Capacity (kW)',fontsize=9)
-for t in ax.xaxis.get_majorticklabels(): t.set_fontsize(9)
-for t in ax.yaxis.get_majorticklabels(): t.set_fontsize(9)
-plt.tight_layout()
+#histo2,binz2 = np.histogram(hist2,bins=range(0,int(max(hist2)),1))
+#
+#fig,ax = plt.subplots(figsize=(5,4))
+#ax.bar(binz2[:-1],histo2,width=1,align='edge')
+#ax.set_xlim(left=0)#,right=5000)
+#ax.set_ylabel('Number of households',fontsize=9)
+#ax.set_xlabel('Peak Heat Pump Demand / Capacity (kW)',fontsize=9)
+#for t in ax.xaxis.get_majorticklabels(): t.set_fontsize(9)
+#for t in ax.yaxis.get_majorticklabels(): t.set_fontsize(9)
+#plt.tight_layout()
 
 histo30,binz30 = np.histogram(hist30,bins=range(0,int(max(hist30)),1))
 
