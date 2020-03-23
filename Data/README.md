@@ -181,17 +181,20 @@ This is particularly the case for the Affluent mixtures (shown below), particula
 
 ## Heat Pump
 
-Heat pump data is taken from the UK governmoent Renewable Heat Premium Payment Scheme: https://beta.ukdataservice.ac.uk/datacatalogue/studies/study?id=8151&type=data%20catalogue
+Heat pump data is taken from the UK government Renewable Heat Premium Payment Scheme: https://beta.ukdataservice.ac.uk/datacatalogue/studies/study?id=8151&type=data%20catalogue
 
 Lowe, R., Department of Energy and Climate Change. (2017). Renewable Heat Premium Payment Scheme: Heat Pump Monitoring: Cleaned Data, 2013-2015. [data collection]. UK Data Service. SN: 8151, http://doi.org/10.5255/UKDA-SN-8151-1
 
 Data is available for 700 heat pumps between October 2013 and March 2015  (although the heat pumps dont all have data for the date entire range).
 
+For AGILE the data has been filtered by Domestic Air Source heat pumps (many of the heat pumps were ground source and for social landlords) which took the 
+dataset down to 84 customers. Demand for space heating and water heating is combined.
+
 The script 'HP_Load' creates 3 pickle files with the data processed:
     
-- "HP_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
+- "HP_DataFrame.pickle" - Heat Pump raw data for 84 Smart meters (subset of the 5,500 LCL customers).Timestamped
 - 'HP_DistsBySeason.pickle' Daily heat pump demand for each customer by season. Timestamp removed
-- "SM_Consolidated.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles
+- "HP_Consolidated.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles
 
 Furthermore, in the script 'HP_Mixtures', Gaussian mixture models (GMMs) are fitted to the data in 'HP_DistsConsolidated'. 
 
@@ -199,9 +202,6 @@ This produces the following pickle files which contain GMMs by season:
 
 - 'HP_DistsGMMChosen.pickle' - Mean of each demand mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
 - 'HP_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
-
-For AGILE the data has been filtered by Domestic Air Source heat pumps (many of the heat pumps were ground source and for social landlords) which took the 
-dataset down to 84 customers. Demand for space heating and water heating is combined.
 
 The capacities of the heat pumps have been inferred by the maximum power drawn. Note: the data is supplied 2 minutely but for AGILE has been resampled to 30minutely (as per the other data), 
 capacities calculated from 2mins are higher than those averaged over 30mins.  
