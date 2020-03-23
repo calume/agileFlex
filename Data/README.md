@@ -95,7 +95,7 @@ The script creates 4 pickle files with the data processed:
     
 - "SM_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
 - "SM_Summary.pickle" - Summary of Acorn Group, Date Ranges and Means/Peaks for each household
-- 'SM_DistsByAcorn_NH' Costumers by acorn group with overnight heating demand removed
+- 'SM_DistsByAcorn_NH' Costomers by acorn group with overnight heating demand removed
 - "SM_Consolidated_NH.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles by ACorn Group, Heating demand removed
 
 Furthermore, in the script 'SM_Mixtures', Gaussian mixture models (GMMs) are fitted to the data in 'SM_Consolidated_NH'. 
@@ -187,12 +187,28 @@ Lowe, R., Department of Energy and Climate Change. (2017). Renewable Heat Premiu
 
 Data is available for 700 heat pumps between October 2013 and March 2015  (although the heat pumps dont all have data for the date entire range).
 
-For AGILE the data has been filtered by Domestic Air Source heat pumps (many of the heat pumps were ground source and for social landlords) which took the 
-dataset down to 84 customers.
+The script 'HP_Load' creates 3 pickle files with the data processed:
+    
+- "HP_DataFrame.pickle" - Smart meter raw data for 187 Smart meters (subset of the 5,500 LCL customers).Timestamped
+- 'HP_DistsBySeason.pickle' Daily heat pump demand for each customer by season. Timestamp removed
+- "SM_Consolidated.pickle" - Customers are combined into Seasonal (and weekday/weekend) daily profiles
 
-The capacities of the heat pumps have been inferred by the maximum power drawn. Note: the data is supplied 2 minutely, therefore
-capacities calculated from 2mins are higher than those averaged over 30mins. In this work the 30min capacity is used along with the
-power averaged over 30mins. The powers calculated over 2 mins and 3 mins are shown below:
+Furthermore, in the script 'HP_Mixtures', Gaussian mixture models (GMMs) are fitted to the data in 'HP_DistsConsolidated'. 
+
+This produces the following pickle files which contain GMMs by season:
+
+- 'HP_DistsGMMChosen.pickle' - Mean of each demand mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
+- 'HP_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
+
+For AGILE the data has been filtered by Domestic Air Source heat pumps (many of the heat pumps were ground source and for social landlords) which took the 
+dataset down to 84 customers. Demand for space heating and water heating is combined.
+
+The capacities of the heat pumps have been inferred by the maximum power drawn. Note: the data is supplied 2 minutely but for AGILE has been resampled to 30minutely (as per the other data), 
+capacities calculated from 2mins are higher than those averaged over 30mins.  
+
+However this highlights an important point about peak power flows: short term power flows will be higher than 30minute averaged, and could push the network outside thermal and voltage limits.
+
+The powers calculated over 2 mins and 30 mins are shown below:
 
 kW|Weight
 --|------
@@ -212,3 +228,30 @@ kW|Weight
 ![HP_peak30min](Visualisation/HP_peak_30min.png)
 
 **Figure 10:**  Heat pump capacity histogram - 30 mins
+
+### Heat Pump Demand Visualisation
+
+The seasonal heat pump demand has been consolidated for all heat pumps as shown below:
+
+![HP_Consolidated](Visualisation/HP_Seasonal_Consolidated.png)
+
+**Figure 11:**  Heat pump demand seasonal daily profiles consolidated
+
+As expected winter demand is higher and there are average pickups in the morning and evening, However there is alot of variation in the individual profiles and the heat pump demand is very peaky
+even at 30 minutely resolution due to the heat pump coming on for bursts then going off.
+In winter, in the middle of the day the mean never goes below 1 kW and even through the night the mean stays above 0.7 kW. Heat pumps will significantly increase the base load of demand throughout the day in winter.
+
+### Heat Pump Gaussian Mixture Models
+
+Using the daily seasonal profiles above, Gaussian Mixture models can be fitted to the data to allow multivariate sampling.
+
+The number of mixtures has been chosed by minimising the Aikaike Information Criterion, which leads to a large number of mixtures up to the limit of 80 chosen.
+
+The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling).
+
+![HP_GMM](Visualisation/HP_GMM.png)
+
+**Figure 11:**  Heat pump Gaussian Mixture Models
+
+The mixtures capture well the different customer behaviours, for example some customers have clear morning and evening heat pump demand, whereas some have a more contiunous on-off demand through the day.
+Given there are quite different heat pump sizes and control settings, it will make sense to sample the next days heat pump demand for a customer based on the closest mixture from the previous day.
