@@ -203,6 +203,8 @@ This produces the following pickle files which contain GMMs by season:
 - 'HP_DistsGMMChosen.pickle' - Mean of each heat pump demand mixture. e.g. for 50 mixtures then there will be 50 rows of 48 half hours.
 - 'HP_DistsGMMWeights.pickle' - Weighting for each mixture. e.g. for 50 mixtures there will be 50 probabilities, adding up to 1.
 
+### Heat Pump Maximum Powers
+
 The capacities of the heat pumps have been inferred by the maximum power drawn. Note: the data is supplied 2 minutely but for AGILE has been resampled to 30minutely (as per the other data), 
 capacities calculated from 2mins are higher than those averaged over 30mins.  
 
