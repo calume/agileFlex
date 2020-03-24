@@ -158,7 +158,7 @@ for i in PV_DataFrame.keys():
     n=n+1
     l=l+1
     
-print('Average NMAE. Day ahead Persistence: ',round(DA_PersistanceNMAE.mean(),2),'Day Ahead GMM: ',round(DA_WeightedNMAE.mean(),2),'Intraday GMM: ',round(ID_WeightedNMAE.mean(),2))
+print('Average NMAE. Day ahead Persistence: ',round(DA_PersistanceNMAE.mean(),3),'Day Ahead GMM: ',round(DA_WeightedNMAE.mean(),3),'Intraday GMM: ',round(ID_WeightedNMAE.mean(),3))
 
 plt.tight_layout()
 

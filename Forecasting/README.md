@@ -25,7 +25,16 @@ Below is the day ahead forecast for the 2/7/2014 using data from the day before 
 
 **Figure 1:** PV day ahead forecast 
 
+The average Day ahead persistence NMAE across all sites is 0.091, and the Day Ahead weighted gaussian mixture NMAE, which is created from the persistence forcast for 2/7/2014 is 0.079. 
+
+The highest day ahead error comes for Alverston Close which has no output on the 2/7/2014. 
+
+The intraday forecasts estimated using the first 10 hours of daily output are given below:
+
 ![Intraday](Intraday.png)
 
-**Figure 1:** PV intraday forecast
+The average Intraday gaussian mixture model forecast NMAE across all sites is 0.06. However in most cases the NMAE is worse using the best fit intraday forecast than the day ahead,
+The intraday forecast is most useful for capturing days with no output as occured in Alverston Close.
+
+**Figure 2:** PV intraday forecast
 
