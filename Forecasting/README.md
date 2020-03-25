@@ -22,7 +22,7 @@ Below is the Day Ahead forecast for the 8 days from 2/7/2014 using data from the
 
 The forecasts are for the site 'Averston Close' which was removed from the training data to allow it to be used for testing.
 
-![Day Ahead](Day_Ahead.png)
+![Day Ahead](Day_Ahead2.png)
 
 **Figure 1:** Alverston Close PV Day Ahead forecast 
 
@@ -32,7 +32,7 @@ The highest Day Ahead persistence and GMM error comes on Day 1 which has no outp
 
 The intraday forecasts estimated using the first 10 hours of daily output, are vital on Days 1 and 2 for correcting this Day Ahead error, these are given below:
 
-![Intraday](Intraday.png)
+![Intraday](Intraday2.png)
 
 **Figure 2:** Alverston Close PV intraday forecast
 
