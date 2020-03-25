@@ -13,6 +13,8 @@ The script 'PVLoad.py' is used to process PV data for the AGILE Model. The raw d
 The London DataStore PV data is used from: https://data.london.gov.uk/dataset/photovoltaic--pv--solar-panel-energy-generation-data
 Hourly Data is used and interpolated to half hourly. (Only 4 months of data was available for 10-minutely and 1-minutely)
 
+### PV Data Summary
+
 Data is available for the Following sites and Data ranges:
 
 Site | Apparent capacity (kW)* | Max** (kW) | Capacity Factor (from Apparent) | Capacity Factor (from Max) | Date Range
@@ -23,6 +25,7 @@ Bancroft Close | 3.50 | 3.34 | 0.123 |0.129 |2013-10-04 to 2014-11-17 (408 Days)
 Alverston Close | 3.00 | 2.9 | 0.124 |0.128|2013-11-06 to 2014-11-14 (372 Days)
 Maple Drive East | 4.00 | 3.35 |0.115 |0.138 |2013-08-21 to 2014-11-13 (448 Days)
 YMCA | 0.45 | 0.36 |0.087 | 0.11|2013-09-25 to 2014-11-19 (420 Days)
+
 *AS reported in the LCL readme file
 ** Maximum output in the data
 
@@ -34,7 +37,15 @@ Based on the max capacities in the data the Capacity factors of the sites range 
 
 Suffolk Road has a higher capacity factor than YMCA and to reduce this difference the max capacities from the data will be used rather than the apparent capacity figures.
 
-The script 'PV_Load.py' creates 4 pickle files with the data processed:
+### Forecasting training set
+
+To separate the training set from a test set, Alverston Close will be removed from the data when creating distributions due to having a mid range capacity factor.
+
+The forecasting method will then be tested on Alverston Close data to calculate the accuracy of the method.
+
+### Python Scripts
+
+The script 'PV_Load.py' creates 2 pickle files with the data processed:
     
 - 'PV_BySiteName.pickle' - Which contains output (kW and Normalised by capacity) datestamped with a dataframe for each site
 - 'PV_Normalised.pickle' - Which has normalised output by season in rows of 48 half hours combined for all sites with timestamps removed.
