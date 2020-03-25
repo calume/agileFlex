@@ -14,7 +14,7 @@ on how the data was used to produce distributions and gaussian mixture models.
 The script 'forecasting.py' produces forecasts of output from PV.
 
 The function 'Forecast' uses persistence forecast using a previous days data then fits gaussian mixtures (GMM) to produce a best fit Day Ahead forecast that 
-can be benchmarked against the persistence forecast. Both are a form of persistence forecast as they use the previous days output).
+can be benchmarked against the persistence forecast. Both are a form of persistence forecast as they use the previous days output.
 
 The Day Ahead (DA) forecast is refined using the first 10 hours of actual data (i.e. at 10am) to produce an Intraday (ID) forecast.
 
@@ -39,3 +39,26 @@ The intraday forecasts estimated using the first 10 hours of daily output, are v
 The average Intraday GMM forecast MAE across all sites is 0.076. The Intraday GMM provides an improved forecast than the Day Ahead on these 8 days,
 The intraday forecast is most useful for capturing days with no output as occured on Day 1 where the error is reduced from 0.228 to 0.047 from DA to ID.
 
+### PV Forecasting Error Box Plots
+
+The forecast error is calculated over a year to give the range of expected error. This is done for Alverston Close using the same methodology as above, from the dates 7/11/2013 to 12/11/2013.
+
+The Mean Absolute Errors for day ahead persistence and gaussian mixture model (GMM) as well as the GMM intraday mean errors are as follows;
+
+Method | Mean Absolute Error
+-------|--------------------
+DA Persistence| 0.076
+DA GMM|0.067
+DA ID|0.052
+
+The GMM provides a slight improvement over the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however this level of accuracy is sufficient.
+
+The range of possible errors for each method is shown by season in the box plots below. 
+
+![Intraday](box_plots.png)
+
+**Figure 3:** Mean Absolute Error for forecasting methods by season
+
+The persistence forecast has the highest maximum error in all seasons, The DA GMM provides a significant (~5%) improvement in error in Autumn.
+
+The Day ahead GMM forecast has much tighter error distributions particularly in summer where the maximum error is a little over 0.11 compared to over 0.2 for the Day ahead methods.
