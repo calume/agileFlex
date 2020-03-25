@@ -30,18 +30,18 @@ YMCA | 0.45 | 0.36 |0.087 | 0.11|2013-09-25 to 2014-11-19 (420 Days)
 ** Maximum output in the data
 
 As the data from all sites is to be normalised and combined into a general distribution, the variation between
-sites is important. This variation could be caused by different sitings and performance between sites, and could
+sites is important. This variation could be caused by different performance between sites, and could
 be due to errors in the apparant capacities reported in the LCL readme file.
-Based on the apparent capacities in the LCL readme file the Capacity factors of the sites range from 0.087 for YMCA to 0.139 to Suffolk Road.
+Based on the apparent capacities in the LCL readme file, the Capacity factors of the sites range from 0.087 for YMCA to 0.139 to Suffolk Road.
 Based on the max capacities in the data the Capacity factors of the sites range from 0.11 for YMCA to 0.14 to Suffolk Road.
 
 Suffolk Road has a higher capacity factor than YMCA and to reduce this difference the max capacities from the data will be used rather than the apparent capacity figures.
 
 ### Forecasting training set
 
-To separate the training set from a test set, Alverston Close will be removed from the data when creating distributions due to having a mid range capacity factor.
+To separate the training set from a test set, Alverston Close will be removed from the training set data when creating distribution.
 
-The forecasting method will then be tested on Alverston Close data to calculate the accuracy of the method.
+Alverston Close data will then be used as the test set to estimate the accuracy of the method.
 
 ### Python Scripts
 
@@ -71,7 +71,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 #### Daily profile by Season (all sites)
 
-![PVSeason](Visualisation/PV_Seasonal.jpeg)
+![PVSeason](Visualisation/PV_Seasonal.png)
 
 **Figure 2:** PV output (all sites) by Season
 
@@ -83,7 +83,7 @@ The number of mixtures has been chosed by minimising the Aikaike Information Cri
 
 The means of the seasonal Gaussian mixture models can be seen below. The line weightings represent the weightings applied to each mixture (i.e. the probability of each mixture being chosen for sampling)
 
-![PV_MixtureModels](Visualisation/PV_MixtureModels.jpeg)
+![PV_MixtureModels](Visualisation/PV_MixtureModels.png)
 
 **Figure 3:**  PV Mixture Models
 
