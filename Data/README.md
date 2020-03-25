@@ -16,7 +16,7 @@ Hourly Data is used and interpolated to half hourly. (Only 4 months of data was 
 Data is available for the Following sites and Data ranges:
 
 Site | Apparent capacity (kW)* | Max** (kW) | Capacity Factor (from Apparent) | Capacity Factor (from Max) | Date Range
------|------------------------|-----------
+-----|-------------------------|------------|---------------------------------|----------------------------|-----------
 Forest Road | 3.00 | 2.67| 0.106 |0.119 |2013-10-01 to 2014-10-03 (366 Days)                 
 Suffolk Road | 0.50 | 0.496 | 0.139 | 0.14|2013-08-28 to 2014-11-09 (448 Days)
 Bancroft Close | 3.50 | 3.34 | 0.123 |0.129 |2013-10-04 to 2014-11-17 (408 Days)
