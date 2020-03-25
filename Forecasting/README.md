@@ -59,6 +59,6 @@ The range of possible errors for each method is shown by season in the box plots
 
 **Figure 3:** Mean Absolute Error for forecasting methods by season
 
-The persistence forecast has the highest maximum error in all seasons, The DA GMM provides a significant (~5%) improvement in error in Autumn.
+The persistence forecast has the highest maximum error in all seasons, The DA GMM provides a significant improvement (~5% reduction) in maximum error compared to DA persistence in Autumn.
 
-The Day ahead GMM forecast has much tighter error distributions particularly in summer where the maximum error is a little over 0.11 compared to over 0.2 for the Day ahead methods.
+The Intraday GMM forecast has much tighter error distributions particularly in summer where the maximum error is a little over 0.11 compared to over 0.2 for the Day ahead methods.
