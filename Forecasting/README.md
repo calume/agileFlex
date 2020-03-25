@@ -51,7 +51,7 @@ DA Persistence| 0.076
 DA GMM|0.067
 DA ID|0.052
 
-The GMM provides a slight improvement over the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however this level of accuracy is sufficient.
+The GMM provides a slight improvement over the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however the level of accuracy using GMM is sufficient and the gains to be made from improving the method may not warrant the effort involved.
 
 The range of possible errors for each method is shown by season in the box plots below. 
 
