@@ -247,11 +247,13 @@ The seasonal heat pump demand has been consolidated for all heat pumps as shown 
 
 ![HP_Consolidated](Visualisation/HP_Seasonal_Consolidated.png)
 
-**Figure 11:**  Heat pump demand seasonal daily profiles consolidated
+**Figure 11:**  Heat pump demand seasonal daily profiles consolidated, y axis is demand in kW
 
 As expected winter demand is higher and there are average pickups in the morning and evening, However there is alot of variation in the individual profiles and the heat pump demand is very peaky
 even at 30 minutely resolution due to the heat pump coming on for bursts then going off.
-In winter, in the middle of the day the mean never goes below 1 kW and even through the night the mean stays above 0.7 kW. Heat pumps will significantly increase the base load of demand throughout the day in winter.
+In winter, in the middle of the day the mean never goes below 1 kW and even through the night the mean stays above 0.7 kW. 
+However the median is much lower at night therefore the higher averages are due to a small number of customers with high demands at those times.
+Overall from the data above, it appears that Heat pumps will significantly increase the base load of demand throughout the day (and at night) in winter.
 
 ### Heat Pump Gaussian Mixture Models
 
@@ -263,7 +265,7 @@ The means of the seasonal Gaussian mixture models can be seen below. The line we
 
 ![HP_GMM](Visualisation/HP_GMM.png)
 
-**Figure 11:**  Heat pump Gaussian Mixture Models
+**Figure 12:**  Heat pump Gaussian Mixture Models, y axis is demand in kW
 
 The mixtures capture well the different customer behaviours, for example some customers have clear morning and evening heat pump demand, whereas some have a more contiunous on-off demand through the day.
 Given there are quite different heat pump sizes and control settings, it will make sense to sample the next days heat pump demand for a customer based on the closest mixture from the previous day.
