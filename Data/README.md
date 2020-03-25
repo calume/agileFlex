@@ -4,7 +4,7 @@ This folder contains Scripts to process data inputs to the AGILE model
 Data inputs include the following
 - [PV](#pv): London Datastore for 6 PV sites over ~400 days
 - [Smart Meter](#smart-meter): London Datastore for 184 customers over ~650 days
-- [Heat Pump](#heat-pump): London Datastore 
+- [Heat Pump](#heat-pump): Renewable Heat Premium Payment Scheme for 84 Domestic Air Source Heat Pump customers
 - Electric Vehicle: Electric nation
 
 ## PV 
@@ -15,14 +15,24 @@ Hourly Data is used and interpolated to half hourly. (Only 4 months of data was 
 
 Data is available for the Following sites and Data ranges:
 
-Site | Apparent capacity (kW) | Date Range
+Site | Apparent capacity (kW)* | Max** (kW) | Capacity Factor (from Apparent) | Capacity Factor (from Max) | Date Range
 -----|------------------------|-----------
-Forest Road | 3.00 | 2013-10-01 to 2014-10-03 (366 Days)                 
-Suffolk Road | 0.50 | 2013-08-28 to 2014-11-09 (448 Days)
-Bancroft Close | 3.50 | 2013-10-04 to 2014-11-17 (408 Days)
-Alverston Close | 3.00 | 2013-11-06 to 2014-11-14 (372 Days)
-Maple Drive East | 4.00 | 2013-08-21 to 2014-11-13 (448 Days)
-YMCA | 0.45 | 2013-09-25 to 2014-11-19 (420 Days)
+Forest Road | 3.00 | 2.67| 0.106 |0.119 |2013-10-01 to 2014-10-03 (366 Days)                 
+Suffolk Road | 0.50 | 0.496 | 0.139 | 0.14|2013-08-28 to 2014-11-09 (448 Days)
+Bancroft Close | 3.50 | 3.34 | 0.123 |0.129 |2013-10-04 to 2014-11-17 (408 Days)
+Alverston Close | 3.00 | 2.9 | 0.124 |0.128|2013-11-06 to 2014-11-14 (372 Days)
+Maple Drive East | 4.00 | 3.35 |0.115 |0.138 |2013-08-21 to 2014-11-13 (448 Days)
+YMCA | 0.45 | 0.36 |0.087 | 0.11|2013-09-25 to 2014-11-19 (420 Days)
+*AS reported in the LCL readme file
+** Maximum output in the data
+
+As the data from all sites is to be normalised and combined into a general distribution, the variation between
+sites is important. This variation could be caused by different sitings and performance between sites, and could
+be due to errors in the apparant capacities reported in the LCL readme file.
+Based on the apparent capacities in the LCL readme file the Capacity factors of the sites range from 0.087 for YMCA to 0.139 to Suffolk Road.
+Based on the max capacities in the data the Capacity factors of the sites range from 0.11 for YMCA to 0.14 to Suffolk Road.
+
+Suffolk Road has a higher capacity factor than YMCA and to reduce this difference the max capacities from the data will be used rather than the apparent capacity figures.
 
 The script 'PV_Load.py' creates 4 pickle files with the data processed:
     
@@ -44,7 +54,7 @@ The script 'PVLoad.py' also plots the data both by site and by season. Some of t
 
 #### Timeseries by Site
 
-![PVBySite](Visualisation/PV_BySite.jpeg)
+![PVBySite](Visualisation/PV_BySite.png)
 
 **Figure 1:** PV output timeseries by Site
 

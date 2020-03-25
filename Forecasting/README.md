@@ -2,7 +2,8 @@
 
 This folder contains Scripts to produce forecasts for the AGILE model.
 
-Data inputs include the following
+Data inputs include the following. See the 'Data' Folder in the main repository for more details
+on how the data was used to produce distributions and gaussian mixture models.
 - [PV](#pv-forecasting): London Datastore for 6 PV sites over ~400 days
 - Smart Meter: London Datastore for 184 customers over ~650 days
 - Heat Pump: London Datastore 

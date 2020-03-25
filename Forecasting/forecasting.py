@@ -110,7 +110,7 @@ def visualise_forecast(GMMBestFit,Forecast_Type,weights_bestFits,Site,NMAE):
         plt.plot(pred.values, label='Persistence Forecast',linestyle='--')
     for i in range(0,len(GMMBestFit)):
         plt.plot(GMMBestFit[i], linewidth=weights_bestFits[i]*2)
-    plt.plot(true.values, label='Actual', linestyle=':', linewidth=2)
+    plt.plot(true.values, label='Actual', color='black', linestyle=':', linewidth=2)
     times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
     #plt.ylabel('PV output normalised',fontsize=8)
     plt.xticks(range(0, 47, 8), times,fontsize=8)
