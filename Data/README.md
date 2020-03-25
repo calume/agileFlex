@@ -177,7 +177,7 @@ significant amounts already there.
 
 ![SM_Consolidated_NH](Visualisation/SM_Consolidated_NH.png)
 
-**Figure 6:**  Smart Meter Daily profiles with heating costomers removed 
+**Figure 6:**  Smart Meter Daily profiles with heating costomers removed, y axis is demand in kW 
 
 #### Smart Meter Gaussian Mixture Models
 
@@ -189,16 +189,16 @@ The means of the seasonal Gaussian mixture models for the Comfortable Acorn grou
 
 ![SM_Comfortable_GMM](Visualisation/SM_Comfortable_GMM.png)
 
-**Figure 7:**  Smart Meter Gaussian mixtures: Comfortable acorn group
+**Figure 7:**  Smart Meter Gaussian mixtures: Comfortable acorn group, y axis is demand in kW
 
 The mixtures for the Comfortable Acorn group show that they capture some of the variation up to and above the 95th percentile. In the case of smart meter data, to capture the outliers (small number of points up to 8kW)
 would require a large number of mixtures. A limitation of using the means of gaussian mixtures is that these outliers are not captured although they are very unfrequent, which is why the mixture model does not fit to them.
 
-This is particularly the case for the Affluent mixtures (shown below), particularly in Summer week days, where there are very few fits to data above the mean, due to less variation in demand profiles than in the weekend.
+This is particularly the case for the Affluent mixtures (shown below), particularly in Summer week days, where there are very few fits to data above the mean, due to less variation in demand profiles than other times of year.
 
 ![SM_Adversity_GMM](Visualisation/SM_Affluent_GMM.png)
 
-**Figure 8:**  Smart Meter Gaussian mixtures: Adversity acorn group
+**Figure 8:**  Smart Meter Gaussian mixtures: Adversity acorn group, y axis is demand in kW
 
 ## Heat Pump
 
