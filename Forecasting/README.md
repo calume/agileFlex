@@ -16,6 +16,10 @@ The script 'forecasting.py' produces forecasts of output from PV.
 The function 'Forecast' uses persistence forecast using a previous days data then fits gaussian mixtures (GMM) to produce a best fit Day Ahead forecast that 
 can be benchmarked against the persistence forecast. Both are a form of persistence forecast as they use the previous days output.
 
+As the outputs are already normalised we can express the error as the Normalised Mean Absolute Error (NMAE);
+
+![NMAE](nmae.png)
+
 The Day Ahead (DA) forecast is refined using the first 10 hours of actual data (i.e. at 10am) to produce an Intraday (ID) forecast.
 
 Below is the Day Ahead forecast for the 8 days from 2/7/2014 using data from the previous day to form the DA forecast. 
@@ -26,9 +30,6 @@ The forecasts are for the site 'Averston Close' which was removed from the train
 
 **Figure 1:** Alverston Close PV Day Ahead forecast 
 
-As the outputs are already normalised we can express the error as the Normalised Mean Absolute Error (NMAE);
-
-![NMAE](nmae.png)
 
 where: NC- Capacity, N-half hours, P<sub>m,h</sub>-Measured output, P<sub>p,h</sub> - Predicted
 
@@ -56,7 +57,7 @@ Method | Normalised Mean Absolute Error (%)
 -------|--------------------
 DA Persistence| 7.59
 DA GMM| 7.59
-DA ID| 6.7
+ID GMM| 6.7
 
 In terms of NMAE the GMM performs exactly the same as the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however the level of accuracy using GMM is sufficient and the gains to be made from improving the method may not warrant the effort involved.
 
