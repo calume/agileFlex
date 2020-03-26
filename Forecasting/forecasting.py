@@ -110,14 +110,14 @@ def visualise_forecast(GMMBestFit,Forecast_Type,Day,GMM_NMAE,Persistence_NMAE):
 ### Date stuff ###
 
 #### Year #####
-startdate =  date(2013,11,7)
-enddate   =  date(2014,11,13)
-days=range(0,365)
+#startdate =  date(2013,11,7)
+#enddate   =  date(2014,11,13)
+#days=range(0,365)
 
-### Week ###
-#startdate =  date(2014,7,1)
-#enddate   =  date(2014,7,10)
-#days=range(0,8)
+## Week ###
+startdate =  date(2014,7,1)
+enddate   =  date(2014,7,10)
+days=range(0,8)
 
 delta = datetime.timedelta(hours=0.5)
 dt = pd.date_range(startdate, enddate, freq=delta) #datetime steps    
