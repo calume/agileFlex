@@ -78,42 +78,25 @@ def forecasts(pred,true,Forecast_Type):
         gmmMAE_Pred[i]=mean_absolute_error(pred.values, PV_DistsGMMChosen[Season][i][0:len(pred)])
     
     gmmMAE_Pred=gmmMAE_Pred.sort_values()
-    
-    #    bestFits=gmmMAE_Pred[gmmMAE_Pred<(gmmMAE_Pred.iloc[0]*1.15)]
-    WeightedNMAE=pd.Series(index=range(2,10))
-    for x in range(2,10):
-        GMMBestFit= PV_DistsGMMChosen[Season][gmmMAE_Pred.index[0:x]]
-        gmmMAE_True=pd.Series(index=range(0,len(GMMBestFit)))
-        
-        #Determine optimal number of fits to minimise the Weighter NMAE
-        for i in range(0,len(GMMBestFit)):
-            gmmMAE_True[i]=mean_absolute_error(true, GMMBestFit[i])
-    
-        weights_bestFits=PV_DistsGMMWeights[Season][gmmMAE_Pred.index[0:x]]
-        weights_bestFits=weights_bestFits/weights_bestFits.sum()
-        WeightedNMAE[x]=sum(gmmMAE_True*weights_bestFits)
-    
-    Fits_Nmin=WeightedNMAE.idxmin()
+
     GMMBestFit= PV_DistsGMMChosen[Season][gmmMAE_Pred.index[0]]#[0:Fits_Nmin]]
     weights_bestFits=PV_DistsGMMWeights[Season][gmmMAE_Pred.index[0]]#:Fits_Nmin]]
     weights_bestFits=weights_bestFits/weights_bestFits.sum()
     #print('GMM ' +str(Forecast_Type)+ ' Weighted NMAE with '+str(Fits_Nmin)+' Fits: ',round(WeightedNMAE[Fits_Nmin],3))
 
-    return GMMBestFit, gmmMAE_True, weights_bestFits, WeightedNMAE[Fits_Nmin],mae,Season
+    return GMMBestFit, gmmMAE_Pred[0],mae,Season
 
 #--------------------Visualise Forecast--------------------------#
 
     #Find best BMM fit
-def visualise_forecast(GMMBestFit,Forecast_Type,weights_bestFits,Day,GMM_NMAE,Persistence_NMAE):
+def visualise_forecast(GMMBestFit,Forecast_Type,Day,GMM_NMAE,Persistence_NMAE):
     plt.title('Day '+str(Day+1)+', MAE (Error): GMM-'+str(round(GMM_NMAE,3)),fontsize=9)
     if Forecast_Type=='Day Ahead':   
         plt.title('Day '+str(Day+1)+', MAE (Error): GMM-'+str(round(GMM_NMAE,3))+' Persistence:'+str(round(Persistence_NMAE,3)),fontsize=9)
         plt.plot(pred.values, label='Persistence Forecast',linestyle='--')
-    #for i in range(0,len(GMMBestFit)):
-    plt.plot(GMMBestFit, label='GMM Best Fit')#, linewidth=weights_bestFits[i]*2)
+    plt.plot(GMMBestFit, label='GMM Best Fit')
     plt.plot(true.values, label='Actual', color='black', linestyle=':', linewidth=2)
     times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
-    #plt.ylabel('PV output normalised',fontsize=8)
     plt.xticks(range(0, 47, 8), times,fontsize=8)
     plt.ylim(0,1)
     plt.yticks(fontsize=8)
@@ -123,52 +106,57 @@ def visualise_forecast(GMMBestFit,Forecast_Type,weights_bestFits,Day,GMM_NMAE,Pe
 
 ### Date stuff ###
 
+#### Year #####
 startdate =  date(2013,11,7)
 enddate   =  date(2014,11,13)
-delta = datetime.timedelta(hours=0.5)
 days=range(0,365)
+
+### Week ###
+#startdate =  date(2014,7,1)
+#enddate   =  date(2014,7,10)
+#days=range(0,8)
+
+delta = datetime.timedelta(hours=0.5)
 dt = pd.date_range(startdate, enddate, freq=delta) #datetime steps    
 n=1
 DA_WeightedNMAE=pd.Series(index=days)
 ID_WeightedNMAE=pd.Series(index=days)
 DA_PersistanceNMAE=pd.Series(index=days)
-DA_weights_bestFits={}
-ID_weights_bestFits={}
 DA_GMMBestFit={}
 ID_GMMBestFit={}
-l=0
+
+
 Seasons=pd.Series(index=days)
 for i in days:
     print(i)
     pred=PV_DataFrame['Alverston Close']['P_Norm'][dt[i*48:(i+1)*48]]
     true=PV_DataFrame['Alverston Close']['P_Norm'][dt[(i+1)*48:(i+2)*48]]
     Forecast_Type='Day Ahead'
-    DA_GMMBestFit[i], gmmMAE_True, DA_weights_bestFits[i], DA_WeightedNMAE[i],DA_PersistanceNMAE[i],Season=forecasts(pred,true,Forecast_Type)
+    DA_GMMBestFit[i], DA_WeightedNMAE[i],DA_PersistanceNMAE[i],Season=forecasts(pred,true,Forecast_Type)
 #    plt.figure(Forecast_Type)
 #    plt.subplot(420+n)
-#    #visualise_forecast(DA_GMMBestFit[i],'Day Ahead',DA_weights_bestFits[i],i,DA_WeightedNMAE[i],DA_PersistanceNMAE[i])
+#    visualise_forecast(DA_GMMBestFit[i],'Day Ahead',i,DA_WeightedNMAE[i],DA_PersistanceNMAE[i])
 #    if n==1:
 #        plt.legend(fontsize=8)
     Forecast_Type='Intraday'
 #    plt.figure(Forecast_Type)
 #    plt.subplot(420+n)
     Intraday_True=true[0:20]
-    ID_GMMBestFit[i], gmmMAE_True, ID_weights_bestFits[i], ID_WeightedNMAE[i],blank,Season=forecasts(Intraday_True,true,'Intraday')
-#    visualise_forecast(ID_GMMBestFit[i],'Intraday',ID_weights_bestFits[i],i,ID_WeightedNMAE[i],0)
+    ID_GMMBestFit[i], ID_WeightedNMAE[i],blank,Season=forecasts(Intraday_True,true,'Intraday')
+#    visualise_forecast(ID_GMMBestFit[i],'Intraday',i,ID_WeightedNMAE[i],0)
 #    if n==1:
 #        plt.legend(fontsize=8)
 #    n=n+1
-#    l=l+1
     Seasons[i]=Season
 print('Average NMAE. Day ahead Persistence: ',round(DA_PersistanceNMAE.mean(),3),'Day Ahead GMM: ',round(DA_WeightedNMAE.mean(),3),'Intraday GMM: ',round(ID_WeightedNMAE.mean(),3))
 
 #plt.tight_layout()
 
-Summary=pd.DataFrame(index=days, columns=['DA GMM','Persistence','ID GMM','Season'])
-Summary['DA GMM']=DA_WeightedNMAE
-Summary['Persistence']=DA_PersistanceNMAE
-Summary['ID GMM']=ID_WeightedNMAE
-Summary['Season']=Seasons
-Summary['Season']=Summary['Season'].str[:-5]
-Summary['Season'][Summary['Season']=='Wint']='Winter'
-Summary.boxplot(by='Season')
+#Summary=pd.DataFrame(index=days, columns=['DA GMM','Persistence','ID GMM','Season'])
+#Summary['DA GMM']=DA_WeightedNMAE
+#Summary['Persistence']=DA_PersistanceNMAE
+#Summary['ID GMM']=ID_WeightedNMAE
+#Summary['Season']=Seasons
+#Summary['Season']=Summary['Season'].str[:-5]
+#Summary['Season'][Summary['Season']=='Wint']='Winter'
+#Summary.boxplot(by='Season')

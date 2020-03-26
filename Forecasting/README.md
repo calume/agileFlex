@@ -22,21 +22,25 @@ Below is the Day Ahead forecast for the 8 days from 2/7/2014 using data from the
 
 The forecasts are for the site 'Averston Close' which was removed from the training data to allow it to be used for testing.
 
-![Day Ahead](Day_Ahead2.png)
+![Day Ahead](Day_Ahead.png)
 
 **Figure 1:** Alverston Close PV Day Ahead forecast 
 
-The average Day Ahead persistence Mean Absolute Error (MAE) across all 8 of the days above is 0.136, and the Day Ahead weighted gaussian mixture MAE, which is created from the persistence forcast is 0.111.
+As the outputs are already normalised we can express the error as the Normalised Mean Absolute Error (NMAE).
+
+The average Day Ahead persistence NMAE across all 8 of the days above is 0.136, and the Day Ahead weighted gaussian mixture NMAE, which is created from the persistence forcast is 0.129.
+
+$ \sum_{\forall i}{x_i^{2}} $
 
 The highest Day Ahead persistence and GMM error comes on Day 1 which has no output. Day 2 also has a very high error as it is using Day 1's output (of 0) to as its estimate when there was in fact a very high output on Day 2.
 
 The intraday forecasts estimated using the first 10 hours of daily output, are vital on Days 1 and 2 for correcting this Day Ahead error, these are given below:
 
-![Intraday](Intraday2.png)
+![Intraday](Intraday.png)
 
 **Figure 2:** Alverston Close PV intraday forecast
 
-The average Intraday GMM forecast MAE across all sites is 0.076. The Intraday GMM provides an improved forecast than the Day Ahead on these 8 days,
+The average Intraday GMM forecast NMAE across all sites is 0.091. The Intraday GMM provides an improved forecast than the Day Ahead on these 8 days,
 The intraday forecast is most useful for capturing days with no output as occured on Day 1 where the error is reduced from 0.228 to 0.047 from DA to ID.
 
 ### PV Forecasting Error Box Plots
@@ -45,13 +49,13 @@ The forecast error is calculated over a year to give the range of expected error
 
 The Mean Absolute Errors for day ahead persistence and gaussian mixture model (GMM) as well as the GMM intraday mean errors are as follows;
 
-Method | Mean Absolute Error
+Method | Normalised Mean Absolute Error
 -------|--------------------
 DA Persistence| 0.076
-DA GMM|0.067
-DA ID|0.052
+DA GMM|0.086
+DA ID|0.038
 
-The GMM provides a slight improvement over the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however the level of accuracy using GMM is sufficient and the gains to be made from improving the method may not warrant the effort involved.
+The GMM performs slightly worse on average than the persistence forecast for DA. An obvious improvement would be to use weather forecasts (irradiance or temperature), however the level of accuracy using GMM is sufficient and the gains to be made from improving the method may not warrant the effort involved.
 
 The range of possible errors for each method is shown by season in the box plots below. 
 
@@ -59,6 +63,11 @@ The range of possible errors for each method is shown by season in the box plots
 
 **Figure 3:** Mean Absolute Error for forecasting methods by season
 
-The persistence forecast has the highest maximum error in all seasons, The DA GMM provides a significant improvement (~5% reduction) in maximum error compared to DA persistence in Autumn.
+The persistence forecast has the highest maximum error in all seasons bar winter where the GMM performs particularly badly, The DA GMM provides a significant improvement (~5% reduction) in maximum error compared to DA persistence in Autumn.
 
-The Intraday GMM forecast has much tighter error distributions particularly in summer where the maximum error is a little over 0.11 compared to over 0.2 for the Day ahead methods. Given that PV output is at its highest in Summer, this improved intraday forecast will be particularly useful in reducing uncertainty of network congestion caused by high PV output.
+Although the GMM has a higher NMAE, and seems to perform worse than persistence DA forecast in summer, it generally has a tighter error distribution (bar summer). It is worth investigating if it tends to over or under predict, overpredicting could be useful for more conservative estimates. 
+
+The Intraday GMM forecast has much tighter error distributions particularly in summer where the maximum error is 0.14 compared to over 0.2 for the Day ahead methods (including outliers). Given that PV output is at its highest in Summer, this improved intraday forecast will be particularly useful in reducing uncertainty of network congestion caused by high PV output.
+
+### PV error timeseries
+
