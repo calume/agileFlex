@@ -30,7 +30,7 @@ As the outputs are already normalised we can express the error as the Normalised
 
 ![NMAE](nmae.png)
 
-where: NC- Capacity, N-half hours, Pm,h-Measured output, Pp,h - Predicted
+where: NC- Capacity, N-half hours, P<sub>m,h</sub>-Measured output, P<sub>p,h</sub> - Predicted
 
 The average Day Ahead persistence NMAE across all 8 of the days above is 13.6%, and the Day Ahead weighted gaussian mixture NMAE, which is created from the persistence forcast is 12.9%.
 
