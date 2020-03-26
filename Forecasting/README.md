@@ -30,7 +30,7 @@ As the outputs are already normalised we can express the error as the Normalised
 
 The average Day Ahead persistence NMAE across all 8 of the days above is 0.136, and the Day Ahead weighted gaussian mixture NMAE, which is created from the persistence forcast is 0.129.
 
-$ \sum_{\forall i}{x_i^{2}} $
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
 
 The highest Day Ahead persistence and GMM error comes on Day 1 which has no output. Day 2 also has a very high error as it is using Day 1's output (of 0) to as its estimate when there was in fact a very high output on Day 2.
 
