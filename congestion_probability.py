@@ -23,41 +23,22 @@ import os
 import random
 import csv
 import pickle
+from Test_Network.network_plot import customer_summary
 from sklearn.metrics import mean_absolute_error
+from runDSS import runDSS, network_visualise
+from crunch_results import counts
+from crunch_results import plots
 
-### Date stuff ###
+####----------Set Test Network ------------
 
-startdate =  date(2013,10,1)
-enddate   =  date(2014,11,17)
-delta = datetime.timedelta(hours=1)
-deltaHalf = datetime.timedelta(hours=0.5)
+Network_Path='Test_Network/Network1/'
 
-dt = pd.date_range(startdate, enddate, freq=delta) #datetime steps
-dtPVreset = pd.date_range(date(2012,10,1), date(2013,11,17), freq=deltaHalf) #datetime steps
+####--------- Create Customer Summary ----------
 
-Network_Path='Test_Network/Feed1/'
+Customer_Summary,Coords,Lines,Loads = customer_summary(Network_Path)
+Customer_Summary = Customer_Summary.drop(columns="Color")
 
-##### Start Timer ####
-
-start = timeit.default_timer()
-
-####### Compile the OpenDSS file using the Master.txt directory#########
-
-run_command('Redirect ./'+str(Network_Path)+'Master.dss')
-
-LoadsIn = pd.read_csv(str(Network_Path)+'Loads.txt',delimiter=' ', names=['New','Load','Phase','Bus1','kV','kW','PF','Daily'] )
-LoadsIn['Phase']=LoadsIn['Bus1'].str[-1:]
-
-#
-### Set up DSS Commands ####
-
-DSSCircuit = dss.Circuit
-DSSLoads= dss.Loads;
-DSSBus = dss.Bus
-DSSLines = dss.Lines
-
-
-### Load in Test data Set ##########
+#### Load in Test data Set ##########
 pick_in = open("../Data/SM_DataFrame_byAcorn_NH.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 
@@ -67,285 +48,101 @@ HP_DataFrame = pickle.load(pick_in)
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-pick_in = open("../Data/PV_DistsGMMChosen.pickle", "rb")
-PV_DistsGMMChosen = pickle.load(pick_in)
+#---------- Assign Smart Meter and Heat Pump IDs--------------#
+#### Smart Meter
+#--- only include SMs with data for day 2013-11-15
+Customer_Summary['smartmeter_ID']=0
+for i in SM_DataFrame.keys():
+    acorn_index = Customer_Summary['Acorn_Group'][Customer_Summary['Acorn_Group']==i].index
+    SM_reduced=SM_DataFrame[i]['AutumnWkd'].iloc[5712:5760].sum()>0
+    SM_reduced=SM_reduced[SM_reduced]
+    for z in acorn_index:    
+        Customer_Summary['smartmeter_ID'][z] = random.choice(SM_reduced.index)
 
-pick_in = open("../Data/PV_DistsGMMWeights.pickle", "rb")
-PV_DistsGMMWeights = pickle.load(pick_in)
+### Heat Pump
+Customer_Summary['heatpump_ID']=0
+#--- only include HPs with data for day 2013-11-15
+HP_reduced=HP_DataFrame.iloc[31344:31392].sum()>0
+HP_reduced=HP_reduced[HP_reduced]
+heatpump_index = Customer_Summary['Heat_Pump_Flag'][ Customer_Summary['Heat_Pump_Flag']>0].index
+for z in heatpump_index:    
+    Customer_Summary['heatpump_ID'][z] = random.choice(HP_reduced.index)
 
-## Look at one Day - PV
-pred=PV_DataFrame['Alverston Close']['P_Norm'].iloc[11490:11538].values
-true=PV_DataFrame['Alverston Close']['P_Norm'].iloc[11490+48:11538+48].values
+### PV
+Customer_Summary['pv_ID']=0
+pv_index = Customer_Summary['PV_kW'][Customer_Summary['PV_kW']>0].index
+pv_sites=list(PV_DataFrame.keys())
+for z in pv_index:    
+    Customer_Summary['pv_ID'][z] = random.choice(pv_sites)
 
-mae=mean_absolute_error(true, pred)
-print('Persistence Day Ahead Weighted NMAE: ',mae)
+#--------- Run power flow Timeseries--------------------------#
+######## test dates: 2013-12-5 to 2014-02-15, mostly full data sets
 
-gmmMAE_Pred=pd.Series(index=range(0,len(PV_DistsGMMChosen['SummerDists'])))
-for i in gmmMAE_Pred.index:
-    gmmMAE_Pred[i]=mean_absolute_error(pred, PV_DistsGMMChosen['SummerDists'][i])
+start_date = datetime.date(2013, 12, 5)
+end_date = datetime.date(2013, 12, 6)
 
-gmmMAE_Pred=gmmMAE_Pred.sort_values()
-bestFits=gmmMAE_Pred[gmmMAE_Pred<(gmmMAE_Pred.iloc[0]*1.15)]
-weights_bestFits=PV_DistsGMMWeights['SummerDists'][bestFits.index]
-weights_bestFits=weights_bestFits/weights_bestFits.sum()
+delta_halfhours = datetime.timedelta(hours=0.5)
+delta_days = datetime.timedelta(days=1)
 
-GMMBestFit =PV_DistsGMMChosen['SummerDists'][bestFits.index]
+sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
+sims_days = pd.date_range(start_date, end_date, freq=delta_days)
 
-#Find best BMM fit
-gmmMAE_True=pd.Series(index=range(0,len(bestFits)))
-plt.title('PV - 3kW Alverston Close Day Ahead Forecast - 5/7/2014',fontsize=9)
-plt.plot(pred, label='Persistence Forecast',linestyle='--')
-for i in range(0,len(bestFits)):
-    gmmMAE_True[i]=mean_absolute_error(true, GMMBestFit[i])
-    plt.plot(GMMBestFit[i], label='GMM Best Fit '+str(i),linewidth=weights_bestFits[i]*4)
-plt.plot(true, label='Actual', linestyle=':')
-times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
-plt.ylabel('PV output normalised',fontsize=8)
-plt.legend(fontsize=8)
-plt.xticks(range(0, 47, 8), times)
-plt.tight_layout()
+#####------------ Initialise Input--------------------
+smartmeter={}
+heatpump={}
+pv={}
+demand={} #Sum of smartmeter, heatpump and EV
+demand_delta={} #adjustment for sensitivity, set to 0 when no sensitivity
+pv_delta={} #adjustment for sensitivity, set to 0 when no sensitivity
 
-WeightedNMAE = sum(gmmMAE_True*weights_bestFits)
-print('GMM Day Ahead Weighted NMAE: ',WeightedNMAE)
-####### Update with Intraday
+#####-------------Initialise Output --------------
+#####-- These are produced by the OpenDSS Load Flow
+CurArray={}
+VoltArray={}
+TransArray={}
+LoadArray={}
+Losses={}
+TranskVA_sum={}
+network_summary={}
 
-Intraday_True=true[0:20]
-
-Intraday_gmmMAE_Pred=pd.Series(index=range(0,len(PV_DistsGMMChosen['SummerDists'])))
-for i in Intraday_gmmMAE_Pred.index:
-    Intraday_gmmMAE_Pred[i]=mean_absolute_error(Intraday_True, PV_DistsGMMChosen['SummerDists'][i][0:20])
-
-Intraday_gmmMAE_Pred=Intraday_gmmMAE_Pred.sort_values()
-Intraday_bestFits=Intraday_gmmMAE_Pred[Intraday_gmmMAE_Pred<(Intraday_gmmMAE_Pred.iloc[0]*1.3)]
-
-Intraday_weights_bestFits=PV_DistsGMMWeights['SummerDists'][Intraday_bestFits.index]
-Intraday_weights_bestFits=Intraday_weights_bestFits/Intraday_weights_bestFits.sum()
-
-Intraday_GMMBestFit =PV_DistsGMMChosen['SummerDists'][Intraday_bestFits.index]
-
-#Find best BMM fit
-Intraday_gmmMAE_True=pd.Series(index=range(0,len(Intraday_bestFits)))
-plt.figure(2)
-plt.title('PV - 3kW Alverston Close Intraday Forecast - 5/7/2014',fontsize=9)
-plt.plot(pred, label='Persistence Forecast',linestyle='--')
-for i in range(0,len(Intraday_bestFits)):
-    Intraday_gmmMAE_True[i]=mean_absolute_error(true, Intraday_GMMBestFit[i])
-    plt.plot(Intraday_GMMBestFit[i], label='GMM Intraday Best Fit '+str(i),linewidth=Intraday_weights_bestFits[i]*4)
-plt.plot(true, label='Actual', linestyle=':')
-times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
-plt.ylabel('PV output normalised',fontsize=8)
-plt.legend(fontsize=8)
-plt.xticks(range(0, 47, 8), times)
-plt.tight_layout()
-
-Intraday_WeightedNMAE = sum(Intraday_gmmMAE_True*Intraday_weights_bestFits)
-
-print('GMM Intraday Weighted NMAE: ',Intraday_WeightedNMAE)
-#dss.Basic.ClearAll()
-#dss.Basic.Start(0)
-#
-############  Smartmeter Data  ###############
-############ EV IN ##############
-#with open('EV_kde.cp.pkl', 'rb') as f:
-#    EV_kde = cloudpickle.load(f)
-#
-############  Smartmeter Data  ###############
-#with open('SM_kde.cp.pkl', 'rb') as f:
-#    SM_kde = cloudpickle.load(f)
-############ PV IN ##############
-#
-#with open('PV_kde.cp.pkl', 'rb') as f:
-#    PV_kde = cloudpickle.load(f)
-#    
-############ HP IN ##############
-#
-#with open('HP_kde.cp.pkl', 'rb') as f:
-#    HP_kde = cloudpickle.load(f)
-#    
-######### Assign PV, Agent, EV Tags and Zone per Load Node ############
-#
-#Flags=pd.DataFrame(0, index=(range(0,len(LoadsIn))), columns=['PV','Agent','EV','SM','HP','Zone'])
-#
-#Flags['EV'][::1]= 1  # Every 2nd house has EV
-#Flags['PV'][::4]= 5
-#
-#   # Every house has PV 4kW  
-#Flags['Agent'][::4]=1  # Every 2nd house is an agent
-#
-####### Randomly assing Smart Meters ########
-#K=list(SM_kde['WintWkndDists'].keys())
-#for i in Flags.index.tolist():
-#   Flags['SM'][i]=random.choice(K) 
-#
-#K=list(HP_kde['WintWkndDists'].keys())
-#for i in Flags.index.tolist():
-#   Flags['HP'][i]=random.choice(K) 
-#
-##Flags['HP'][::1]=0  # Every 2nd house has a HP
-#
-#################### Calculating Load for each Demand ############################
-#
-##sims = pd.date_range(date(2013,1,10), date(2013,1,20), freq=deltaHalf)
-#sims = pd.date_range(date(2012,1,1), date(2014,1,1), freq=delta)
-#
-#Vmax=pd.Series(index=sims)
-#Vmin=pd.Series(index=sims)
-#CLmax={}
-#Cmax=pd.Series(index=sims)
-#Loadsum=pd.Series(index=sims)
-#SMd={}
-#EVd={}
-#PVd={}
-#HPd={}
-#for i in sims.tolist():
-#   print(i)
-#   
-#   Currents={} 
-#   Voltages={}
-#   Loads={}
-#   Rates={}
-#   CLmax={}
-#   EV=0
-#   PV=0
-#   SM=0
-#   HP=0   
-#   if (i.weekday()>=5) & (i.weekday() <=6): ###Weekend######
-#       EV=EV_kde['WkndDists']
-#       if (i.month==12) | (i.month<=2):      #Dec-Feb
-#           SM=SM_kde['WintWkndDists']
-#           HP=HP_kde['WintWkndDists']
-#           PV=PV_kde['WintDists']
-#       if (i.month>=3) & (i.month <=5):    #Mar-May
-#           SM=SM_kde['SpringWkndDists']
-#           HP=HP_kde['SpringWkndDists']
-#           PV=PV_kde['SpringDists']
-#       if (i.month>=6) & (i.month <=8):    #Jun-Aug
-#           SM=SM_kde['SummerWkndDists']
-#           HP=HP_kde['SummerWkndDists']
-#           PV=PV_kde['SummerDists']
-#       if (i.month>=9) & (i.month <=11):   #Sept-Nov
-#           SM=SM_kde['AutumnWkndDists']
-#           HP=HP_kde['AutumnWkndDists']
-#           PV=PV_kde['AutumnDists']
-#   if (i.weekday()>=0) & (i.weekday() <=4): ##Weekday######
-#       EV=EV_kde['WkdDists']
-#       if (i.month==12) | (i.month<=2):      #Dec-Feb
-#           SM=SM_kde['WintWkdDists']
-#           HP=HP_kde['WintWkdDists']
-#           PV=PV_kde['WintDists']
-#       if (i.month>=3) & (i.month <=5):    #Mar-May
-#           SM=SM_kde['SpringWkdDists']
-#           HP=HP_kde['SpringWkdDists']
-#           PV=PV_kde['SpringDists']
-#       if (i.month>=6) & (i.month <=8):    #Jun-Aug
-#           SM=SM_kde['SummerWkdDists']
-#           HP=HP_kde['SummerWkdDists']
-#           PV=PV_kde['SummerDists']
-#       if (i.month>=9) & (i.month <=11):   #Sept-Nov
-#           SM=SM_kde['AutumnWkdDists']
-#           HP=HP_kde['AutumnWkdDists']
-#           PV=PV_kde['AutumnDists']
-#   iLoad = DSSLoads.First()        
-#   SMd[i]=np.zeros(len(Flags))
-#   EVd[i]=np.zeros(len(Flags))
-#   PVd[i]=np.zeros(len(Flags))
-#   HPd[i]=np.zeros(len(Flags))
-#   if PV[i.hour] != 0:
-#       samp=max(PV[i.hour].resample(1),0)
-#   while iLoad>0:
-#      SMd[i][iLoad-1]=max(SM[Flags['SM'][iLoad-1]][i.hour].resample(1),0)
-#      if Flags['HP'][iLoad-1] ==0:
-#          HPd[i][iLoad-1]=0
-#      else:
-#          HPd[i][iLoad-1]=max(HP[Flags['HP'][iLoad-1]][i.hour].resample(1),0)
-#      EVd[i][iLoad-1]=max(EV[i.hour].resample(1),0)*Flags['EV'][iLoad-1]
-#      if PV[i.hour] == 0:
-#          PVd[i][iLoad-1]=0
-#      else:
-#          PVd[i][iLoad-1]=samp*Flags['PV'][iLoad-1]
-#      DSSLoads.kW(SMd[i][iLoad-1]+HPd[i][iLoad-1]+EVd[i][iLoad-1]-PVd[i][iLoad-1])
-#      iLoad = DSSLoads.Next()
-#   #print(SMd[i].sum()-PVd[i].sum()+EVd[i].sum()+HPd[i].sum())
-#   ######### Solve the Circuit ############
-#   
-#   #dss.Solution.SolveSnap()
-#   run_command('Solve')
-#     ########## Export Voltages ###########
-#   bvs = list(DSSCircuit.AllBusMagPu())
-#   #Voltages[i]=bvs[0::3],bvs[1::3],bvs[2::3]
-#   Vmax[i]=max(bvs)
-#   Vmin[i]=min(bvs)
-#   
-#   ########## Export Current ###########
-#   i_Line = DSSLines.First()
-#   while i_Line > 0:
-#      curs = list(dss.CktElement.CurrentsMagAng())
-#      Currents = curs[0], curs[2], curs[4]
-#      Rates[i_Line] = dss.CktElement.NormalAmps()
-#      CLmax[i_Line]= max(np.array(Currents)/Rates[i_Line])
-#      i_Line = DSSLines.Next()
-#
-#   Cmax[i]=max(CLmax.values())
-#  
-#   ########## Export Loads ###########
-#   i_Load = DSSLoads.First()
-#   
-#   while i_Load>0:
-#      Loads[i_Load]=DSSLoads.kW()#,DSSLoads.kvar(),DSSLoads.PF()]
-#      i_Load = DSSLoads.Next()
-#   Loadsum[i] = sum(Loads.values())
-#   #print(Loadsum[i])
-#Alls={}
-#
-#Alls['Vmax']=Vmax
-#Alls['Vmin']=Vmin
-#Alls['HPd']=HPd
-#Alls['PVd']=PVd
-#Alls['EVd']=EVd
-#Alls['SMd']=SMd
-#Alls['Cmax']=Cmax
-#Alls['Loadsum']=Loadsum
-#
-#PVtot=pd.Series(index=PVd.keys())
-#EVtot=pd.Series(index=PVd.keys())
-#SMtot=pd.Series(index=PVd.keys())
-#HPtot=pd.Series(index=PVd.keys())
-#for i in PVd:
-#    PVtot[i]=PVd[i].sum()
-#    EVtot[i]=EVd[i].sum()
-#    HPtot[i]=HPd[i].sum()
-#    SMtot[i]=SMd[i].sum()
-#    
-#Alls['PVtot']=PVtot
-#Alls['EVtot']=EVtot
-#Alls['HPtot']=HPtot
-#Alls['SMtot']=SMtot
-#   
-#stop = timeit.default_timer()
-#
-#print('Time: ', stop - start)
-#
-#print('Max current '+str(round(Cmax.max(),3))+' A')
-#print('Max voltage '+str(round(Vmax.max(),3))+' p.u')
-#print('Min voltage '+str(round(Vmin.max(),3))+' p.u')
-#
-#pickle_out = open("Outputs/ResultsEVHP.pickle","wb")
-#pickle.dump(Alls, pickle_out)
-#
-#
-#
-#plt.plot(PVtot.index,-PVtot, label="PV")
-#plt.plot(EVtot.index,EVtot, label="EV")
-#plt.plot(HPtot.index,HPtot, label="HP")
-#plt.plot(SMtot.index,SMtot, label="SM")
-#plt.plot(Loadsum.index,Loadsum, label="Net Demand")
-#plt.legend()
-#
-#plt.figure(2)
-#plt.subplot(211)
-#plt.plot(Vmax.index,Vmax, label="Vmax")
-#plt.plot(Vmin.index,Vmin, label="Vmin")
-#plt.legend()
-#plt.subplot(212)
-#plt.plot(Cmax.index,Cmax, label="C / Crated Max")
-#plt.legend()
+for i in sims_halfhours.tolist():
+    print(i)
+    #-------------- Sample for each day weekday/weekend and season -----------#
+    if (i.weekday()>=5) & (i.weekday() <=6): ###Weekend######
+        day='Wknd'
+    if (i.weekday()>=0) & (i.weekday() <=4):
+        day='Wkd'
+    if (i.month==12) | (i.month<=2):      #Dec-Feb
+        season='Winter'
+    if (i.month>=3) & (i.month <=5):    #Mar-May
+        season='Spring'
+    if (i.month>=6) & (i.month <=8):    #Jun-Aug
+        season='Summer'
+    if (i.month>=9) & (i.month <=11):   #Sept-Nov
+        season='Autumn'
+    
+    smartmeter[i] = np.zeros(len(Customer_Summary))
+    heatpump[i] = np.zeros(len(Customer_Summary))
+    pv[i] = np.zeros(len(Customer_Summary))
+    demand[i] = np.zeros(len(Customer_Summary))      
+    demand_delta[i] = np.zeros(len(Customer_Summary)) 
+    pv_delta[i] = np.zeros(len(Customer_Summary)) 
+    
+    #-----for each customer set timestep demand and PV output----#
+    for z in range(0, len(Customer_Summary)):
+        smartmeter[i][z] = SM_DataFrame[Customer_Summary['Acorn_Group'][z]][season+day][Customer_Summary['smartmeter_ID'][z]][i]
+        if Customer_Summary['heatpump_ID'][z] != 0:
+            heatpump[i][z] = HP_DataFrame[str(Customer_Summary['heatpump_ID'][z])][i]
+        if Customer_Summary['PV_kW'][z] != 0:
+            pv[i][z] = Customer_Summary['PV_kW'][z]*PV_DataFrame[Customer_Summary['pv_ID'][z]]['P_Norm'][i]
+        demand[i][z] = smartmeter[i][z] + heatpump[i][z]
+    
+    demand[i]=np.nan_to_num(demand[i])
+    pv[i]=np.nan_to_num(pv[i])
+    
+    CurArray[i], VoltArray[i], Losses[i], TranskVA_sum[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i])
+    
+    network_summary[i]= network_visualise(CurArray[i], RateArray, VoltArray[i],TranskVA_sum[i],TransRatekVA)
+    
+Chigh_count, Vhigh_count, Vlow_count=counts(network_summary)
+Coords,Lines = plots(Network_Path,Chigh_count)

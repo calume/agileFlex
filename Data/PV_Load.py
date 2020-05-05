@@ -75,15 +75,15 @@ def PVLoad():
     # To create seasonal distributions, all sites are combined and normalised
 
     PVS = {}
-    PVS["WintDists"] = PV[(PV.index.month == 12) | (PV.index.month <= 2)]  # Dec-Feb
-    PVS["SpringDists"] = PV[(PV.index.month >= 3) & (PV.index.month <= 5)]  # Mar-May
-    PVS["SummerDists"] = PV[(PV.index.month >= 6) & (PV.index.month <= 8)]  # Jun-Aug
-    PVS["AutumnDists"] = PV[(PV.index.month >= 9) & (PV.index.month <= 11)]  # Sept-Nov
+    PVS["Winter"] = PV[(PV.index.month == 12) | (PV.index.month <= 2)]  # Dec-Feb
+    PVS["Spring"] = PV[(PV.index.month >= 3) & (PV.index.month <= 5)]  # Mar-May
+    PVS["Summer"] = PV[(PV.index.month >= 6) & (PV.index.month <= 8)]  # Jun-Aug
+    PVS["Autumn"] = PV[(PV.index.month >= 9) & (PV.index.month <= 11)]  # Sept-Nov
 
     # Converting the data from a single column to rows of 48 hours of Data
     #'Newdists' contains seasonal normalised output for all sites combined
     Dists = {}
-    Distkeys = ["WintDists", "SpringDists", "SummerDists", "AutumnDists"]
+    Distkeys = ["Winter", "Spring", "Summer", "Autumn"]
     NewDists = {}
     for z in range(0, len(Distkeys)):
         Dists[Distkeys[z]] = pd.DataFrame(columns=range(0, 48), index=range(0, 809))
@@ -206,4 +206,4 @@ def PV_Visualisation():
 
 ## ----------to run the functions--------------
 PVLoad()
-PV_Visualisation()
+#PV_Visualisation()

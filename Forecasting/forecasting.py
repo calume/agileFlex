@@ -52,10 +52,9 @@ pick_in = open("../../Data/PV_DistsgmmWeights.pickle", "rb")
 PV_DistsgmmWeights = pickle.load(pick_in)
 
 
-## Look at one Day - PV
+## PV Forecasting
 #pred is the previous days data using persistence forecasting
 #true is the actual output for the day in question.
-
 
 def forecasts(pred,true,Forecast_Type):
     if Forecast_Type=='Day Ahead':   
@@ -104,18 +103,18 @@ def visualise_forecast(gmmBestFit,Forecast_Type,Day,DA_gmm_nmae,Persistence_NMAE
 
 #-------------------Do multiple Runs---------------------------#
 
-### Date stuff ###
 
-### Year #####
-startdate =  date(2013,11,7)
-enddate   =  date(2014,11,13)
-days=range(0,365)
-
-### Week ###
-#startdate =  date(2014,7,1)
-#enddate   =  date(2014,7,10)
-#days=range(0,8)
 def multirun():
+    ### Date stuff ###
+    ### Year #####
+    startdate =  date(2013,11,7)
+    enddate   =  date(2014,11,13)
+    days=range(0,365)
+    
+    ### Week ###
+    #startdate =  date(2014,7,1)
+    #enddate   =  date(2014,7,10)
+    #days=range(0,8)
     delta = datetime.timedelta(hours=0.5)
     dt = pd.date_range(startdate, enddate, freq=delta) #datetime steps    
     n=1
@@ -124,8 +123,7 @@ def multirun():
     DA_PersistanceNMAE=pd.Series(index=days)
     DA_gmmBestFit={}
     ID_gmmBestFit={}
-    DA_HH_Error=pd.DataFrame
-    
+
     DA_mape=pd.DataFrame(index=days,columns=range(0,48))
     ID_mape=pd.DataFrame(index=days,columns=range(0,48))
     True_DF=pd.DataFrame(index=days,columns=range(0,48))
@@ -173,20 +171,58 @@ def multirun():
     Summary['Season']=Summary['Season'].str[:-5]
     Summary['Season'][Summary['Season']=='Wint']='Winter'
     #Summary.boxplot(by='Season')
+    return All_DA_Mapes, DA_mape, ID_mape,Summary
+
+def visualise_overall_error():
+    All_DA_Mapes, DA_mape, ID_mape,Summary =multirun()
+    Overs=pd.DataFrame()
+    Overs['True']=All_DA_Mapes['True'][All_DA_Mapes['DAgmm']>0]
+    Overs['DAgmm']=All_DA_Mapes['DAgmm'][All_DA_Mapes['DAgmm']>0]
+    Unders=pd.DataFrame()            
+    Unders['True']=All_DA_Mapes['True'][All_DA_Mapes['DAgmm']<0]
+    Unders['DAgmm']=abs(All_DA_Mapes['DAgmm'][All_DA_Mapes['DAgmm']<0])
     
-
-Overs=pd.DataFrame()
-Overs['True']=All_DA_Mapes['True'][All_DA_Mapes['DAgmm']>0]
-Overs['DAgmm']=All_DA_Mapes['DAgmm'][All_DA_Mapes['DAgmm']>0]
-Unders=pd.DataFrame()            
-Unders['True']=All_DA_Mapes['True'][All_DA_Mapes['DAgmm']<0]
-Unders['DAgmm']=abs(All_DA_Mapes['DAgmm'][All_DA_Mapes['DAgmm']<0])
-
-bins=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-Error_quartiles=pd.DataFrame(index=bins, columns=['overq95','overq50','underq95','underq50'])
-
-for z in bins[:-1]:
-    Error_quartiles['overq95'][z]=Overs['DAgmm'][Overs['True'].between(z,z+1)].quantile(0.95)
-    Error_quartiles['overq50'][z]=Overs['DAgmm'][Overs['True'].between(z,z+1)].quantile(0.5)
-    Error_quartiles['underq95'][z]=Unders['DAgmm'][Unders['True'].between(z,z+1)].quantile(0.95)
-    Error_quartiles['underq50'][z]=Unders['DAgmm'][Unders['True'].between(z,z+1)].quantile(0.5)
+    bins=[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
+    Error_quartiles=pd.DataFrame(index=bins[1:], columns=['overq95','overq50','underq95','underq50'])
+    
+    for z in bins[1:-1]:
+        Error_quartiles['overq95'][z]=Overs['DAgmm'][Overs['True'].between(z,(z+0.1))].quantile(0.95)
+        Error_quartiles['overq50'][z]=Overs['DAgmm'][Overs['True'].between(z,(z+0.1))].quantile(0.5)
+        Error_quartiles['underq95'][z]=-Unders['DAgmm'][Unders['True'].between(z,(z+0.1))].quantile(0.95)
+        Error_quartiles['underq50'][z]=-Unders['DAgmm'][Unders['True'].between(z,(z+0.1))].quantile(0.5)
+        
+    
+    types={}
+    types['DA_mape']=DA_mape
+    types['ID_mape']=ID_mape
+    for x in types: 
+        lowers95=[]
+        uppers95=[]
+        lowers50=[]
+        uppers50=[]
+        plt.figure(x)
+        for i in DA_mape:
+            lowers95.append(-abs(types[x][i][types[x][i]<0]*100).quantile(0.95))
+            uppers95.append(abs(types[x][i][types[x][i]>0]*100).quantile(0.95))
+            lowers50.append(-abs(types[x][i][types[x][i]<0]*100).quantile(0.50))
+            uppers50.append(abs(types[x][i][types[x][i]>0]*100).quantile(0.50))
+        plt.plot(lowers95, color='red', linestyle="--", label="Q95 underestimates")
+        plt.plot(uppers95, color='blue', linestyle="--", label="Q95 overestimates")
+        plt.plot(lowers50, color='red', linestyle=":", label="Q50 underestimates")
+        plt.plot(uppers50, color='blue', linestyle=":", label="Q50 overestimates")
+        plt.xlabel("Settlement Period (half hourly)", fontsize=8)
+        plt.ylabel("Error (%)", fontsize=8)
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.legend()
+    
+    plt.figure('By Output')
+    plt.plot(Error_quartiles['overq95'], color='red',linestyle="--",label="Q95 Overestimates")
+    plt.plot(Error_quartiles['underq95'], color='blue',linestyle="--",label="Q95 Underestimates")
+    plt.plot(Error_quartiles['overq50'], color='red',linestyle=":",label="Q50 Overestimates")
+    plt.plot(Error_quartiles['underq50'], color='blue',linestyle=":",label="Q50 Underestimates")
+    plt.xlabel("Output-fraction of capacity", fontsize=8)
+    plt.ylabel("Error (%)", fontsize=8)
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    plt.legend()

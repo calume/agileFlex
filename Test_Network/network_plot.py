@@ -27,97 +27,94 @@ pd.options.mode.chained_assignment = None
 from tabulate import tabulate
 from numpy.random import choice
 
-# ---------------Load Network Data-----------------------------
-Feeder = "Network1"
-Coords = pd.read_csv(str(Feeder) + "/XY_Position.csv")
-Lines = pd.read_csv(
-    str(Feeder) + "/Lines.txt",
-    delimiter=" ",
-    names=["New", "Line", "Bus1", "Bus2", "phases", "Linecode", "Length", "Units"],
-)
-Lines = Lines[Lines["Line"].map(len) > 5]
-Lines.reset_index(drop=True, inplace=True)
-Loads = pd.read_csv(
-    str(Feeder) + "/Loads.txt",
-    delimiter=" ",
-    names=["New", "Load", "Phases", "Bus1", "kV", "kW", "PF", "Daily"],
-)
-
-#def plotNetwork():    
-# The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
-
-pvcaplist = [1, 1.5, 2, 2.5, 3, 3.5, 4]
-weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
-
-LoadsByAcorn = {}
-LoadsByAcorn["Affluent"] = list(range(1, 68))
-LoadsByAcorn["Comfortable"] = list(range(1, 66))
-LoadsByAcorn["Adversity"] = list(range(1, 66))
-
-for i in LoadsByAcorn["Affluent"]:
-    PVcap = choice(pvcaplist, int(len(LoadsByAcorn["Affluent"])), weights)
-
 # ------------------------Define Network Agents----------------------------
+def customer_summary(Network_Path):
+    # ---------------Load Network Data-----------------------------
+    
+    Coords = pd.read_csv(str(Network_Path) + "/XY_Position.csv")
+    Lines = pd.read_csv(
+        str(Network_Path) + "/Lines.txt",
+        delimiter=" ",
+        names=["New", "Line", "Bus1", "Bus2", "phases", "Linecode", "Length", "Units"],
+    )
+    Lines = Lines[Lines["Line"].map(len) > 5]
+    Lines.reset_index(drop=True, inplace=True)
+    Loads = pd.read_csv(
+        str(Network_Path) + "/Loads.txt",
+        delimiter=" ",
+        names=["New", "Load", "Phases", "Bus1", "kV", "kW", "PF", "Daily"],
+    )
 
-Customer_Summary = pd.DataFrame(
-    0,
-    index=(range(0, len(Loads))),
-    columns=[
-        "ID",
-        "Node",
-        "Agent",
-        "Acorn_Group",
-        "X",
-        "Y",
-        "Phase",
-        "Home_Battery_kW",
-        "Home_Battery_kWh",
-        "EV_Charger_Size_kW",
-        "EV_Battery_Size_kWh",
-        "PV_kW",
-        "Heat_Pump_kW",
-        "Color",
-    ],
-)
-Customer_Summary["ID"] = Loads.index + 1
-Customer_Summary["Node"] = Loads["Bus1"].str[5:-2].astype(int)
-Customer_Summary["Acorn_Group"][132:200] = "Adversity"
-Customer_Summary["Acorn_Group"][66:132] = "Comfortable"
-Customer_Summary["Acorn_Group"][0:68] = "Affluent"
-Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
-Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
-Customer_Summary["Home_Battery_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = 5
-Customer_Summary["Home_Battery_kWh"][
-    Customer_Summary["Acorn_Group"] == "Affluent"
-] = 13.5
-Customer_Summary["EV_Charger_Size_kW"][
-    Customer_Summary["Acorn_Group"] == "Affluent"
-] = 7.4
-Customer_Summary["EV_Battery_Size_kWh"][
-    Customer_Summary["Acorn_Group"] == "Affluent"
-] = 40
-MoreComfortable = Customer_Summary["PV_kW"][
-    Customer_Summary["Acorn_Group"] == "Comfortable"
-].index[: int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2)]
-Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = choice(
-    pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Affluent")), weights
-)  # Every house has PV
-Customer_Summary["PV_kW"][MoreComfortable] = choice(
-    pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2), weights
-)
-Customer_Summary["Heat_Pump_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = 5
-Customer_Summary["Heat_Pump_kW"][Customer_Summary["Acorn_Group"] == "Comfortable"] = 4
+    # The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
 
-acorns = ["Affluent", "Comfortable", "Adversity"]
-colors = ["green", "#17becf", "#FA8072"]
-
-for i in range(0, 3):
-    Customer_Summary["Color"][Customer_Summary["Acorn_Group"] == acorns[i]] = colors[i]
-
+    pvcaplist = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+    weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
+    
+    LoadsByAcorn = {}
+    LoadsByAcorn["Affluent"] = list(range(1, 68))
+    LoadsByAcorn["Comfortable"] = list(range(1, 66))
+    LoadsByAcorn["Adversity"] = list(range(1, 66))
+    
+    Customer_Summary = pd.DataFrame(
+        0,
+        index=(range(0, len(Loads))),
+        columns=[
+            "ID",
+            "Node",
+            "Agent",
+            "Acorn_Group",
+            "X",
+            "Y",
+            "Phase",
+            "Home_Battery_kW",
+            "Home_Battery_kWh",
+            "EV_Charger_Size_kW",
+            "EV_Battery_Size_kWh",
+            "PV_kW",
+            "Heat_Pump_Flag",
+            "Color",
+        ],
+    )
+    Customer_Summary["ID"] = Loads.index + 1
+    Customer_Summary["Node"] = Loads["Bus1"].str[5:-2].astype(int)
+    Customer_Summary["Acorn_Group"][132:200] = "Adversity"
+    Customer_Summary["Acorn_Group"][66:132] = "Comfortable"
+    Customer_Summary["Acorn_Group"][0:68] = "Affluent"
+    Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
+    Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
+    Customer_Summary["Home_Battery_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = 5
+    Customer_Summary["Home_Battery_kWh"][
+        Customer_Summary["Acorn_Group"] == "Affluent"
+    ] = 13.5
+    Customer_Summary["EV_Charger_Size_kW"][
+        Customer_Summary["Acorn_Group"] == "Affluent"
+    ] = 7.4
+    Customer_Summary["EV_Battery_Size_kWh"][
+        Customer_Summary["Acorn_Group"] == "Affluent"
+    ] = 40
+    MoreComfortable = Customer_Summary["PV_kW"][
+        Customer_Summary["Acorn_Group"] == "Comfortable"
+    ].index[: int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2)]
+    Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = choice(
+        pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Affluent")), weights
+    )  # Every house has PV
+    Customer_Summary["PV_kW"][MoreComfortable] = choice(
+        pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2), weights
+    )
+    Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
+    Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Comfortable"] = 1
+    
+    acorns = ["Affluent", "Comfortable", "Adversity"]
+    colors = ["green", "#17becf", "#FA8072"]
+    
+    for i in range(0, 3):
+        Customer_Summary["Color"][Customer_Summary["Acorn_Group"] == acorns[i]] = colors[i]
+    return Customer_Summary,Coords,Lines,Loads
 # ------------------- Plot the network with icons for each LCT type
 
 
 def Network_plot(Coords, Lines, Loads):
+
     ####  Import Icons
     EV_Icon = mpimg.imread("Feed1/EVIcon2.png")
     EVbox = OffsetImage(EV_Icon, zoom=0.3)
@@ -240,15 +237,16 @@ def Network_plot(Coords, Lines, Loads):
         ax.add_artist(ab)
     plt.show()
     plt.tight_layout()
-
-
-Network_plot(Coords, Lines, Loads)
-Customer_Summary.style.hide_index()
-print(
-    tabulate(
-        Customer_Summary.drop(columns="Color"),
-        tablefmt="pipe",
-        headers="keys",
-        showindex=False,
-    )
-)
+    
+#Feeder = "Network1"
+#Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
+#Network_plot(Coords, Lines, Loads)
+#Customer_Summary.style.hide_index()
+#print(
+#    tabulate(
+#        Customer_Summary.drop(columns="Color"),
+#        tablefmt="pipe",
+#        headers="keys",
+#        showindex=False,
+#    )
+#)

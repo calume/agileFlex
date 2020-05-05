@@ -3,24 +3,20 @@ clear
 Set DefaultBaseFrequency=50  ! for European system
 
 New circuit.LVTest
-Edit Vsource.Source BasekV=33 pu=1.05  ISC3=3000  ISC1=5
+Edit Vsource.Source BasekV=11 pu=1.05  ISC3=3000  ISC1=5
 Redirect LineCode.txt
-Redirect LoadShapes.txt
-batchedit loadshape..* useactual=no
 Redirect Lines.txt
 Redirect Transformers.txt
 Redirect Loads.txt
 Redirect Monitors.txt
 Redirect Generators.txt
 
-
-New energymeter.m1 LINE.LINE11 1
-
-Set voltagebases=[33 11  .416]
+Set voltagebases=[11  .416]
 Calcvoltagebases
 
-LatLongCoords XY_Position.csv
+New energymeter.m1 Transformer.TR1 2
 
+LatLongCoords XY_Position.csv
 
 ! Set "DemandInterval" to true so that energy quantities recorded by energy meters are recorded for 
 ! each time step and set "casename" to define a directory under default directory in which all of the 
@@ -28,5 +24,5 @@ LatLongCoords XY_Position.csv
 
 Set overloadreport=true  ! TURN OVERLOAD REPORT ON
 Set voltexcept=true      ! voltage exception report
-set demand=true          ! demand interval ON
+set demand=false          ! demand interval ON
 set DIVerbose=true       ! verbose mode is ON
