@@ -2,7 +2,7 @@
 """
 Created on Wed March 18 13:49:06 2020
 
-This script produces a plot of the test feeder (Feeder1 from LVNS)
+This script produces a plot of the test feeder (Feeder1 from LVNS) and Network 1 which includes Feeder1 and 3 others
 
 From:  https://www.enwl.co.uk/zero-carbon/innovation/smaller-projects/low-carbon-networks-fund/low-voltage-network-solutions/
 
@@ -105,16 +105,24 @@ def customer_summary(Network_Path):
     Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Comfortable"] = 1
     
     acorns = ["Affluent", "Comfortable", "Adversity"]
-    colors = ["green", "#17becf", "#FA8072"]
+    colors = ["green", "#17becf", "black"]
     
     for i in range(0, 3):
         Customer_Summary["Color"][Customer_Summary["Acorn_Group"] == acorns[i]] = colors[i]
+    
+    Coords['Node_Color']='red'
+    if Network_Path == 'Network1':
+        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='2']='yellow'
+        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='3']='blue'
+        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='4']='orange'
+        Coords['Node_Color'].iloc[0]='blue'
     return Customer_Summary,Coords,Lines,Loads
 # ------------------- Plot the network with icons for each LCT type
 
 
 def Network_plot(Coords, Lines, Loads):
-
+    acorns = ["Affluent", "Comfortable", "Adversity"]
+    colors = ["green", "#17becf", "black"]
     ####  Import Icons
     EV_Icon = mpimg.imread("Feed1/EVIcon2.png")
     EVbox = OffsetImage(EV_Icon, zoom=0.3)
@@ -130,6 +138,9 @@ def Network_plot(Coords, Lines, Loads):
 
     House = mpimg.imread("Feed1/house.png")
     Housebox = OffsetImage(House, zoom=0.15)
+
+    Substation = mpimg.imread("Feed1/substation.png")
+    Substationbox = OffsetImage(Substation, zoom=0.3)
 
     G = nx.Graph()
     ##### Set Up NetworkX Graph from coordinates and network outputs ####
@@ -149,7 +160,7 @@ def Network_plot(Coords, Lines, Loads):
 
     ##### network and icons ####
     fig, ax = plt.subplots()
-    nx.draw(G, pos, with_labels=False, width=1, node_size=2)
+    nx.draw(G, pos, with_labels=False, width=1, node_size=2, node_color=Coords['Node_Color'])
     for i in Loads.index:
         Customer_Summary["X"][i] = Coords["X"][
             Coords["Node"] == int(Loads["Bus1"][i][5:-2])
@@ -159,7 +170,7 @@ def Network_plot(Coords, Lines, Loads):
         ].astype(float)
         plt.annotate(
             i + 1,
-            (Customer_Summary["X"][i] - 1, Customer_Summary["Y"][i] + 3),
+            (Customer_Summary["X"][i] + 2, Customer_Summary["Y"][i] + 5),
             fontsize=10,
             color=Customer_Summary["Color"][i],
             #weight="bold",
@@ -202,42 +213,53 @@ def Network_plot(Coords, Lines, Loads):
         if Customer_Summary["Home_Battery_kW"][i] > 0:
             ab = AnnotationBbox(
                 powerwallbox,
-                [Customer_Summary["X"][i] + 2, Customer_Summary["Y"][i]],
+                [Customer_Summary["X"][i] + 3, Customer_Summary["Y"][i]],
                 frameon=False,
                 pad=0,
             )
             ax.add_artist(ab)
-        if Customer_Summary["Heat_Pump_kW"][i] > 0:
+        if Customer_Summary["Heat_Pump_Flag"][i] > 0:
             ab = AnnotationBbox(
                 HPbox,
-                [Customer_Summary["X"][i] - 3, Customer_Summary["Y"][i] - 1],
+                [Customer_Summary["X"][i] - 4, Customer_Summary["Y"][i] - 1],
                 frameon=False,
                 pad=0,
             )
             ax.add_artist(ab)
-        offset = [0, 6, 12, 18, 24]
+        offset = [0, 6, 12, 18, 24,30]
     plt.annotate("Acorn Group", (480, 445), fontsize=10, color="black", weight="bold")
     for i in range(0, 3):
         plt.annotate(
             acorns[i], (480, 435 - offset[i]*3), fontsize=9, color=colors[i], weight="bold"
         )
+    fcolor=['red','yellow','blue','orange']
+    plt.annotate("Feeder", (480, 315), fontsize=10, color="black", weight="bold")
+    for i in range(0, 4):
+        plt.annotate(
+            i+1, (480, 305 - offset[i]*3), fontsize=9, color=fcolor[i], weight="bold"
+        )
 
-    boxes = [PVbox, EVbox, powerwallbox, HPbox, Housebox]
+    boxes = [PVbox, EVbox, powerwallbox, HPbox, Housebox, Substationbox]
     intros = [
         "PV Owner",
         "EV Owner",
         "Home Battery Owner",
         "Heat Pump Owner",
         "Non-Agent",
+        "Secondary Substation"
     ]
     plt.annotate("Legend", (25, 165), fontsize=10, color="black", weight="bold")
-    for i in range(0, 5):
+    for i in range(0, 6):
         plt.annotate(intros[i], (30, 154 - offset[i]*3), fontsize=9, color="black")
         ab = AnnotationBbox(boxes[i], [25, (154 - offset[i]*3)], frameon=False, pad=0)
         ax.add_artist(ab)
+    
+    ab = AnnotationBbox(boxes[5], [360, 163], frameon=False, pad=0)
+    ax.add_artist(ab)    
+    
     plt.show()
     plt.tight_layout()
-    
+#    
 #Feeder = "Network1"
 #Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
 #Network_plot(Coords, Lines, Loads)

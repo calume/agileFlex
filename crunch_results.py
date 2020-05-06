@@ -39,14 +39,11 @@ def counts(network_summary):
     Vlow_allPeriods={}
     Vlow_count={}
     for p in range(0,3):
-        c=0
         Chigh_allPeriods[p]=[]
         Vhigh_allPeriods[p]=[]
         Vlow_allPeriods[p]=[]
         for i in network_summary:
             if len(network_summary[i][p]['Chigh_lines']) >0:
-                c=c+1
-                print(c)
                 for item in network_summary[i][p]['Chigh_lines']:
                     Chigh_allPeriods[p].append(item)
                 Chigh_count[p]=collections.Counter(Chigh_allPeriods[p])
@@ -93,7 +90,8 @@ def plots(Network_Path,Chigh_count):
     Coords['Color'][Coords['Node'].astype(str).str[0]=='2']='yellow'
     Coords['Color'][Coords['Node'].astype(str).str[0]=='3']='green'
     Coords['Color'][Coords['Node'].astype(str).str[0]=='4']='orange'
-
+    Coords['Color'].iloc[0]='blue'
+    
     Lines['Color']='white'   
     Lines['width']=1
     for p in range(0,3):
@@ -114,74 +112,133 @@ def plots(Network_Path,Chigh_count):
     return Coords,Lines
 
 
+def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv):
+    Headrm={}
+    Headrm[0]=pd.Series(index=network_summary.keys())
+    for i in network_summary:
+        Headrm[0][i]=network_summary[i]['Trans_kVA_Headroom']
+    
+    for z in range(1,5):
+        Headrm[z]=pd.DataFrame(index=network_summary.keys(), columns=[0,1,2])
+        for p in range(0,3):
+            for i in network_summary:
+                Headrm[z][p][i]=network_summary[i][p]['Chdrm'][z]
+    
+    custs_grouped=pd.DataFrame(index=[1,2,3,4])
+#    custs_grouped['phase']=Customer_Summary['Phase']
+    Customer_Summary['feeder']=Customer_Summary['Node'].astype(str).str[0]
+#    custs_grouped['smartmeter']=smartmeter
+#    custs_grouped['pv']=pv
+#    custs_grouped['heatpump']=heatpump
+    custs_grouped['total_custs']=Customer_Summary.groupby('feeder').count()['ID'].values
+    return Headrm, Customer_Summary, custs_grouped
 
+Headrm, custs_grouped, custs_grouped = Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv)
 
-
-
-
-
-
-
-def graphstuff():
-    plt.plot(PVtot.index,-PVtot, label="PV")
-    plt.plot(EVtot.index,EVtot, label="EV")
-    plt.plot(HPtot.index,HPtot, label="HP")
-    plt.plot(SMtot.index,SMtot, label="SM")
-    plt.plot(Loadsum.index,Loadsum, label="Net Demand")
+def plot_headroom(Headrm):
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    plt.figure(0)
+    plt.plot(
+        Headrm[0].values,
+        color="blue",
+        linewidth=1,
+        linestyle="--",
+        label="Secondary Substation Headroom",
+    )
+    plt.ylabel('Headroom (kVA)')
+    plt.title("Network 1 - Secondary Substation Headroom")
+    
+    plt.xlim([0, 47])
+    #plt.ylim([0, 5])
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    plt.xticks(range(0, 47, 8), times)
+    
+    plt.figure(1)
+    plt.title('Headroom (at head supply branch) per phase and feeder')
+    
+    for p in range(0,3):
+        plt.subplot(310+p+1)
+        for f in range(1,5):
+            plt.plot(
+                Headrm[f][p].values,
+                linewidth=1,
+                #linestyle="--",
+                label="Feeder "+str(f),
+            )
+            plt.plot(np.zeros(48),color='black', linestyle="--",)
+        plt.title('Phase '+str(p+1))
+        plt.ylabel('Headroom (kW)')
+        
+        plt.xlim([0, 47])
+        #plt.ylim([0, 5])
+        
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0, 47, 8), times)  
     plt.legend()
+
+
+
+#    plt.plot(PVtot.index,-PVtot, label="PV")
+#    plt.plot(EVtot.index,EVtot, label="EV")
+#    plt.plot(HPtot.index,HPtot, label="HP")
+#    plt.plot(SMtot.index,SMtot, label="SM")
+#    plt.plot(Loadsum.index,Loadsum, label="Net Demand")
+#    plt.legend()
+#    
+#    plt.figure(2)
+#    plt.subplot(211)
+#    plt.plot(Vmax.index,Vmax, label="Vmax")
+#    plt.plot(Vmin.index,Vmin, label="Vmin")
+#    plt.legend()
+#    plt.subplot(212)
+#    plt.plot(Cmax.index,Cmax, label="C / Crated Max")
+#    plt.legend()
     
-    plt.figure(2)
-    plt.subplot(211)
-    plt.plot(Vmax.index,Vmax, label="Vmax")
-    plt.plot(Vmin.index,Vmin, label="Vmin")
-    plt.legend()
-    plt.subplot(212)
-    plt.plot(Cmax.index,Cmax, label="C / Crated Max")
-    plt.legend()
-    
-    pickle_in = open("Outputs/ResultsEVHP.pickle","rb")
-    SM = pickle.load(pickle_in)
-    ParamKeys=['Vmax','Vmin','Cmax','Loadsum']
-    CongKeys=['VUC','VLC','CMC']
-    Seasons=['Winter','Spring','Summer','Autumn']
-    Params={'Winter':{},'Spring':{},'Summer':{},'Autumn':{}}
-    #Cong={}
-    ######## By season #######
-    for n in ParamKeys:
-        Params['Winter'][n]=SM[n][(SM[n].index.month==12) | (SM[n].index.month<=2)]    #Dec-Feb
-        Params['Spring'][n]=SM[n][(SM[n].index.month>=3) & (SM[n].index.month<=5)]    #Mar-May
-        Params['Summer'][n]=SM[n][(SM[n].index.month>=6) & (SM[n].index.month<=8)]    #Jun-Aug
-        Params['Autumn'][n]=SM[n][(SM[n].index.month>=9) & (SM[n].index.month<=11)]    #Sept-Nov
-    
-    for p in Seasons:
-        Params[p]['Wkd']={}
-        Params[p]['Wknd']={}
-        for n in ParamKeys:
-            Params[p]['Wkd'][n] = Params[p][n][(Params[p][n].index.weekday>=0) & (Params[p][n].index.weekday<=4)]
-            Params[p]['Wknd'][n] = Params[p][n][(Params[p][n].index.weekday>=5) & (Params[p][n].index.weekday<=6)]
-    
-    for i in Params:
-        Params[i]['VUC']=Params[i]['Vmax'][Params[i]['Vmax']>1.1]
-        Params[i]['VLC']=Params[i]['Vmin'][Params[i]['Vmin']<0.94]
-        Params[i]['CUC']=Params[i]['Cmax'][Params[i]['Cmax']>1]
-        for j in ['Wkd','Wknd']:
-            Params[i][j]['VUC']=Params[i][j]['Vmax'][Params[i][j]['Vmax']>1.1]
-            Params[i][j]['VLC']=Params[i][j]['Vmin'][Params[i][j]['Vmin']<0.94]
-            Params[i][j]['CUC']=Params[i][j]['Cmax'][Params[i][j]['Cmax']>1]
-            histvu,bins = np.histogram(Params[i][j]['VUC'].index.hour,bins=range(0,24))
-            histvl,bins = np.histogram(Params[i][j]['VLC'].index.hour,bins=range(0,24))
-            histcu,bins = np.histogram(Params[i][j]['CUC'].index.hour,bins=range(0,24))
-            fig, ax1 = plt.subplots()
-            ax1.bar(bins[1:],histvl/len(Params[i][j]['Vmin'])*100, label="Low Voltage: < 0.94 p.u." )
-            ax1.bar(bins[1:],histvu/len(Params[i][j]['Vmax'])*100, label="High Voltage: > 1.1 p.u.")
-            ax1.bar(bins[1:],histcu/len(Params[i][j]['Cmax'])*100, color="red", label="Thermal: > Rated A")
-            plt.xlabel('Hour')
-            plt.ylabel('Congestion Probability (%)')
-            plt.title('4 Feeder Network: Congestion probability '+str(i)+' '+str(j))
-            plt.legend()
-            ax2 = ax1.twinx() 
-            ax2.plot(Params[i][j]['Loadsum'].groupby(Params[i][j]['Loadsum'].index.hour).mean(),color = 'black', label='Average net load')
-            ax2.set_ylabel('Average net demand (kW)',color ='black')
-            ax2.legend(loc=3)
-            plt.show()
+#    pickle_in = open("Outputs/ResultsEVHP.pickle","rb")
+#    SM = pickle.load(pickle_in)
+#    ParamKeys=['Vmax','Vmin','Cmax','Loadsum']
+#    CongKeys=['VUC','VLC','CMC']
+#    Seasons=['Winter','Spring','Summer','Autumn']
+#    Params={'Winter':{},'Spring':{},'Summer':{},'Autumn':{}}
+#    #Cong={}
+#    ######## By season #######
+#    for n in ParamKeys:
+#        Params['Winter'][n]=SM[n][(SM[n].index.month==12) | (SM[n].index.month<=2)]    #Dec-Feb
+#        Params['Spring'][n]=SM[n][(SM[n].index.month>=3) & (SM[n].index.month<=5)]    #Mar-May
+#        Params['Summer'][n]=SM[n][(SM[n].index.month>=6) & (SM[n].index.month<=8)]    #Jun-Aug
+#        Params['Autumn'][n]=SM[n][(SM[n].index.month>=9) & (SM[n].index.month<=11)]    #Sept-Nov
+#    
+#    for p in Seasons:
+#        Params[p]['Wkd']={}
+#        Params[p]['Wknd']={}
+#        for n in ParamKeys:
+#            Params[p]['Wkd'][n] = Params[p][n][(Params[p][n].index.weekday>=0) & (Params[p][n].index.weekday<=4)]
+#            Params[p]['Wknd'][n] = Params[p][n][(Params[p][n].index.weekday>=5) & (Params[p][n].index.weekday<=6)]
+#    
+#    for i in Params:
+#        Params[i]['VUC']=Params[i]['Vmax'][Params[i]['Vmax']>1.1]
+#        Params[i]['VLC']=Params[i]['Vmin'][Params[i]['Vmin']<0.94]
+#        Params[i]['CUC']=Params[i]['Cmax'][Params[i]['Cmax']>1]
+#        for j in ['Wkd','Wknd']:
+#            Params[i][j]['VUC']=Params[i][j]['Vmax'][Params[i][j]['Vmax']>1.1]
+#            Params[i][j]['VLC']=Params[i][j]['Vmin'][Params[i][j]['Vmin']<0.94]
+#            Params[i][j]['CUC']=Params[i][j]['Cmax'][Params[i][j]['Cmax']>1]
+#            histvu,bins = np.histogram(Params[i][j]['VUC'].index.hour,bins=range(0,24))
+#            histvl,bins = np.histogram(Params[i][j]['VLC'].index.hour,bins=range(0,24))
+#            histcu,bins = np.histogram(Params[i][j]['CUC'].index.hour,bins=range(0,24))
+#            fig, ax1 = plt.subplots()
+#            ax1.bar(bins[1:],histvl/len(Params[i][j]['Vmin'])*100, label="Low Voltage: < 0.94 p.u." )
+#            ax1.bar(bins[1:],histvu/len(Params[i][j]['Vmax'])*100, label="High Voltage: > 1.1 p.u.")
+#            ax1.bar(bins[1:],histcu/len(Params[i][j]['Cmax'])*100, color="red", label="Thermal: > Rated A")
+#            plt.xlabel('Hour')
+#            plt.ylabel('Congestion Probability (%)')
+#            plt.title('4 Feeder Network: Congestion probability '+str(i)+' '+str(j))
+#            plt.legend()
+#            ax2 = ax1.twinx() 
+#            ax2.plot(Params[i][j]['Loadsum'].groupby(Params[i][j]['Loadsum'].index.hour).mean(),color = 'black', label='Average net load')
+#            ax2.set_ylabel('Average net demand (kW)',color ='black')
+#            ax2.legend(loc=3)
+#            plt.show()
 

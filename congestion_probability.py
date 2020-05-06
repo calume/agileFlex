@@ -26,8 +26,7 @@ import pickle
 from Test_Network.network_plot import customer_summary
 from sklearn.metrics import mean_absolute_error
 from runDSS import runDSS, network_visualise
-from crunch_results import counts
-from crunch_results import plots
+from crunch_results import counts, plots, graphstuff
 
 ####----------Set Test Network ------------
 
@@ -143,6 +142,8 @@ for i in sims_halfhours.tolist():
     CurArray[i], VoltArray[i], Losses[i], TranskVA_sum[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i])
     
     network_summary[i]= network_visualise(CurArray[i], RateArray, VoltArray[i],TranskVA_sum[i],TransRatekVA)
+    
+    Headrm=Headroom_calc(network_summary)
     
 Chigh_count, Vhigh_count, Vlow_count=counts(network_summary)
 Coords,Lines = plots(Network_Path,Chigh_count)

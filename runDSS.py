@@ -149,6 +149,12 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         Vlow_nodes=list(Vseries[Vseries<0.94].index)
         
         network_summary[i]['Chigh_lines']=Chigh_lines
+        network_summary[i]['Chdrm']={}
+        network_summary[i]['Chdrm'][1]=-Cseries[0]*Vseries[1]*.426/(3**0.5)
+        network_summary[i]['Chdrm'][2]=-Cseries[906]*Vseries[1]*.426/(3**0.5)
+        network_summary[i]['Chdrm'][3]=-Cseries[1410]*Vseries[1]*.426/(3**0.5)
+        network_summary[i]['Chdrm'][4]=-Cseries[1913]*Vseries[1]*.426/(3**0.5)
+        
         network_summary[i]['Vhigh_nodes']=Vhigh_nodes
         network_summary[i]['Vlow_nodes']=Vlow_nodes
 
@@ -156,7 +162,7 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         network_summary[i]['Vhigh_vals']=list(Vseries[Vseries>1.1])
         network_summary[i]['Vlow_vals']=list(Vseries[Vseries<0.94])
 
-    network_summary['Trans_kVA_Headroom']=TransKVA_sum/TransRatekVA
+    network_summary['Trans_kVA_Headroom']=TransRatekVA-TransKVA_sum
     return network_summary
 
 #from feedbackplot import plots
