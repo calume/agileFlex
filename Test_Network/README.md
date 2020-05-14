@@ -121,7 +121,8 @@ The feeder has 200 customers spread across 4 feeders on the 3 phases. Flexibilit
 
 Customers are dispersed by feeder and phase as follows;
 
-|Feeder|Phase 1|Phase 2|Phase 3| Total 
+|Feeder|Phase 1|Phase 2|Phase 3| Total
+|------|-------|-------|-------|------ 
 |1|21|19|15|55
 |2|11|11|9|31
 |3|14|12|13|39
@@ -131,6 +132,7 @@ Customers are dispersed by feeder and phase as follows;
 In terms of customer type:
 
 Feeder|Affluent|Feeder|Phase 1|Phase 2|Phase 3| Comfortable
+|-----|--------|------|-------|-------|-------|------------- 
 |1||21|19|15|1|0|0|0|
 |2||7|4|2|2|4|7|7|
 |3||0|0|0|3|14|12|13
