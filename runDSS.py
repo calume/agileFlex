@@ -86,13 +86,13 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
        ################### Calculating Load for each Demand ############################
     iLoad = DSSLoads.First()
     while iLoad>0:
-        DSSLoads.kW(demand[iLoad-1])#-demand_delta[iLoad-1])
+        DSSLoads.kW(demand[iLoad-1]-demand_delta[iLoad-1])
         iLoad = DSSLoads.Next()
     
     ################### Calculating Gen for each Demand ############################
     iGen = DSSGens.First()
     while iGen>0:
-        #DSSGens.kW(pv[iGen-1]-pv_delta[iGen-1])
+        DSSGens.kW(pv[iGen-1]-pv_delta[iGen-1])
         DSSGens.Vmaxpu(1.2)
         DSSGens.Vminpu(0.8)
         DSSGens.Phases(1)
@@ -139,10 +139,10 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
 
     network_summary={}
     
-    for i in range(0,3):
+    for i in range(1,4):
         network_summary[i]={}
-        Cseries=pd.Series(CurArray[:,i]-RateArray)
-        Vseries=pd.Series(VoltArray[:,i])
+        Cseries=pd.Series(CurArray[:,i-1]-RateArray)
+        Vseries=pd.Series(VoltArray[:,i-1])
     
         Chigh_lines=list(Cseries[Cseries>0].index)
         Vhigh_nodes=list(Vseries[Vseries>1.1].index)
@@ -157,6 +157,13 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         
         network_summary[i]['Vhigh_nodes']=Vhigh_nodes
         network_summary[i]['Vlow_nodes']=Vlow_nodes
+
+#        network_summary[i]['Vhdrm']={}
+#        
+#        network_summary[i]['Vhdrm'][1]=(Vseries[1]-0.94)*.426/(3**0.5)*CurArray[0,i]
+#        network_summary[i]['Vhdrm'][2]=(Vseries[907]-0.94)*.426/(3**0.5)*CurArray[906,i]
+#        network_summary[i]['Vhdrm'][3]=(Vseries[1411]-0.94)*.426/(3**0.5)*CurArray[1410,i]
+#        network_summary[i]['Vhdrm'][4]=(Vseries[1914]-0.94)*.426/(3**0.5)*CurArray[1913,i]
 
         network_summary[i]['Chigh_vals']=list(Cseries[Cseries>0])
         network_summary[i]['Vhigh_vals']=list(Vseries[Vseries>1.1])

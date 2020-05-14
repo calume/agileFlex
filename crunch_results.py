@@ -38,7 +38,7 @@ def counts(network_summary):
     
     Vlow_allPeriods={}
     Vlow_count={}
-    for p in range(0,3):
+    for p in range(1,4):
         Chigh_allPeriods[p]=[]
         Vhigh_allPeriods[p]=[]
         Vlow_allPeriods[p]=[]
@@ -138,8 +138,8 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv):
                 InputsbyFP['HP'][str(p)+str(f)][i] = np.nan_to_num(heatpump[i])[custph[p][f].index].sum()
                 InputsbyFP['PV'][str(p)+str(f)][i] = np.nan_to_num(pv[i])[custph[p][f].index].sum()
     for z in range(1,5):
-        Headrm[z]=pd.DataFrame(index=network_summary.keys(), columns=[0,1,2])
-        for p in range(0,3):
+        Headrm[z]=pd.DataFrame(index=network_summary.keys(), columns=[1,2,3])
+        for p in range(1,4):
             for i in network_summary:
                 Headrm[z][p][i]=network_summary[i][p]['Chdrm'][z]
 
@@ -168,8 +168,8 @@ def plot_headroom(Headrm,InputsbyFP):
     plt.figure(1)
     plt.title('Headroom (at head supply branch) per phase and feeder')
     
-    for p in range(0,3):
-        plt.subplot(310+p+1)
+    for p in range(1,4):
+        plt.subplot(310+p)
         for f in range(1,5):
             plt.plot(
                 Headrm[f][p].values,
@@ -178,7 +178,7 @@ def plot_headroom(Headrm,InputsbyFP):
                 label="Feeder "+str(f),
             )
             plt.plot(np.zeros(48),color='black', linestyle="--",)
-        plt.title('Phase '+str(p+1))
+        plt.title('Phase '+str(p))
         plt.ylabel('Headroom (kW)')
         
         plt.xlim([0, 47])

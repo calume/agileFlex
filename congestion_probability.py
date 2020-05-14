@@ -145,7 +145,12 @@ for i in sims_halfhours.tolist():
     
     Headrm, Customer_Summary, custph, InputsbyFP = Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv)
     
-    
+    ##----------- Validation of adjusted demand ------------------#
+      
+    for p in range(1,4):
+        for f in range(1,5):
+            if Headrm[f][p][i] <0:
+                demand_delta[i][custph[p][f].index] = Headrm[f][p][i] / len(custph[p][f].index)
     
 Chigh_count, Vhigh_count, Vlow_count=counts(network_summary)
 Coords,Lines = plots(Network_Path,Chigh_count)

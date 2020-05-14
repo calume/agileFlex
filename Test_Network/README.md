@@ -119,6 +119,25 @@ The feeder has 200 customers spread across 4 feeders on the 3 phases. Flexibilit
 - Comfortable (66 Customers): half of these are assumed to have PV and all are assumed to have heat pumps.
 - Adversity (66 Customers): are assumed to not have any low carbon technologies (LCTs) due to the high capital costs required.
 
+Customers are dispersed by feeder and phase as follows;
+
+|Feeder|Phase 1|Phase 2|Phase 3| Total 
+|1|21|19|15|55
+|2|11|11|9|31
+|3|14|12|13|39
+|4|28|26|21|75
+|Total|74|68|58|200
+
+In terms of customer type:
+
+Feeder|Affluent|Feeder|Phase 1|Phase 2|Phase 3| Comfortable
+|1||21|19|15|1|0|0|0|
+|2||7|4|2|2|4|7|7|
+|3||0|0|0|3|14|12|13
+|4||0|0|0|4|4|3|0
+
+
+
 The network schematic is shown below:
 
 ![Network1](Network1/Network1_Map.png)
