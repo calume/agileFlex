@@ -198,7 +198,7 @@ This is particularly the case for the Affluent mixtures (shown below), particula
 
 ![SM_Adversity_GMM](Visualisation/SM_Affluent_GMM.png)
 
-**Figure 8:**  Smart Meter Gaussian mixtures: Adversity acorn group, y axis is demand in kW
+**Figure 8:**  Smart Meter Gaussian mixtures: Affluent acorn group, y axis is demand in kW
 
 ## Heat Pump
 

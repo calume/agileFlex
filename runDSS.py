@@ -86,13 +86,13 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
        ################### Calculating Load for each Demand ############################
     iLoad = DSSLoads.First()
     while iLoad>0:
-        DSSLoads.kW(demand[iLoad-1]-demand_delta[iLoad-1])
+        DSSLoads.kW(demand[iLoad-1]+demand_delta[iLoad-1])
         iLoad = DSSLoads.Next()
     
     ################### Calculating Gen for each Demand ############################
     iGen = DSSGens.First()
     while iGen>0:
-        DSSGens.kW(pv[iGen-1]-pv_delta[iGen-1])
+        DSSGens.kW(pv[iGen-1]+pv_delta[iGen-1])
         DSSGens.Vmaxpu(1.2)
         DSSGens.Vminpu(0.8)
         DSSGens.Phases(1)
@@ -141,20 +141,27 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
     
     for i in range(1,4):
         network_summary[i]={}
-        Cseries=pd.Series(CurArray[:,i-1]-RateArray)
+        Cseries=pd.Series(CurArray[:,i-1])
         Vseries=pd.Series(VoltArray[:,i-1])
     
-        Chigh_lines=list(Cseries[Cseries>0].index)
+        Chigh_lines=list(Cseries[Cseries>RateArray].index)
         Vhigh_nodes=list(Vseries[Vseries>1.1].index)
         Vlow_nodes=list(Vseries[Vseries<0.94].index)
         
         network_summary[i]['Chigh_lines']=Chigh_lines
-        network_summary[i]['Chdrm']={}
-        network_summary[i]['Chdrm'][1]=-Cseries[0]*Vseries[1]*.426/(3**0.5)
-        network_summary[i]['Chdrm'][2]=-Cseries[906]*Vseries[1]*.426/(3**0.5)
-        network_summary[i]['Chdrm'][3]=-Cseries[1410]*Vseries[1]*.426/(3**0.5)
-        network_summary[i]['Chdrm'][4]=-Cseries[1913]*Vseries[1]*.426/(3**0.5)
+        network_summary[i]['C_Flow']={}
+        network_summary[i]['C_Rate']={}
         
+        pinchClist=[0,906,1410,1913]
+        pinchVlist=[2,907,1411,1914]
+        ##------- To indicate direction of power flow. When Importing supply voltage will be higher
+        #---------Negative power flow represents export. 
+        
+        for n in range(1,5):
+            network_summary[i]['C_Rate'][n]=RateArray[pinchClist[n-1]]*Vseries[1]*.426/(3**0.5)
+            network_summary[i]['C_Flow'][n]=Cseries[pinchClist[n-1]]*Vseries[1]*.426/(3**0.5)
+
+                
         network_summary[i]['Vhigh_nodes']=Vhigh_nodes
         network_summary[i]['Vlow_nodes']=Vlow_nodes
 
@@ -165,10 +172,10 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
 #        network_summary[i]['Vhdrm'][3]=(Vseries[1411]-0.94)*.426/(3**0.5)*CurArray[1410,i]
 #        network_summary[i]['Vhdrm'][4]=(Vseries[1914]-0.94)*.426/(3**0.5)*CurArray[1913,i]
 
-        network_summary[i]['Chigh_vals']=list(Cseries[Cseries>0])
+        network_summary[i]['Chigh_vals']=list(Cseries[Cseries>RateArray])
         network_summary[i]['Vhigh_vals']=list(Vseries[Vseries>1.1])
         network_summary[i]['Vlow_vals']=list(Vseries[Vseries<0.94])
-
+        
     network_summary['Trans_kVA_Headroom']=TransRatekVA-TransKVA_sum
     return network_summary
 

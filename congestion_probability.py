@@ -26,7 +26,7 @@ import pickle
 from Test_Network.network_plot import customer_summary
 from sklearn.metrics import mean_absolute_error
 from runDSS import runDSS, network_visualise
-from crunch_results import counts, plots, Headroom_calc, plot_headroom
+from crunch_results import counts, plots, Headroom_calc, plot_headroom, plot_flex
 
 ####----------Set Test Network ------------
 
@@ -74,11 +74,15 @@ pv_sites=list(PV_DataFrame.keys())
 for z in pv_index:    
     Customer_Summary['pv_ID'][z] = random.choice(pv_sites)
 
+##- Minus 1 year from PV timestamps to line up with SM and HP
+#for k in pv_sites:
+#        PV_DataFrame[k].index=PV_DataFrame[k].index-datetime.timedelta(days=365)
+
 #--------- Run power flow Timeseries--------------------------#
 ######## test dates: 2013-12-5 to 2014-02-15, mostly full data sets
-
+######## test dates: 2013-8-1 to 2013-9-1, full when PV dates are changed by minus 1 year
 start_date = datetime.date(2013, 12, 5)
-end_date = datetime.date(2013, 12, 6)
+end_date = datetime.date(2014, 12, 15)
 
 delta_halfhours = datetime.timedelta(hours=0.5)
 delta_days = datetime.timedelta(days=1)
@@ -103,7 +107,7 @@ LoadArray={}
 Losses={}
 TranskVA_sum={}
 network_summary={}
-
+network_summary_new={}
 for i in sims_halfhours.tolist():
     print(i)
     #-------------- Sample for each day weekday/weekend and season -----------#
@@ -143,16 +147,33 @@ for i in sims_halfhours.tolist():
     
     network_summary[i]= network_visualise(CurArray[i], RateArray, VoltArray[i],TranskVA_sum[i],TransRatekVA)
     
-    Headrm, Customer_Summary, custph, InputsbyFP = Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv)
-    
-    ##----------- Validation of adjusted demand ------------------#
-      
+    network_summary_new[i] = network_summary[i]
+
+Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)   
+Chigh_count, Vhigh_count, Vlow_count=counts(network_summary)
+#Coords,Lines = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
+
+labels={'col':'red','style':'--','label': 'Initial'}
+plot_headroom(Headrm, Footrm, Flow, Rate, labels)
+
+##----------- Validation of adjusted demand ------------------#
+for i in network_summary:
     for p in range(1,4):
         for f in range(1,5):
-            if Headrm[f][p][i] <0:
-                demand_delta[i][custph[p][f].index] = Headrm[f][p][i] / len(custph[p][f].index)
+            if Headrm[f][p][i] <0 and (demand[i][custph[p][f].index].sum() >= pv[i][custph[p][f].index].sum()):
+                demand_delta[i][custph[p][f].index] = Headrm[f][p][i] / len(custph[p][f])
+            
+            if Footrm[f][p][i] <0 and (demand[i][custph[p][f].index].sum() < pv[i][custph[p][f].index].sum()):
+                pv_delta[i][custph[p][f][custph[p][f]['PV_kW']>0].index] = (Footrm[f][p][i] / len(custph[p][f][custph[p][f]['PV_kW']>0].index))
     
-Chigh_count, Vhigh_count, Vlow_count=counts(network_summary)
-Coords,Lines = plots(Network_Path,Chigh_count)
+    if (demand_delta[i].sum() + pv_delta[i].sum()) != 0:
+        CurArray[i], VoltArray[i], Losses[i], TranskVA_sum[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i])
+        
+        network_summary_new[i]= network_visualise(CurArray[i], RateArray, VoltArray[i],TranskVA_sum[i],TransRatekVA)
 
-plot_headroom(Headrm,InputsbyFP)
+Headrm_new, Footrm_new, Flow_new, Rate, Customer_Summary, custph, InputsbyFP_new = Headroom_calc(network_summary_new, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)    
+Chigh_count_new, Vhigh_count_new, Vlow_count_new=counts(network_summary_new)
+
+labels={'col':'blue','style':'-','label': 'With Adjustments'}
+plot_headroom(Headrm_new, Footrm_new, Flow_new,Rate,labels)
+plot_flex(InputsbyFP_new)  
