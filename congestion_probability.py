@@ -193,52 +193,9 @@ for i in network_summary:
         network_summary_new[i]= network_visualise(CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i],TransRatekVA)
 
 Headrm_new, Footrm_new, Flow_new, Rate, Customer_Summary, custph, InputsbyFP_new = Headroom_calc(network_summary_new, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)    
-#plot_headroom(Headrm_new, Footrm_new, Flow_new,Rate,labels)
-#plot_flex(InputsbyFP_new)
-
+labels={'col':'blue','style':'-','label': 'With Adjustments','TranskVA': TransRatekVA}
+plot_headroom(Headrm_new, Footrm_new, Flow_new,Rate,labels)
+plot_flex(InputsbyFP_new)
 Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new=counts(network_summary_new,Coords)
+Coords = plots(Network_Path,Chigh_count_new, Vhigh_count_new,Vlow_count_new)
 Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow_new,RateArray) 
-
-###----------- Calculation of adjusted demand for high Voltage------------------#
-#sens=-10
-##pv_delta_n={}
-#VoltArray_n={}
-#CurArray_n={}
-#for i in network_summary_new:
-#    print(i)
-#    ###--- Do sensitivity-------#
-#    #pv_delta_n[i]=np.zeros(len(Customer_Summary))
-#    pinchVlist=[0,906,1410,1913,3142]
-#    for p in range(1,3):
-#        for f in range(1,5):
-#            if VoltArray[i][pinchVlist[f]][p-1] > 1.1:
-#                print(VoltArray[i][pinchVlist[f]][p-1])
-#                kvar_delta[i][custph[p][f][custph[p][f]['PV_kW']>0].index]= sens / len(custph[p][f][custph[p][f]['PV_kW']>0].index)
-#    CurArray[i], VoltArray_n[i], PowArray[i], Losses[i], Trans_kVA[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i],kvar_delta[i])
-#    
-#    kvar_delta[i] = np.zeros(len(Customer_Summary)) 
-#    for p in range(1,4):
-#        for f in range(1,5): # Old Code replace pinchVlist (f) with VHpinch_new[p][i].keys():
-#            if VoltArray[i][pinchVlist[f]][p-1] > 1.1: 
-#                Vdelta= VoltArray_n[i][pinchVlist[f]][p-1] -VoltArray[i][pinchVlist[f]][p-1]
-#                if Vdelta !=0:
-#                    Change= sens / len(custph[p][f][custph[p][f]['PV_kW']>0].index)
-#                    Needed= Change/Vdelta *(1.1-VoltArray[i][pinchVlist[f]][p-1])
-#                    print(Needed)
-#                    kvar_delta[i][custph[p][f][custph[p][f]['PV_kW']>0].index] = Needed
-#
-#    CurArray_n[i], VoltArray_n[i], PowArray[i], Losses[i], Trans_kVA[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i],kvar_delta[i])
-#    print(VoltArray_n[i].max())
-#    network_summary_new[i]= network_visualise(CurArray_n[i], RateArray, VoltArray_n[i], PowArray[i], Trans_kVA[i],TransRatekVA)
-#    
-#    
-#labels={'col':'blue','style':'-','label': 'With Adjustments','TranskVA': TransRatekVA}
-#
-#
-#Headrm_new, Footrm_new, Flow_new, Rate, Customer_Summary, custph, InputsbyFP_new = Headroom_calc(network_summary_new, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)
-#Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new =counts(network_summary_new,Coords)
-#Coords = plots(Network_Path,Chigh_count_new, Vhigh_count_new,Vlow_count_new)
-#plot_headroom(Headrm_new, Footrm_new, Flow_new,Rate,labels)
-#plot_flex(InputsbyFP_new)
-#Vmax,Vmin,Cmax=plot_current_voltage(CurArray_n,VoltArray_n,Coords,Lines,Flow_new,RateArray) 
-## 
