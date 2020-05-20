@@ -77,9 +77,10 @@ def create_gens(Network_Path):
 
 
 ####### Compile the OpenDSS file using the Master.txt directory#########
-def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
+def runDSS(Network_Path,demand,pv,demand_delta,pv_delta,PFControl):
     Voltages={}
     Currents={}
+    Powers={}
     Rates={}
     
     run_command('Redirect ./'+str(Network_Path)+'Master.dss')
@@ -93,6 +94,9 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
     iGen = DSSGens.First()
     while iGen>0:
         DSSGens.kW(pv[iGen-1]+pv_delta[iGen-1])
+        if PFControl==1:
+            DSSGens.kW((pv[iGen-1]+pv_delta[iGen-1])*0.95)
+            DSSGens.PF(-0.95)
         DSSGens.Vmaxpu(1.2)
         DSSGens.Vminpu(0.8)
         DSSGens.Phases(1)
@@ -104,11 +108,6 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
     
     ############-----Export Results-------------------------#################
     
-    ####### Export Transformer kVA #########
-    dss.Text.Command("export mon TransPQ")
-    Trans_kVA=pd.read_csv('LVTest_Mon_transpq.csv',usecols=[2,3,4])
-    Trans_kVA.columns=['S1','S2','S3']
-    
     ########## Export Voltages ###########
     bvs = list(DSSCircuit.AllBusMagPu())
     Voltages=bvs[0::3],bvs[1::3],bvs[2::3]  
@@ -116,26 +115,31 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta):
     for i in range(0,3):
         VoltArray[:,i]=np.array(Voltages[i], dtype=float)
         
-    ########## Export Current ###########
+    ########## Export Current and Power ###########
     i_Line = DSSLines.First()
     while i_Line > 0:
         curs =list(dss.CktElement.CurrentsMagAng())
         Currents[i_Line] = curs[0], curs[2], curs[4]
+        
+        pows =list(dss.CktElement.Powers()) 
+        Powers[i_Line] = np.sign(pows[0])*(pows[0]**2+pows[1]**2)**0.5, np.sign(pows[2])*(pows[2]**2+pows[3]**2)**0.5, np.sign(pows[4])*(pows[4]**2+pows[5]**2)**0.5
+        
         Rates[i_Line] = dss.CktElement.NormalAmps()
         i_Line = DSSLines.Next()
     
     ########## Store as Arrays ############
     CurArray=np.array(list(Currents.values()), dtype=float)
+    PowArray=np.array(list(Powers.values()), dtype=float)
     Losses=dss.Circuit.Losses()[0]/1000
     RateArray=np.array(list(Rates.values()), dtype=float)
-    TransKVA_sum=sum(Trans_kVA.values[0])
+    TranskVA=np.sign(dss.Circuit.TotalPower()[0])*(dss.Circuit.TotalPower()[0]**2+dss.Circuit.TotalPower()[1]**2)**0.5
     TransRatekVA=DSSTransformers.kVA()
-    return CurArray, VoltArray, Losses, TransKVA_sum, RateArray, TransRatekVA
+    return CurArray, VoltArray, PowArray, Losses, TranskVA, RateArray, TransRatekVA
 
 ###------- Using the network outputs (voltage and current) from Opendss
 ###------- network summary is generated including overvoltage and current locations
 
-def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA):
+def network_visualise(CurArray, RateArray, VoltArray, PowArray, TransKVA ,TransRatekVA):
 
     network_summary={}
     
@@ -143,6 +147,7 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         network_summary[i]={}
         Cseries=pd.Series(CurArray[:,i-1])
         Vseries=pd.Series(VoltArray[:,i-1])
+        Pseries=pd.Series(PowArray[:,i-1])
     
         Chigh_lines=list(Cseries[Cseries>RateArray].index)
         Vhigh_nodes=list(Vseries[Vseries>1.1].index)
@@ -153,13 +158,12 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         network_summary[i]['C_Rate']={}
         
         pinchClist=[0,906,1410,1913]
-        pinchVlist=[2,907,1411,1914]
         ##------- To indicate direction of power flow. When Importing supply voltage will be higher
         #---------Negative power flow represents export. 
         
         for n in range(1,5):
             network_summary[i]['C_Rate'][n]=RateArray[pinchClist[n-1]]*Vseries[1]*.426/(3**0.5)
-            network_summary[i]['C_Flow'][n]=Cseries[pinchClist[n-1]]*Vseries[1]*.426/(3**0.5)
+            network_summary[i]['C_Flow'][n]=Pseries[pinchClist[n-1]]
 
                 
         network_summary[i]['Vhigh_nodes']=Vhigh_nodes
@@ -176,7 +180,7 @@ def network_visualise(CurArray, RateArray, VoltArray,TransKVA_sum ,TransRatekVA)
         network_summary[i]['Vhigh_vals']=list(Vseries[Vseries>1.1])
         network_summary[i]['Vlow_vals']=list(Vseries[Vseries<0.94])
         
-    network_summary['Trans_kVA_Headroom']=TransRatekVA-TransKVA_sum
+    network_summary['Trans_kVA']=-TransKVA
     return network_summary
 
 #from feedbackplot import plots

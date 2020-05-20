@@ -29,20 +29,16 @@ import networkx as nx
 #### This script takes network current and voltage data, and presents
 #### which lines are overloaded for what percentage of the time by half hour
 
-def counts(network_summary):
-    Chigh_allPeriods={}
-    Chigh_count={}
-    
-    Vhigh_allPeriods={}
-    Vhigh_count={}
-    
-    Vlow_allPeriods={}
-    Vlow_count={}
+def counts(network_summary,Coords):
+    Chigh_allPeriods,  Vhigh_allPeriods, Vlow_allPeriods={}, {}, {}
+    Chigh_count, Vhigh_count, Vlow_count = {},{},{}
+    VHpinch={}
     for p in range(1,4):
-        Chigh_allPeriods[p]=[]
-        Vhigh_allPeriods[p]=[]
-        Vlow_allPeriods[p]=[]
+        VHpinch[p]={}
+        Chigh_count[p], Vhigh_count[p], Vlow_count[p] = [],[],[]
+        Chigh_allPeriods[p], Vhigh_allPeriods[p],  Vlow_allPeriods[p]= [],[],[]
         for i in network_summary:
+            VHpinch[p][i]={}
             if len(network_summary[i][p]['Chigh_lines']) >0:
                 for item in network_summary[i][p]['Chigh_lines']:
                     Chigh_allPeriods[p].append(item)
@@ -52,13 +48,21 @@ def counts(network_summary):
                 for item in network_summary[i][p]['Vhigh_nodes']:
                     Vhigh_allPeriods[p].append(item)
                 Vhigh_count[p]=collections.Counter(Vhigh_allPeriods[p])
-                
+
+                for f in range(1,5):
+                    AllCounts=pd.DataFrame()
+                    AllCounts['node']=Coords['Node'][network_summary[i][p]['Vhigh_nodes']]
+                    AllCounts['voltage']=network_summary[i][p]['Vhigh_vals']
+                    AllCounts=AllCounts[AllCounts['node'].astype(str).str[0]==str(f)]
+                    if len(AllCounts) >0:
+                        VHpinch[p][i][f]=AllCounts['node'][AllCounts['node']==AllCounts['node'].max()].index[0]
+                    
             if len(network_summary[i][p]['Vlow_nodes']) >0:
                 for item in network_summary[i][p]['Vlow_nodes']:
                     Vlow_allPeriods[p].append(item)
                 Vlow_count[p]=collections.Counter(Vlow_allPeriods[p])
-    
-    return Chigh_count, Vhigh_count, Vlow_count
+
+    return Chigh_count, Vhigh_count, Vlow_count, VHpinch
     
 def plots(Network_Path,Chigh_count, Vhigh_count, Vlow_count):
     Coords = pd.read_csv(str(Network_Path)+'/XY_Position.csv')
@@ -86,37 +90,37 @@ def plots(Network_Path,Chigh_count, Vhigh_count, Vlow_count):
     G.add_edges_from(Edge.values())
     n=1
 
-    for p in range(1,4):
     #--------- Add colors to nodes
-       Coords['Color']='red'
-       Coords['Color'][Coords['Node'].astype(str).str[0]=='2']='yellow'
-       Coords['Color'][Coords['Node'].astype(str).str[0]=='3']='green'
-       Coords['Color'][Coords['Node'].astype(str).str[0]=='4']='orange'
-       Coords['Color'].iloc[0]='blue'
-       Lines['Color']='white'   
-       Lines['width']=1
-       Coords['size']=1
-       #-------- Add colors to Current congested lines
-       if p in list(Chigh_count.keys()):
-           Chigh_keys = [x+1 for x in list(Chigh_count[p].keys())]
-           Lines['Color'].iloc[Chigh_keys]='blue'
-           Lines['width'].iloc[Chigh_keys]= list(Chigh_count[p].values())
+    Coords['Color']='red'
+    Coords['Color'][Coords['Node'].astype(str).str[0]=='2']='yellow'
+    Coords['Color'][Coords['Node'].astype(str).str[0]=='3']='green'
+    Coords['Color'][Coords['Node'].astype(str).str[0]=='4']='orange'
+    Coords['Color'].iloc[0]='blue'
+    Lines['Color']='white'   
+    Lines['width']=1
+    Coords['size']=1
+    for p in range(1,4):
+        #-------- Add colors to Current congested lines
+        if len(Chigh_count[p]) >0:
+            Chigh_keys = [x+1 for x in list(Chigh_count[p].keys())]
+            Lines['Color'].iloc[Chigh_keys]='blue'
+            Lines['width'].iloc[Chigh_keys]= list(Chigh_count[p].values())
        
         #-------- Add colors to Voltage congested lines  
-       if p in list(Vhigh_count.keys()):
-           Vhigh_keys = [x+1 for x in list(Vhigh_count[p].keys())]
-           Coords['Color'].iloc[Vhigh_keys]='black'
-           Coords['size'].iloc[Vhigh_keys]= list(Vhigh_count[p].values())
-        ##### Plot Currents for each Phase ####
-       plt.figure(n)
-       #plt.figure(311+p)
-       plt.title('Current + High Voltage - Phase ' +str(p))
-       nx.draw(G, pos, with_labels=False, width=Lines['width']/max(Lines['width']), node_size=Coords['size']/max(Coords['size']), node_color=Coords['Color'], edge_color=Lines['Color'], font_weight='bold')
-       plt.show()
-       plt.tight_layout()
-       n=n+1
+        if len(Vhigh_count[p]) >0:
+            Vhigh_keys = [x+1 for x in list(Vhigh_count[p].keys())]
+            Coords['Color'].iloc[Vhigh_keys]='black'
+            Coords['size'].iloc[Vhigh_keys]= list(Vhigh_count[p].values())
+            ##### Plot Currents for each Phase ####
+        plt.figure()
+        #plt.figure(311+p)
+        plt.title('Current + High Voltage, Phase  '+str(p))
+        nx.draw(G, pos, with_labels=False, width=Lines['width']/max(Lines['width']), node_size=Coords['size']/max(Coords['size']), node_color=Coords['Color'], edge_color=Lines['Color'], font_weight='bold')
+        plt.show()
+        plt.tight_layout()
+    n=n+1
 
-    return Coords,Lines
+    return Coords
 
 
 def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta):
@@ -125,16 +129,14 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,de
     Flow={}
     Rate={}
     Headrm[0]=pd.Series(index=network_summary.keys())
-    
     custph={}
-    Customer_Summary['feeder']=Customer_Summary['Node'].astype(str).str[0] 
-    
+    Customer_Summary['feeder']=Customer_Summary['Node'].astype(str).str[0]
     for p in range(1,4):
         custs=Customer_Summary[Customer_Summary['Phase'].astype(int)==(p)]
         custph[p]={}
         for f in range(1,5):
-            custph[p][f]=custs[custs['feeder'].astype(int)==f]   
-    
+            custph[p][f]=custs[custs['feeder'].astype(int)==f]
+            
     InputsbyFP={}        
     InputsbyFP['SM'] = pd.DataFrame(index=network_summary.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
     InputsbyFP['HP'] = pd.DataFrame(index=network_summary.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
@@ -142,8 +144,9 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,de
     InputsbyFP['demand'] = pd.DataFrame(index=network_summary.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])   
     InputsbyFP['demand_delta'] = pd.DataFrame(index=network_summary.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
     InputsbyFP['pv_delta'] = pd.DataFrame(index=network_summary.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
+    
     for i in network_summary:
-        Headrm[0][i]=network_summary[i]['Trans_kVA_Headroom']      
+        Headrm[0][i]=network_summary[i]['Trans_kVA']      
         for p in range(1,4):
             for f in range(1,5):
                 InputsbyFP['SM'][str(p)+str(f)][i] = np.nan_to_num(smartmeter[i])[custph[p][f].index].sum()
@@ -152,6 +155,7 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,de
                 InputsbyFP['demand'][str(p)+str(f)][i] = np.nan_to_num(demand[i])[custph[p][f].index].sum()
                 InputsbyFP['demand_delta'][str(p)+str(f)][i] = np.nan_to_num(demand_delta[i])[custph[p][f].index].sum()
                 InputsbyFP['pv_delta'][str(p)+str(f)][i] = np.nan_to_num(pv_delta[i])[custph[p][f].index].sum()
+
     for z in range(1,5):
         Headrm[z]=pd.DataFrame(index=network_summary.keys(), columns=[1,2,3])
         Footrm[z]=pd.DataFrame(index=network_summary.keys(), columns=[1,2,3])
@@ -159,15 +163,15 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,de
         Rate[z]=pd.DataFrame(index=network_summary.keys(), columns=[1,2,3])
         for p in range(1,4):
             for i in network_summary:
-                if InputsbyFP['demand'][str(p)+str(z)][i] > InputsbyFP['PV'][str(p)+str(z)][i]:
-                    Flow[z][p][i]=network_summary[i][p]['C_Flow'][z]
-                    Headrm[z][p][i]=network_summary[i][p]['C_Rate'][z]-network_summary[i][p]['C_Flow'][z]
-                    Footrm[z][p][i]=network_summary[i][p]['C_Flow'][z]+network_summary[i][p]['C_Rate'][z]
-                else:
-                    Flow[z][p][i]=-network_summary[i][p]['C_Flow'][z]       
-                    Headrm[z][p][i]=(network_summary[i][p]['C_Flow'][z]-network_summary[i][p]['C_Rate'][z])
-                    Footrm[z][p][i]=(network_summary[i][p]['C_Rate'][z]-network_summary[i][p]['C_Flow'][z])/2.5
+                Flow[z][p][i]=network_summary[i][p]['C_Flow'][z]
+                Headrm[z][p][i]=network_summary[i][p]['C_Rate'][z]-network_summary[i][p]['C_Flow'][z]
+                Footrm[z][p][i]=network_summary[i][p]['C_Rate'][z]+network_summary[i][p]['C_Flow'][z]
                 Rate[z][p][i]=network_summary[i][p]['C_Rate'][z]
+                if (-Rate[z][p][i]-3) <= Flow[z][p][i] <= (-Rate[z][p][i]+3) :
+                    Footrm[z][p][i]=Rate[z][p][i]+Flow[z][p][i]-1.5
+                if Flow[z][p][i] < (-Rate[z][p][i]-3):
+                    Footrm[z][p][i]=abs(Rate[z][p][i]+Flow[z][p][i])**0.73*np.sign(Flow[z][p][i])
+
     return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
 
 def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
@@ -180,6 +184,8 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
         linestyle=labels['style'],
         label=labels['label'],
     )
+    plt.plot(np.full(48,labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
+    plt.plot(np.full(48,-labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
     plt.ylabel('Headroom (kVA)')
     plt.title("Network 1 - Secondary Substation Headroom")
     plt.legend()
@@ -208,7 +214,7 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
         plt.ylabel('Headroom (kW)')
         
         plt.xlim([0, 47])
-        plt.ylim([-100, 100])
+        plt.ylim([-75, 75])
         
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
@@ -225,13 +231,13 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
     )
     
     plt.annotate(
-        "", xy=(1, 100),
+        "", xy=(1, 75),
         xytext=(1, 0),
         arrowprops=arrow_properties1,
         fontsize=10)
     
     plt.annotate(
-        "", xy=(1, -100),
+        "", xy=(1, -75),
         xytext=(1, 0),
         arrowprops=arrow_properties2,
         fontsize=10)
@@ -239,8 +245,8 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
     style1 = dict(size=8, color=sns.xkcd_rgb["pale red"], weight='bold')
     style2 = dict(size=8, color=sns.xkcd_rgb["denim blue"], weight='bold')
     
-    axes.text(1.5, 75, "Import Headroom", **style1)
-    axes.text(1.5, -50, "Export Footroom", **style2)
+    axes.text(1.5, 60, "Import Headroom", **style1)
+    axes.text(1.5, -60, "Export Footroom", **style2)
     plt.legend()
     plt.tight_layout()
 
@@ -271,3 +277,80 @@ def plot_flex(InputsbyFP):
     plt.legend()
     plt.tight_layout()
 
+def plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray):
+    pinchClist=[0,906,1410,1913]
+    pinchVlist=[0,906,1410,1913,3142]
+    Vmax=pd.DataFrame(index=CurArray.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
+    Vpinch=pd.DataFrame(index=CurArray.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
+    Vmin=pd.DataFrame(index=CurArray.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
+    Cmax=pd.DataFrame(index=CurArray.keys(),columns=['11','12','13','14','21','22','23','24','31','32','33','34'])
+    for i in CurArray.keys():
+        for p in range(1,4):
+            for f in range(1,5):
+                Vmax[str(p)+str(f)][i] = VoltArray[i][Coords.index[Coords['Node'].astype(str).str[0]==str(f)].values,p-1].max()
+                Vmin[str(p)+str(f)][i] = VoltArray[i][Coords.index[Coords['Node'].astype(str).str[0]==str(f)].values,p-1].min()
+                Vpinch[str(p)+str(f)][i] = VoltArray[i][pinchVlist[f]][p-1]
+                #Cmax[str(p)+str(f)][i] = (RateArray[Lines.index[Lines['Line'].astype(str).str[9]==str(f)].values]-CurArray[i][Lines.index[Lines['Line'].astype(str).str[9]==str(f)].values,p-1]).max()
+                Cmax[str(p)+str(f)][i] = np.sign(Flow[f][p][i])*CurArray[i][pinchClist[f-1],p-1]
+
+    #------- PLot of maximum voltages per phase and feeder
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    colors=['#9467bd','#ff7f0e','#d62728','#bcbd22']
+    plt.figure()
+    for p in range(1,4):
+        plt.subplot(310+p)
+        for f in range(1,5):
+            plt.plot(
+                Vmax[str(p)+str(f)].values,
+                linewidth=1,
+                linestyle="-",
+                color=colors[f-1],
+                label="Feeder "+str(f),
+            )
+            plt.plot(
+                Vpinch[str(p)+str(f)].values,
+                linewidth=1,
+                linestyle="--",
+                color=colors[f-1],
+                #label="Feeder "+str(f),
+            )
+        plt.plot(np.full(48,1.1),color='red', linestyle="--",linewidth=0.5)
+        plt.title('Phase '+str(p))
+        plt.ylabel('Max Voltage (p.u.)')
+        
+        plt.xlim([0, 47])
+        plt.ylim([1, 1.15])
+        
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0, 47, 8), times)  
+    plt.legend()
+    plt.tight_layout()
+
+    #------- PLot of Current in supply branch per phase and feeder
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    plt.figure()
+    for p in range(1,4):
+        plt.subplot(310+p)
+        for f in range(1,5):
+            plt.plot(
+                Cmax[str(p)+str(f)].values,
+                linewidth=1,
+                linestyle="-",
+                label="Feeder "+str(f),
+            )
+        plt.plot(np.full(48,RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
+        plt.plot(np.full(48,-RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
+        plt.title('Phase '+str(p))
+        plt.ylabel('Current (Amps)')
+        
+        plt.xlim([0, 47])
+        plt.ylim([-200, 200])
+        
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0, 47, 8), times)  
+    plt.legend()
+    plt.tight_layout()
+
+    return Vmax,Vmin,Cmax

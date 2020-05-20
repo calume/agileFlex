@@ -14,7 +14,7 @@ Redirect Generators.txt
 Set voltagebases=[11  .416]
 Calcvoltagebases
 
-New energymeter.m1 Transformer.TR1 2
+!New energymeter.m1 Transformer.TR1 2
 
 LatLongCoords XY_Position.csv
 
