@@ -15,7 +15,6 @@ pd.options.mode.chained_assignment = None
 import timeit
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta, date, time
-import datetime
 import os
 import random
 import csv
@@ -27,14 +26,14 @@ import networkx as nx
 #------------ Network Pinch Point Summary Analysis and Visualisation---------##
 
 #### This script takes network current and voltage data, and presents
-#### which lines are overloaded for what percentage of the time by half hour
+#### which lines are overloaded and how frequently
 
 def counts(network_summary,Coords):
     Chigh_allPeriods,  Vhigh_allPeriods, Vlow_allPeriods={}, {}, {}
     Chigh_count, Vhigh_count, Vlow_count = {},{},{}
-    VHpinch={}
+    VHpinch={} # Will store the node with the highest voltage per phase/feeder
     for p in range(1,4):
-        VHpinch[p]={}
+        VHpinch[p]={}  
         Chigh_count[p], Vhigh_count[p], Vlow_count[p] = [],[],[]
         Chigh_allPeriods[p], Vhigh_allPeriods[p],  Vlow_allPeriods[p]= [],[],[]
         for i in network_summary:
@@ -63,15 +62,16 @@ def counts(network_summary,Coords):
                 Vlow_count[p]=collections.Counter(Vlow_allPeriods[p])
 
     return Chigh_count, Vhigh_count, Vlow_count, VHpinch
-    
+    ##--- The Chigh_count, Vhigh_count, Vlow_count tell us how often we have
+    ##--- violations. they should be empty if the adjustments work.
+
+###------ Thes spatial plots display locations of Violations---########
 def plots(Network_Path,Chigh_count, Vhigh_count, Vlow_count):
     Coords = pd.read_csv(str(Network_Path)+'/XY_Position.csv')
     Lines = pd.read_csv(str(Network_Path)+'/Lines.txt',delimiter=' ', names=['New','Line','Bus1','Bus2','phases','Linecode','Length','Units'] )
     Lines.loc[-1]=['New','Trans','Bus1=1','Bus2=11','1','-','-','-']
     Lines.index = Lines.index + 1  # shifting index
     Lines.sort_index(inplace=True) 
-    #Lines = Lines[Lines['Line'].map(len) > 5]
-    #Lines.reset_index(drop=True, inplace=True)
     ##### Set Up NetworkX Graph from coordinates and network outputs ####
     G = nx.Graph()
    
@@ -108,7 +108,7 @@ def plots(Network_Path,Chigh_count, Vhigh_count, Vlow_count):
        
         #-------- Add colors to Voltage congested lines  
         if len(Vhigh_count[p]) >0:
-            Vhigh_keys = [x+1 for x in list(Vhigh_count[p].keys())]
+            Vhigh_keys = [x for x in list(Vhigh_count[p].keys())]
             Coords['Color'].iloc[Vhigh_keys]='black'
             Coords['size'].iloc[Vhigh_keys]= list(Vhigh_count[p].values())
             ##### Plot Currents for each Phase ####
@@ -122,7 +122,7 @@ def plots(Network_Path,Chigh_count, Vhigh_count, Vlow_count):
 
     return Coords
 
-
+#######----------- This function returns Dataframes for plotting results
 def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta):
     Headrm={}
     Footrm={}
@@ -164,18 +164,22 @@ def Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,de
         for p in range(1,4):
             for i in network_summary:
                 Flow[z][p][i]=network_summary[i][p]['C_Flow'][z]
-                Headrm[z][p][i]=network_summary[i][p]['C_Rate'][z]-network_summary[i][p]['C_Flow'][z]
-                Footrm[z][p][i]=network_summary[i][p]['C_Rate'][z]+network_summary[i][p]['C_Flow'][z]
                 Rate[z][p][i]=network_summary[i][p]['C_Rate'][z]
-                if (-Rate[z][p][i]-3) <= Flow[z][p][i] <= (-Rate[z][p][i]+3) :
+                Headrm[z][p][i]=Rate[z][p][i]-Flow[z][p][i]
+                Footrm[z][p][i]=Rate[z][p][i]+Flow[z][p][i]
+                if (Rate[z][p][i]-10) <= Flow[z][p][i] <= (Rate[z][p][i]+10):
+                    Headrm[z][p][i]=Rate[z][p][i]-Flow[z][p][i]-5
+                
+                if (-Rate[z][p][i]-3) <= Flow[z][p][i] <= (-Rate[z][p][i]+3):
                     Footrm[z][p][i]=Rate[z][p][i]+Flow[z][p][i]-1.5
                 if Flow[z][p][i] < (-Rate[z][p][i]-3):
                     Footrm[z][p][i]=abs(Rate[z][p][i]+Flow[z][p][i])**0.73*np.sign(Flow[z][p][i])
 
     return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
 
+###---------- The secondary headroom, adjustments and per phase headrooms are shown
 def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
-    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    #times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
     plt.figure(0)
     plt.plot(
         Headrm[0].values,
@@ -184,16 +188,16 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
         linestyle=labels['style'],
         label=labels['label'],
     )
-    plt.plot(np.full(48,labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
-    plt.plot(np.full(48,-labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
+    plt.plot(np.full(len(Headrm[0]),labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
+    plt.plot(np.full(len(Headrm[0]),-labels['TranskVA']),color='red', linestyle="--",linewidth=0.5)
     plt.ylabel('Headroom (kVA)')
     plt.title("Network 1 - Secondary Substation Headroom")
     plt.legend()
-    plt.xlim([0, 47])
+    plt.xlim([0, len(Headrm[0])])
     
     plt.xticks(fontsize=8)
     plt.yticks(fontsize=8)
-    plt.xticks(range(0, 47, 8), times)
+    plt.xticks(range(0, len(Headrm[0]), 24), Headrm[0].index.strftime('%d/%m %H:%M')[range(0,len(Headrm[0]),24)])    
     
     plt.figure()
     plt.title('Headroom (at head supply branch) per phase and feeder')
@@ -208,17 +212,17 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
                 label="Feeder "+str(f),
             )
             plt.plot(Rate[f][p].values,color='red', linestyle="--",linewidth=0.5)
-            plt.plot(np.zeros(48),color='blue', linestyle="--",linewidth=0.5)
+            plt.plot(np.zeros(len(Headrm[0])),color='blue', linestyle="--",linewidth=0.5)
             plt.plot(-Rate[f][p].values,color='red', linestyle="--",linewidth=0.5)
         plt.title('Phase '+str(p))
         plt.ylabel('Headroom (kW)')
         
-        plt.xlim([0, 47])
+        plt.xlim([0, len(Headrm[0])])
         plt.ylim([-75, 75])
         
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)  
+        plt.xticks(range(0, len(Headrm[0]), 24), Headrm[0].index.strftime('%d/%m %H:%M')[range(0,len(Headrm[0]),24)])     
     
     axes = plt.gca()
     arrow_properties1 = dict(
@@ -250,32 +254,76 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels):
     plt.legend()
     plt.tight_layout()
 
+#######---------- Demand and PV adjustments are shown along with Heat pump and Smartmeter demand
 def plot_flex(InputsbyFP):
     
     #------- PLot of demand and generation per feeder and phase
     times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    colors=['#9467bd','#ff7f0e','#d62728','#bcbd22']
+    plt.figure()
+    for p in range(1,4):
+        plt.subplot(310+p)
+        for f in range(1,5):
+            if InputsbyFP['demand_delta'].sum().sum() !=0:
+                plt.plot(
+                    InputsbyFP['demand_delta'][str(p)+str(f)].values,
+                    linewidth=1,
+                    linestyle="-",
+                    color=colors[f-1],
+                    label="Feeder "+str(f),
+                )
+            if InputsbyFP['pv_delta'].sum().sum() !=0:
+                plt.plot(
+                    -InputsbyFP['pv_delta'][str(p)+str(f)].values,
+                    linewidth=1,
+                    linestyle="--",
+                    color=colors[f-1],
+                    label="Feeder "+str(f),
+                )
+        plt.title('Phase '+str(p))
+        plt.ylabel('Delta (kW)')
+        
+        plt.xlim([0, len(InputsbyFP['pv_delta'])])
+        #plt.ylim([0, 5])
+        
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0, len(InputsbyFP['pv_delta']), 24), InputsbyFP['pv_delta'].index.strftime('%d/%m %H:%M')[range(0,len(InputsbyFP['pv_delta']),24)])
+    plt.legend()
+    plt.tight_layout()
+    
+    #----------- Plot of demands---------------#
+       
     plt.figure()
     for p in range(1,4):
         plt.subplot(310+p)
         for f in range(1,5):
             plt.plot(
-                InputsbyFP['demand_delta'][str(p)+str(f)].values+InputsbyFP['pv_delta'][str(p)+str(f)].values,
+                InputsbyFP['HP'][str(p)+str(f)].values,
                 linewidth=1,
-                linestyle="--",
+                linestyle="-",
+                color=colors[f-1],
                 label="Feeder "+str(f),
             )
-            
-        plt.title('Phase '+str(p))
-        plt.ylabel('Delta (kW)')
+            plt.plot(
+                InputsbyFP['SM'][str(p)+str(f)].values,
+                linewidth=1,
+                linestyle="--",
+                color=colors[f-1],
+            )
+        plt.title('HP and SM (--) Phase '+str(p))
+        plt.ylabel('Demand (kW)')
         
-        plt.xlim([0, 47])
+        plt.xlim([0, len(InputsbyFP['HP'])])
         #plt.ylim([0, 5])
         
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)  
+        plt.xticks(range(0, len(InputsbyFP['HP']), 24), InputsbyFP['HP'].index.strftime('%d/%m %H:%M')[range(0,len(InputsbyFP['HP']),24)]) 
     plt.legend()
     plt.tight_layout()
+
+####-------- Maximum voltage, Minimum Voltage and Current are put in a dataframe (slow again) and plotted.
 
 def plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray):
     pinchClist=[0,906,1410,1913]
@@ -314,16 +362,43 @@ def plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray):
                 color=colors[f-1],
                 #label="Feeder "+str(f),
             )
-        plt.plot(np.full(48,1.1),color='red', linestyle="--",linewidth=0.5)
+        plt.plot(np.full(len(Vmax),1.1),color='red', linestyle="--",linewidth=0.5)
         plt.title('Phase '+str(p))
         plt.ylabel('Max Voltage (p.u.)')
         
-        plt.xlim([0, 47])
-        plt.ylim([1, 1.15])
+        plt.xlim([0, len(Cmax)])
+        plt.ylim([0.9, 1.15])
         
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)  
+        plt.xticks(range(0, len(Cmax), 24), Cmax.index.strftime('%d/%m %H:%M')[range(0,len(Cmax),24)])    
+    plt.legend()
+    plt.tight_layout()
+
+    #------- PLot of minimum voltages per phase and feeder
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    colors=['#9467bd','#ff7f0e','#d62728','#bcbd22']
+    plt.figure()
+    for p in range(1,4):
+        plt.subplot(310+p)
+        for f in range(1,5):
+            plt.plot(
+                Vmin[str(p)+str(f)].values,
+                linewidth=1,
+                linestyle="-",
+                color=colors[f-1],
+                label="Feeder "+str(f),
+            )
+        plt.plot(np.full(len(Vmax),0.94),color='red', linestyle="--",linewidth=0.5)
+        plt.title('Phase '+str(p))
+        plt.ylabel('Min Voltage (p.u.)')
+        
+        plt.xlim([0, len(Cmax)])
+        plt.ylim([0.9, 1.15])
+        
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0, len(Cmax), 24), Cmax.index.strftime('%d/%m %H:%M')[range(0,len(Cmax),24)])   
     plt.legend()
     plt.tight_layout()
 
@@ -339,17 +414,17 @@ def plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray):
                 linestyle="-",
                 label="Feeder "+str(f),
             )
-        plt.plot(np.full(48,RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
-        plt.plot(np.full(48,-RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
+        plt.plot(np.full(len(Cmax),RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
+        plt.plot(np.full(len(Cmax),-RateArray[pinchClist[f-1]]),color='red', linestyle="--",linewidth=0.5)
         plt.title('Phase '+str(p))
         plt.ylabel('Current (Amps)')
         
-        plt.xlim([0, 47])
+        plt.xlim([0, len(Cmax)])
         plt.ylim([-200, 200])
         
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)  
+        plt.xticks(range(0, len(Cmax), 24), Cmax.index.strftime('%d/%m %H:%M')[range(0,len(Cmax),24)])  
     plt.legend()
     plt.tight_layout()
 

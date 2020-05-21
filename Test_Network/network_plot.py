@@ -52,6 +52,7 @@ def customer_summary(Network_Path):
     
     LoadsByAcorn = {}
     LoadsByAcorn["Affluent"] = list(range(1, 68))
+    LoadsByAcorn["Affluent"] = list(range(1, 68))
     LoadsByAcorn["Comfortable"] = list(range(1, 66))
     LoadsByAcorn["Adversity"] = list(range(1, 66))
     
@@ -66,6 +67,7 @@ def customer_summary(Network_Path):
             "X",
             "Y",
             "Phase",
+            "Feeder",
             "Home_Battery_kW",
             "Home_Battery_kWh",
             "EV_Charger_Size_kW",
@@ -80,7 +82,9 @@ def customer_summary(Network_Path):
     Customer_Summary["Acorn_Group"][132:200] = "Adversity"
     Customer_Summary["Acorn_Group"][66:132] = "Comfortable"
     Customer_Summary["Acorn_Group"][0:68] = "Affluent"
+    #Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
+    Customer_Summary["Feeder"] = Loads["Load"].str[9]
     Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
     Customer_Summary["Home_Battery_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = 5
     Customer_Summary["Home_Battery_kWh"][

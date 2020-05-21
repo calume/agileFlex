@@ -40,41 +40,6 @@ def create_gens(Network_Path):
 
     GensIn.to_csv(str(Network_Path)+"Generators.txt", sep=" ", index=False, header=False) 
 
-#demand=[1.936    , 4.292    , 4.684    , 4.556    , 2.052    , 2.962    ,
-#       2.234    , 4.38     , 4.342    , 2.246    , 1.822    , 3.51     ,
-#       3.83     , 2.176    , 1.758    , 2.974    , 2.424    , 2.212    ,
-#       2.966    , 3.192    , 4.514    , 2.802    , 3.506    , 0.384    ,
-#       3.03     , 2.464    , 0.       , 6.8980002, 1.486    , 0.       ,
-#       4.448    , 2.086    , 3.06     , 2.74     , 3.086    , 2.134    ,
-#       0.512    , 4.66     , 1.964    , 2.044    , 1.258    , 3.314    ,
-#       0.918    , 3.266    , 2.744    , 1.116    , 3.63     , 2.772    ,
-#       3.172    , 3.814    , 2.046    , 4.788    , 0.168    , 4.424    ,
-#       2.074    , 1.492    , 1.462    , 0.       , 2.212    , 3.12     ,
-#       2.744    , 0.164    , 0.706    , 2.336    , 0.938    , 1.646    ,
-#       2.032    , 1.396    , 2.86     , 3.212    , 2.148    , 1.286    ,
-#       1.61     , 3.614    , 0.       , 3.752    , 2.86     , 2.174    ,
-#       2.436    , 0.492    , 3.654    , 2.362    , 3.484    , 1.896    ,
-#       0.826    , 3.616    , 2.518    , 2.14     , 2.786    , 0.362    ,
-#       1.75     , 2.91     , 0.       , 2.306    , 3.1      , 0.15     ,
-#       1.08     , 2.362    , 1.186    , 3.128    , 3.618    , 0.056    ,
-#       1.944    , 3.768    , 3.546    , 2.49     , 2.45     , 2.328    ,
-#       5.068    , 2.638    , 2.604    , 2.566    , 1.65     , 1.674    ,
-#       2.322    , 1.39     , 1.552    , 0.214    , 0.768    , 0.85     ,
-#       5.5780002, 3.264    , 3.27     , 1.744    , 1.294    , 5.558    ,
-#       1.824    , 0.746    , 1.956    , 2.214    , 0.958    , 1.62     ,
-#       0.038    , 0.152    , 0.774    , 0.568    , 0.6      , 0.554    ,
-#       0.244    , 0.228    , 0.364    , 1.88     , 0.774    , 0.204    ,
-#       0.4      , 0.228    , 1.698    , 0.13     , 0.774    , 0.27     ,
-#       0.334    , 0.532    , 0.994    , 0.346    , 0.6      , 0.502    ,
-#       0.152    , 0.49     , 0.19     , 1.88     , 0.228    , 0.438    ,
-#       0.082    , 0.446    , 0.376    , 0.568    , 0.152    , 0.32     ,
-#       0.346    , 1.494    , 0.45     , 0.236    , 0.376    , 0.228    ,
-#       0.446    , 0.446    , 0.346    , 0.19     , 0.27     , 0.436    ,
-#       1.698    , 1.698    , 0.45     , 0.898    , 0.6      , 0.618    ,
-#       0.57     , 0.57     , 1.03     , 0.774    , 0.502    , 0.32     ,
-#       1.698    , 1.88     , 0.27     , 0.376    , 0.36     , 0.346    ,
-#       0.994    , 0.13     ]
-
 
 ####### Compile the OpenDSS file using the Master.txt directory#########
 def runDSS(Network_Path,demand,pv,demand_delta,pv_delta,PFControl):
@@ -121,6 +86,7 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta,PFControl):
         curs =list(dss.CktElement.CurrentsMagAng())
         Currents[i_Line] = curs[0], curs[2], curs[4]
         
+        ### Powers() is a complex power, we store the KVAr Apparent Power
         pows =list(dss.CktElement.Powers()) 
         Powers[i_Line] = np.sign(pows[0])*(pows[0]**2+pows[1]**2)**0.5, np.sign(pows[2])*(pows[2]**2+pows[3]**2)**0.5, np.sign(pows[4])*(pows[4]**2+pows[5]**2)**0.5
         
@@ -139,7 +105,7 @@ def runDSS(Network_Path,demand,pv,demand_delta,pv_delta,PFControl):
 ###------- Using the network outputs (voltage and current) from Opendss
 ###------- network summary is generated including overvoltage and current locations
 
-def network_visualise(CurArray, RateArray, VoltArray, PowArray, TransKVA ,TransRatekVA):
+def network_outputs(CurArray, RateArray, VoltArray, PowArray, TransKVA ,TransRatekVA):
 
     network_summary={}
     
@@ -157,6 +123,7 @@ def network_visualise(CurArray, RateArray, VoltArray, PowArray, TransKVA ,TransR
         network_summary[i]['C_Flow']={}
         network_summary[i]['C_Rate']={}
         
+        ##-These Pinch points are network specific but can be calculated using a script
         pinchClist=[0,906,1410,1913]
         ##------- To indicate direction of power flow. When Importing supply voltage will be higher
         #---------Negative power flow represents export. 
@@ -168,13 +135,6 @@ def network_visualise(CurArray, RateArray, VoltArray, PowArray, TransKVA ,TransR
                 
         network_summary[i]['Vhigh_nodes']=Vhigh_nodes
         network_summary[i]['Vlow_nodes']=Vlow_nodes
-
-#        network_summary[i]['Vhdrm']={}
-#        
-#        network_summary[i]['Vhdrm'][1]=(Vseries[1]-0.94)*.426/(3**0.5)*CurArray[0,i]
-#        network_summary[i]['Vhdrm'][2]=(Vseries[907]-0.94)*.426/(3**0.5)*CurArray[906,i]
-#        network_summary[i]['Vhdrm'][3]=(Vseries[1411]-0.94)*.426/(3**0.5)*CurArray[1410,i]
-#        network_summary[i]['Vhdrm'][4]=(Vseries[1914]-0.94)*.426/(3**0.5)*CurArray[1913,i]
 
         network_summary[i]['Chigh_vals']=list(Cseries[Cseries>RateArray])
         network_summary[i]['Vhigh_vals']=list(Vseries[Vseries>1.1])

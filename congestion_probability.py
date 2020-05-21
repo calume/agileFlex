@@ -7,31 +7,19 @@ Created on Thu May 02 13:48:06 2019
 
 
 ######## Importing the OpenDSS Engine  #########
-import opendssdirect as dss
-import scipy.io
 import numpy as np
 import pandas as pd
-from random import uniform
-from random import seed
-from opendssdirect.utils import run_command
 pd.options.mode.chained_assignment = None 
-import timeit
-from matplotlib import pyplot as plt
-from datetime import datetime, timedelta, date, time
-import datetime
-import os
+from datetime import timedelta, date
 import random
-import csv
 import pickle
 from Test_Network.network_plot import customer_summary
-from sklearn.metrics import mean_absolute_error
-from runDSS import runDSS, network_visualise
+from runDSS import runDSS, network_outputs
 from crunch_results import counts, plots, Headroom_calc, plot_headroom, plot_flex, plot_current_voltage
 
 ####----------Set Test Network ------------
 
 Network_Path='Test_Network/Network1/'
-
 
 #### Load in Test data Set ##########
 pick_in = open("../Data/SM_DataFrame_byAcorn_NH.pickle", "rb")
@@ -43,7 +31,13 @@ HP_DataFrame = pickle.load(pick_in)
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-def Create_Customer_Summary():
+##- Plus 1 year to SM timestamps to line up with PV and HP
+for i in SM_DataFrame.keys():
+    for z in SM_DataFrame[i].keys():
+        SM_DataFrame[i][z].index=SM_DataFrame[i][z].index+timedelta(days=364)
+
+
+def Create_Customer_Summary(sims_halfhours):
     ####--------- Create Customer Summary ----------
     
     Customer_Summary,Coords,Lines,Loads = customer_summary(Network_Path)
@@ -51,58 +45,63 @@ def Create_Customer_Summary():
 
     #---------- Assign Smart Meter and Heat Pump IDs--------------#
     #### Smart Meter
-    #--- only include SMs with data for day 2013-11-15
+    #--- only include SMs with data for day 2014-3-1
     Customer_Summary['smartmeter_ID']=0
     for i in SM_DataFrame.keys():
         acorn_index = Customer_Summary['Acorn_Group'][Customer_Summary['Acorn_Group']==i].index
-        SM_reduced=SM_DataFrame[i]['AutumnWkd'].iloc[5712:5760].sum()>0
-        SM_reduced=SM_reduced[SM_reduced]
-        for z in acorn_index:    
-            Customer_Summary['smartmeter_ID'][z] = random.choice(SM_reduced.index)
+        for d in SM_DataFrame[i].keys():
+            SM_reduced=SM_DataFrame[i][d][SM_DataFrame[i][d].index.year==2014].sum()
+            SM_reduced=SM_reduced[SM_reduced>20]
+            for z in acorn_index:    
+                Customer_Summary['smartmeter_ID'][z] = random.choice(SM_reduced.index)
     
     ### Heat Pump
     Customer_Summary['heatpump_ID']=0
-    #--- only include HPs with data for day 2013-11-15
-    HP_reduced=HP_DataFrame.iloc[31344:31392].sum()>0
+    #--- only include HPs with data for the timesteps modelled
+    HP_reduced=HP_DataFrame.loc[sims_halfhours.tolist()].sum()>0
     HP_reduced=HP_reduced[HP_reduced]
     heatpump_index = Customer_Summary['Heat_Pump_Flag'][ Customer_Summary['Heat_Pump_Flag']>0].index
     for z in heatpump_index:    
         Customer_Summary['heatpump_ID'][z] = random.choice(HP_reduced.index)
     
-    ### PV
+    ### PV are assigned randomly
     Customer_Summary['pv_ID']=0
     pv_index = Customer_Summary['PV_kW'][Customer_Summary['PV_kW']>0].index
     pv_sites=list(PV_DataFrame.keys())
     for z in pv_index:    
         Customer_Summary['pv_ID'][z] = random.choice(pv_sites)
+        
+    ## Also remove data <0.005  (overnight)
+    for i in pv_sites:
+        PV_DataFrame[i][PV_DataFrame[i]['P_kW']<0.005]=0
+    
+    ####----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
+    ####------randomly assigned each run. We then load from the pickle file rather than generating it
     
 #    pickle_out = open("../Data/Customer_Summary.pickle", "wb")
 #    pickle.dump(Customer_Summary, pickle_out)
 #    pickle_out.close()
     
-    return Coords,Lines
+    return Coords,Lines, Customer_Summary
 
-Coords,Lines = Create_Customer_Summary()  #only returns Coords, customer_summary is fixed
 
-pickin = open("../Data/Customer_Summary.pickle", "rb")
-Customer_Summary = pickle.load(pickin)
+######--------- Run power flow Timeseries--------------------------#
+####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
+    
+start_date = date(2014, 7, 1)
+end_date = date(2014, 7, 2)
 
-##- Minus 1 year from PV timestamps to line up with SM and HP
-pv_sites=list(PV_DataFrame.keys())
-for k in pv_sites:
-        PV_DataFrame[k].index=PV_DataFrame[k].index-datetime.timedelta(days=365)
-
-#--------- Run power flow Timeseries--------------------------#
-######## test dates: 2013-12-5 to 2014-02-15, mostly full data sets
-######## test dates: 2013-8-1 to 2013-9-1, full when PV dates are changed by minus 1 year
-start_date = datetime.date(2013, 8, 3)
-end_date = datetime.date(2013, 8, 4)
-
-delta_halfhours = datetime.timedelta(hours=0.5)
-delta_days = datetime.timedelta(days=1)
+delta_halfhours = timedelta(hours=0.5)
+delta_days = timedelta(days=1)
 
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 sims_days = pd.date_range(start_date, end_date, freq=delta_days)
+
+Coords,Lines, Customer_Summary = Create_Customer_Summary(sims_halfhours)  #only returns Coords, customer_summary is fixed
+
+######------ For when the customer summary table is fixed we laod it in from the pickle file
+###pickin = open("../Data/Customer_Summary.pickle", "rb")
+###Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
 smartmeter={}
@@ -127,6 +126,7 @@ network_summary={}
 network_summary_new={}
 for i in sims_halfhours.tolist():
     #-------------- Sample for each day weekday/weekend and season -----------#
+    ##-- Needed for SM data, and will be used for sampling --#
     if (i.weekday()>=5) & (i.weekday() <=6): ###Weekend######
         day='Wknd'
     if (i.weekday()>=0) & (i.weekday() <=4):
@@ -146,6 +146,8 @@ for i in sims_halfhours.tolist():
     demand[i] = np.zeros(len(Customer_Summary))      
     demand_delta[i] = np.zeros(len(Customer_Summary)) 
     pv_delta[i] = np.zeros(len(Customer_Summary))
+    ##--- By Defailt Power Factor control is off, only when thermal overloads
+    ##-- are PFControl turned on
     PFControl[i]=0
     #-----for each customer set timestep demand and PV output----#
     for z in range(0, len(Customer_Summary)):
@@ -156,28 +158,32 @@ for i in sims_halfhours.tolist():
             pv[i][z] = Customer_Summary['PV_kW'][z]*PV_DataFrame[Customer_Summary['pv_ID'][z]]['P_Norm'][i]
         demand[i][z] = smartmeter[i][z] + heatpump[i][z]
     
+    ###------ Demand includes Smartmeter and heatpump
     demand[i]=np.nan_to_num(demand[i])
     pv[i]=np.nan_to_num(pv[i])
     
+    ###---- Load Flow is run and currents, voltages etc are rteurned
     CurArray[i], VoltArray[i], PowArray[i], Losses[i], Trans_kVA[i], RateArray, TransRatekVA = runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i],PFControl[i])
-    
-    network_summary[i]= network_visualise(CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i],TransRatekVA)
-    
+    ###--- These are converted into headrooms and summarised in network_summary
+    network_summary[i]= network_outputs(CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i],TransRatekVA)
+    ###---- A new network summary is created to store any adjustments
     network_summary_new[i] = network_summary[i]
 
+#####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
 Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(network_summary, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)   
-Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
-Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
-Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray) 
-
+#Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
+#Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
+#Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray) 
+#
 labels={'col':'red','style':'--','label': 'Initial','TranskVA': TransRatekVA}
 plot_headroom(Headrm, Footrm, Flow, Rate, labels)
 
-##----------- Calculation of adjusted demand for Thermal------------------#
+##----------- Calculation of adjusted demand for Thermal Violations------------------#
+## This pinchlist is network specific of where feeders overload
 pinchVlist=[0,906,1410,1913,3142]
 
 for i in network_summary:
-
+    print(i)
     for p in range(1,4):
         for f in range(1,5):
             if Headrm[f][p][i] <0 and Flow[f][p][i] > 0:
@@ -190,12 +196,12 @@ for i in network_summary:
     if (demand_delta[i].sum() + pv_delta[i].sum()) != 0:
         CurArray[i], VoltArray[i], PowArray[i], Losses[i], Trans_kVA[i], RateArray, TransRatekVA= runDSS(Network_Path,demand[i],pv[i],demand_delta[i],pv_delta[i],PFControl[i])
         
-        network_summary_new[i]= network_visualise(CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i],TransRatekVA)
+        network_summary_new[i]= network_outputs(CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i],TransRatekVA)
 
 Headrm_new, Footrm_new, Flow_new, Rate, Customer_Summary, custph, InputsbyFP_new = Headroom_calc(network_summary_new, Customer_Summary, smartmeter, heatpump, pv,demand,demand_delta,pv_delta)    
 labels={'col':'blue','style':'-','label': 'With Adjustments','TranskVA': TransRatekVA}
 plot_headroom(Headrm_new, Footrm_new, Flow_new,Rate,labels)
 plot_flex(InputsbyFP_new)
 Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new=counts(network_summary_new,Coords)
-Coords = plots(Network_Path,Chigh_count_new, Vhigh_count_new,Vlow_count_new)
-Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow_new,RateArray) 
+Coords = plots(Network_Path,Chigh_count_new, Vhigh_count_new,Vlow_count_new)                                                                    
+Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow_new,RateArray)                                                     
