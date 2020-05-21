@@ -249,6 +249,7 @@ def DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup):
 
     return SM_ByAcorn
 
+
 DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup)
 pickle_out = open("../../Data/SM_Summary.pickle", "wb")
 pickle.dump(SM_Summary, pickle_out)
@@ -407,8 +408,10 @@ def removeHeating(SM_DataFrame, SM_Summary, ToRemove):
 # Create new DF with heat demand removed
 def nowdf(SM_DataFrame):
     ToRemove, HeatersSort = Heaters(SM_DataFrame)
-    SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH = removeHeating(SM_DataFrame, SM_Summary, ToRemove)
-    #ToRemove_NH, HeatersSort_NH = Heaters(SM_DataFrame_NH)
+    SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH = removeHeating(
+        SM_DataFrame, SM_Summary, ToRemove
+    )
+    # ToRemove_NH, HeatersSort_NH = Heaters(SM_DataFrame_NH)
     return SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH
 
 
@@ -437,7 +440,7 @@ def createnewDailyByAcorn():
     pickle_out.close()
 
 
-SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH=nowdf(SM_DataFrame)
+SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH = nowdf(SM_DataFrame)
 
 pickle_out = open("../../Data/SM_DataFrame_byAcorn_NH.pickle", "wb")
 pickle.dump(SM_ByAcorn_NH, pickle_out)

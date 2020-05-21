@@ -30,7 +30,7 @@ from numpy.random import choice
 # ------------------------Define Network Agents----------------------------
 def customer_summary(Network_Path):
     # ---------------Load Network Data-----------------------------
-    
+
     Coords = pd.read_csv(str(Network_Path) + "/XY_Position.csv")
     Lines = pd.read_csv(
         str(Network_Path) + "/Lines.txt",
@@ -49,13 +49,13 @@ def customer_summary(Network_Path):
 
     pvcaplist = [1, 1.5, 2, 2.5, 3, 3.5, 4]
     weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
-    
+
     LoadsByAcorn = {}
     LoadsByAcorn["Affluent"] = list(range(1, 68))
     LoadsByAcorn["Affluent"] = list(range(1, 68))
     LoadsByAcorn["Comfortable"] = list(range(1, 66))
     LoadsByAcorn["Adversity"] = list(range(1, 66))
-    
+
     Customer_Summary = pd.DataFrame(
         0,
         index=(range(0, len(Loads))),
@@ -82,11 +82,13 @@ def customer_summary(Network_Path):
     Customer_Summary["Acorn_Group"][132:200] = "Adversity"
     Customer_Summary["Acorn_Group"][66:132] = "Comfortable"
     Customer_Summary["Acorn_Group"][0:68] = "Affluent"
-    #Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
+    # Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
     Customer_Summary["Feeder"] = Loads["Load"].str[9]
     Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
-    Customer_Summary["Home_Battery_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = 5
+    Customer_Summary["Home_Battery_kW"][
+        Customer_Summary["Acorn_Group"] == "Affluent"
+    ] = 5
     Customer_Summary["Home_Battery_kWh"][
         Customer_Summary["Acorn_Group"] == "Affluent"
     ] = 13.5
@@ -103,24 +105,34 @@ def customer_summary(Network_Path):
         pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Affluent")), weights
     )  # Every house has PV
     Customer_Summary["PV_kW"][MoreComfortable] = choice(
-        pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2), weights
+        pvcaplist,
+        int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2),
+        weights,
     )
-    Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
-    Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Comfortable"] = 1
-    
+    Customer_Summary["Heat_Pump_Flag"][
+        Customer_Summary["Acorn_Group"] == "Affluent"
+    ] = 1
+    Customer_Summary["Heat_Pump_Flag"][
+        Customer_Summary["Acorn_Group"] == "Comfortable"
+    ] = 1
+
     acorns = ["Affluent", "Comfortable", "Adversity"]
     colors = ["green", "#17becf", "black"]
-    
+
     for i in range(0, 3):
-        Customer_Summary["Color"][Customer_Summary["Acorn_Group"] == acorns[i]] = colors[i]
-    
-    Coords['Node_Color']='red'
-    if Network_Path == 'Network1':
-        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='2']='yellow'
-        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='3']='blue'
-        Coords['Node_Color'][Coords['Node'].astype(str).str[0]=='4']='orange'
-        Coords['Node_Color'].iloc[0]='blue'
-    return Customer_Summary,Coords,Lines,Loads
+        Customer_Summary["Color"][
+            Customer_Summary["Acorn_Group"] == acorns[i]
+        ] = colors[i]
+
+    Coords["Node_Color"] = "red"
+    if Network_Path == "Network1":
+        Coords["Node_Color"][Coords["Node"].astype(str).str[0] == "2"] = "yellow"
+        Coords["Node_Color"][Coords["Node"].astype(str).str[0] == "3"] = "blue"
+        Coords["Node_Color"][Coords["Node"].astype(str).str[0] == "4"] = "orange"
+        Coords["Node_Color"].iloc[0] = "blue"
+    return Customer_Summary, Coords, Lines, Loads
+
+
 # ------------------- Plot the network with icons for each LCT type
 
 
@@ -164,7 +176,9 @@ def Network_plot(Coords, Lines, Loads):
 
     ##### network and icons ####
     fig, ax = plt.subplots()
-    nx.draw(G, pos, with_labels=False, width=1, node_size=2, node_color=Coords['Node_Color'])
+    nx.draw(
+        G, pos, with_labels=False, width=1, node_size=2, node_color=Coords["Node_Color"]
+    )
     for i in Loads.index:
         Customer_Summary["X"][i] = Coords["X"][
             Coords["Node"] == int(Loads["Bus1"][i][5:-2])
@@ -177,7 +191,7 @@ def Network_plot(Coords, Lines, Loads):
             (Customer_Summary["X"][i] + 2, Customer_Summary["Y"][i] + 5),
             fontsize=10,
             color=Customer_Summary["Color"][i],
-            #weight="bold",
+            # weight="bold",
         )
         if Customer_Summary["PV_kW"][i] > 0:
             ab = AnnotationBbox(
@@ -230,17 +244,25 @@ def Network_plot(Coords, Lines, Loads):
                 pad=0,
             )
             ax.add_artist(ab)
-        offset = [0, 6, 12, 18, 24,30]
+        offset = [0, 6, 12, 18, 24, 30]
     plt.annotate("Acorn Group", (480, 445), fontsize=10, color="black", weight="bold")
     for i in range(0, 3):
         plt.annotate(
-            acorns[i], (480, 435 - offset[i]*3), fontsize=9, color=colors[i], weight="bold"
+            acorns[i],
+            (480, 435 - offset[i] * 3),
+            fontsize=9,
+            color=colors[i],
+            weight="bold",
         )
-    fcolor=['red','yellow','blue','orange']
+    fcolor = ["red", "yellow", "blue", "orange"]
     plt.annotate("Feeder", (480, 315), fontsize=10, color="black", weight="bold")
     for i in range(0, 4):
         plt.annotate(
-            i+1, (480, 305 - offset[i]*3), fontsize=9, color=fcolor[i], weight="bold"
+            i + 1,
+            (480, 305 - offset[i] * 3),
+            fontsize=9,
+            color=fcolor[i],
+            weight="bold",
         )
 
     boxes = [PVbox, EVbox, powerwallbox, HPbox, Housebox, Substationbox]
@@ -250,29 +272,31 @@ def Network_plot(Coords, Lines, Loads):
         "Home Battery Owner",
         "Heat Pump Owner",
         "Non-Agent",
-        "Secondary Substation"
+        "Secondary Substation",
     ]
     plt.annotate("Legend", (25, 165), fontsize=10, color="black", weight="bold")
     for i in range(0, 6):
-        plt.annotate(intros[i], (30, 154 - offset[i]*3), fontsize=9, color="black")
-        ab = AnnotationBbox(boxes[i], [25, (154 - offset[i]*3)], frameon=False, pad=0)
+        plt.annotate(intros[i], (30, 154 - offset[i] * 3), fontsize=9, color="black")
+        ab = AnnotationBbox(boxes[i], [25, (154 - offset[i] * 3)], frameon=False, pad=0)
         ax.add_artist(ab)
-    
+
     ab = AnnotationBbox(boxes[5], [360, 163], frameon=False, pad=0)
-    ax.add_artist(ab)    
-    
+    ax.add_artist(ab)
+
     plt.show()
     plt.tight_layout()
-#    
-#Feeder = "Network1"
-#Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
-#Network_plot(Coords, Lines, Loads)
-#Customer_Summary.style.hide_index()
-#print(
+
+
+#
+# Feeder = "Network1"
+# Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
+# Network_plot(Coords, Lines, Loads)
+# Customer_Summary.style.hide_index()
+# print(
 #    tabulate(
 #        Customer_Summary.drop(columns="Color"),
 #        tablefmt="pipe",
 #        headers="keys",
 #        showindex=False,
 #    )
-#)
+# )

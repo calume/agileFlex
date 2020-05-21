@@ -43,8 +43,14 @@ def PVLoad():
     PVOutput_BySiteName = {}  # To contain PV output per site (kW and normalised)
     PV = pd.Series()  # to contain the combined normalised output of all sites
 
-    #Site_Names = list(PVAll["Substation"].unique())
-    Site_Names = ['Forest Road', 'Suffolk Road', 'Bancroft Close', 'Maple Drive East', 'YMCA']
+    # Site_Names = list(PVAll["Substation"].unique())
+    Site_Names = [
+        "Forest Road",
+        "Suffolk Road",
+        "Bancroft Close",
+        "Maple Drive East",
+        "YMCA",
+    ]
     # PV Capacities. Apparent capacities from the London datastore dataset notes (word doc)
     PVCapacities = pd.Series(
         [3, 0.5, 3.5, 3, 4, 0.45], index=PVAll["Substation"].unique()
@@ -54,7 +60,8 @@ def PVLoad():
     for item in Site_Names:
         PVOutput_BySiteName[item] = pd.DataFrame()
         PVAll["P_GEN_Norm"][PVAll["Substation"] == item] = (
-            PVAll["P_GEN"][PVAll["Substation"] == item] / PVAll["P_GEN"][PVAll["Substation"] == item].max()
+            PVAll["P_GEN"][PVAll["Substation"] == item]
+            / PVAll["P_GEN"][PVAll["Substation"] == item].max()
         )
         PVOutput_BySiteName[item]["P_kW"] = PVAll["P_GEN"][PVAll["Substation"] == item]
         PVOutput_BySiteName[item]["P_Norm"] = PVAll["P_GEN_Norm"][
@@ -68,8 +75,8 @@ def PVLoad():
         PVOutput_BySiteName[item] = PVOutput_BySiteName[item].fillna(0)
         PV = PV.append(PVOutput_BySiteName[item]["P_Norm"])
 
-#    pickle_out = open("../../Data/PV_BySiteName.pickle", "wb")
-#    pickle.dump(PVOutput_BySiteName, pickle_out)
+    #    pickle_out = open("../../Data/PV_BySiteName.pickle", "wb")
+    #    pickle.dump(PVOutput_BySiteName, pickle_out)
 
     # ------------------------ Normalise PV Data by capacity---------------------#
     # To create seasonal distributions, all sites are combined and normalised
@@ -206,4 +213,4 @@ def PV_Visualisation():
 
 ## ----------to run the functions--------------
 PVLoad()
-#PV_Visualisation()
+# PV_Visualisation()

@@ -125,5 +125,6 @@ def mix_Visualisation():
         i = i + 1
     plt.tight_layout()
 
+
 mixtures()
 mix_Visualisation()
