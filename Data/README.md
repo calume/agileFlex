@@ -243,7 +243,8 @@ The powers calculated over 2 mins and 30 mins are shown below:
 
 ### Heat Pump Demand Visualisation
 
-The seasonal heat pump demand has been consolidated for all heat pumps as shown below:
+The seasonal heat pump demand has been consolidated for all heat pumps as daily timeseries. The daily timeseries for the first 500 days for each season and weekday/weekend is shown below along 
+with the mean, Q50 and Q95 for all days within the season-weekday/weekend.
 
 ![HP_Consolidated](Visualisation/HP_Seasonal_Consolidated.png)
 
