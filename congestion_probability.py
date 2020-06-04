@@ -30,6 +30,9 @@ from crunch_results import (
 Network_Path = "Test_Network/Network1/"
 
 #### Load in Test data Set ##########
+####  Note: These Data Files can be found in the AGILE dropbox folder:
+###-- 'AGILE Project Documents\Data\Network_Inputs_SM_PV_HP'
+
 pick_in = open("../Data/SM_DataFrame_byAcorn_NH.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 
@@ -90,9 +93,9 @@ def Create_Customer_Summary(sims_halfhours):
     ####----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ####------randomly assigned each run. We then load from the pickle file rather than generating it
 
-    #    pickle_out = open("../Data/Customer_Summary.pickle", "wb")
-    #    pickle.dump(Customer_Summary, pickle_out)
-    #    pickle_out.close()
+#    #pickle_out = open("../Data/Customer_Summary.pickle", "wb")
+#    #pickle.dump(Customer_Summary, pickle_out)
+#    #pickle_out.close()
 
     return Coords, Lines, Customer_Summary
 
@@ -100,8 +103,8 @@ def Create_Customer_Summary(sims_halfhours):
 ######--------- Run power flow Timeseries--------------------------#
 ####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
 
-start_date = date(2014, 7, 1)
-end_date = date(2014, 7, 2)
+start_date = date(2014, 1, 3)
+end_date = date(2014, 1, 7)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -113,9 +116,9 @@ Coords, Lines, Customer_Summary = Create_Customer_Summary(
     sims_halfhours
 )  # only returns Coords, customer_summary is fixed
 
-######------ For when the customer summary table is fixed we laod it in from the pickle file
-###pickin = open("../Data/Customer_Summary.pickle", "rb")
-###Customer_Summary = pickle.load(pickin)
+#####------ For when the customer summary table is fixed we laod it in from the pickle file
+pickin = open("../Data/Customer_Summary.pickle", "rb")
+Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
 smartmeter = {}
@@ -211,9 +214,9 @@ Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc
     demand_delta,
     pv_delta,
 )
-# Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
-# Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
-# Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray)
+Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
+Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
+Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray)
 #
 labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
 plot_headroom(Headrm, Footrm, Flow, Rate, labels)

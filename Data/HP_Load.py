@@ -15,15 +15,6 @@ from datetime import datetime
 from datetime import timedelta, date
 import os
 
-# --------------------------- Create SM Data Pickle -------------------
-
-startdate = date(2013, 12, 1)
-enddate = date(2014, 12, 1)
-delta = timedelta(minutes=2)
-
-dt = pd.date_range(startdate, enddate, freq=delta)
-
-
 # Get list of Heat Pump IDs that are to be stored from the BEIS summary
 # Only Domestic Air Source Heat Pumps are to be considered
 
@@ -58,7 +49,7 @@ def getlist():
     return lst
 
 
-startdate = date(2012, 2, 1)
+startdate = date(2013, 11, 1)
 enddate = date(2015, 4, 1)
 delta = timedelta(hours=0.5)
 dt = pd.date_range(startdate, enddate, freq=delta)
@@ -109,6 +100,8 @@ def createDataFrame(lst):
         pickle.dump(HP_DataFrame, pickle_out)
         pickle_out.close()
 
+#lst=getlist()
+#createDataFrame(lst)
 
 pick_in = open("../../Data/HP_DataFrame.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
@@ -173,6 +166,7 @@ def DataFramebySeason(HP_DataFrame, smkeys):
 
     return HP_BySeason
 
+#HP_BySeason = DataFramebySeason(HP_DataFrame, smkeys)
 
 # Generate Daily HP demand profiles by season, timestamp removed
 def profilesBySM(HP_BySeason):
@@ -239,7 +233,8 @@ def HeatVisuals(times, HP_DistsBySeason):
         n = n + 1
 
 
-# HeatVisuals(times,HP_DistsBySeason)
+#HeatVisuals(times,HP_DistsBySeason)
+
 def ConsolidatefromAcornSMs(HP_DistsBySeason):
     HP_DistsConsolidated = {}
     for z in smkeys:
@@ -253,10 +248,10 @@ def ConsolidatefromAcornSMs(HP_DistsBySeason):
 
 
 HP_DistsConsolidated = ConsolidatefromAcornSMs(HP_DistsBySeason)
-
-pickle_out = open("../../Data/HP_DistsConsolidated.pickle", "wb")
-pickle.dump(HP_DistsConsolidated, pickle_out)
-pickle_out.close()
+#
+#pickle_out = open("../../Data/HP_DistsConsolidated.pickle", "wb")
+#pickle.dump(HP_DistsConsolidated, pickle_out)
+#pickle_out.close()
 
 # ------------------- Data Visualisation -----------------------------#
 def SM_Visualise(HP_DistsConsolidated, smkeys, times):
@@ -268,8 +263,8 @@ def SM_Visualise(HP_DistsConsolidated, smkeys, times):
     r = 0
     for item in smkeys:
         plt.subplot(420 + n)
-        for z in HP_DistsConsolidated[item]:
-            plt.plot(HP_DistsConsolidated[item][z], linewidth=0.3)
+        for z in HP_DistsConsolidated[item].index[1:500]:
+            plt.plot(HP_DistsConsolidated[item].iloc[z], linewidth=0.3)
         plt.plot(
             HP_DistsConsolidated[item].mean(),
             color="black",
@@ -282,9 +277,15 @@ def SM_Visualise(HP_DistsConsolidated, smkeys, times):
             label="Q50",
             linestyle="--",
         )
+        plt.plot(
+            HP_DistsConsolidated[item].quantile(0.95),
+            color="yellow",
+            label="Q95",
+            linestyle="--",
+        )
         # plt.ylabel("Demand (kW)", fontsize=8)
         plt.xlim([0, 47])
-        plt.ylim([0, 2])
+        plt.ylim([0, 5])
         # plt.yticks([0,0.5,1,1.5])
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)

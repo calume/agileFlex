@@ -24,17 +24,20 @@ import pandas as pd
 from random import uniform
 from random import seed
 from opendssdirect.utils import run_command
-
+import os,sys,inspect
 pd.options.mode.chained_assignment = None
 import timeit
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta, date, time
 import datetime
-import os
 import random
 import csv
 import pickle
 from sklearn.metrics import mean_absolute_error
+
+pick_in = open("../../Data/Customer_Summary.pickle", "rb")
+SM_DataFrame = pickle.load(pick_in)
+
 
 ###----------------------- Load in Test data Set -------------##########
 pick_in = open("../../Data/SM_DataFrame_byAcorn_NH.pickle", "rb")
@@ -57,6 +60,11 @@ PV_DistsgmmWeights = pickle.load(pick_in)
 # pred is the previous days data using persistence forecasting
 # true is the actual output for the day in question.
 
+start_date = date(2014, 7, 3)
+end_date = date(2014, 7, 5)
+
+delta_halfhours = timedelta(hours=0.5)
+sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 
 def forecasts(pred, true, Forecast_Type):
     if Forecast_Type == "Day Ahead":
@@ -92,7 +100,7 @@ def forecasts(pred, true, Forecast_Type):
 
 # --------------------Visualise Forecast--------------------------#
 
-# Find best BMM fit
+# Find best GMM fit
 def visualise_forecast(gmmBestFit, Forecast_Type, Day, DA_gmm_nmae, Persistence_NMAE):
     plt.title(
         "Day " + str(Day + 1) + ", NMAE (%) - gmm: " + str(round(DA_gmm_nmae * 100, 1)),
@@ -287,3 +295,5 @@ def visualise_overall_error():
     plt.xticks(fontsize=8)
     plt.yticks(fontsize=8)
     plt.legend()
+    
+multirun()
