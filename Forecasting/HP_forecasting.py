@@ -26,13 +26,25 @@ import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error
 
+
+smkeys = [
+    "WinterWknd",
+    "WinterWkd",
+    "SpringWknd",
+    "SpringWkd",
+    "SummerWknd",
+    "SummerWkd",
+    "AutumnWknd",
+    "AutumnWkd",
+]
+
 ###----------------------- Load in Test data Set -------------##########
 
-
-temp=pd.read_csv('../../Data/heatpump/Grantham_Temp_Daily_20140101_20150101.csv', skiprows=16)
+########- temperature data from https://power.larc.nasa.gov/data-access-viewer/
+temp=pd.read_csv('../../Data/heatpump/Grantham_Temp_Daily_20131101_20150301.csv', skiprows=16)
 tempind=[]
 for i in temp.index:    
-    tempind.append(datetime.datetime(int(temp['YEAR'][i]),int(temp['MO'][i]),int(temp['DY'][i]),12))
+    tempind.append(datetime.datetime(int(temp['YEAR'][i]),int(temp['MO'][i]),int(temp['DY'][i]),0))
 
 temp=temp['T2M']
 temp.index=tempind
@@ -43,88 +55,141 @@ tempind=tempind[:-1]
 # true is the actual output for the day in question.
 
 start_date = date(2013, 11, 1)
-end_date = date(2014, 3, 1)
+end_date = date(2015, 3, 1)
 delta_halfhours = timedelta(hours=0.5)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 
-def create_hp_df(sims_halfhours):
-    pick_in = open("../../Data/Customer_Summary.pickle", "rb")
-    Customer_Summary = pickle.load(pick_in)
-    
-    pick_in = open("../../Data/HP_DataFrame.pickle", "rb")
+def seasonal():
+    pick_in = open("../../Data/HP_DataFrameBySeason.pickle", "rb")
     HP_DataFrame = pickle.load(pick_in)
-    HP_DataFrame.columns=HP_DataFrame.columns.astype(int)
-    hps=list(Customer_Summary['heatpump_ID'][Customer_Summary['heatpump_ID'] != 0])
+    for i in smkeys:
+        HP_reduced = HP_DataFrame[i].loc[sims_halfhours.tolist()].sum() > 0
+        HP_reduced=HP_reduced[HP_reduced]
+        HP_DataFrame[i] = HP_DataFrame[i][HP_reduced.index]
     
-    heatpump=pd.DataFrame(index=sims_halfhours, columns=hps)
-    for i in sims_halfhours.tolist():
-        heatpump.loc[i]=HP_DataFrame[hps].loc[i]
-        
-    pickle_out = open("../../Data/heatpump.pickle", "wb")
-    pickle.dump(heatpump, pickle_out)
-    pickle_out.close()
+    keepdays={}
+    keep_HP={}
+    #Total_HP_DataFrame=pd.DataFrame
+    totalHP={}
+    for i in smkeys:
+        keep_HP[i]=[]
+        keepdays[i]=[]
+        totalHP[i]={}
+        totalHP[i]['HPNorm_kW_hh']=[]
+        totalHP[i]['HPNorm_Date']=[]
+        for d in range(0,int(len(HP_DataFrame[i])/48)):
+            HP_fullday_ID=HP_DataFrame[i].iloc[d*48:(d+1)*48].sum() > 0
+            HP_Day_Reduced=HP_fullday_ID[HP_fullday_ID]
+            if len(HP_Day_Reduced) > 35:
+                keep_HP[i].append(list(HP_Day_Reduced.index))
+                keepdays[i].append(d)
+                
+        for z in range(0,len(keepdays[i])):
+            totalHP[i]['HPNorm_kW_hh'].append(HP_DataFrame[i][keep_HP[i][z]].iloc[keepdays[i][z]*48:(keepdays[i][z]+1)*48].sum(axis=1)/len(keep_HP[i][z]))
+            totalHP[i]['HPNorm_Date'].append(HP_DataFrame[i].iloc[keepdays[i][z]*48].name)
+    return totalHP
 
-###create_hp_df(sims_halfhours)
-
-pick_in = open("../../Data/heatpump.pickle", "rb")
-heatpump = pickle.load(pick_in)
-heatpump=heatpump.loc[:,~heatpump.columns.duplicated()]
-heatpump=heatpump.drop(columns=heatpump.columns[heatpump.sum()<1000])
-dailymean=[]
-for d in range(0,int(len(sims_halfhours[:-1])/48)):
-    dailymean.append(heatpump.iloc[d*48:(d+1)*48].sum(axis=1).mean())
-
-dailymeanSeries=pd.Series(dailymean)
-dailymeanSeries.index=tempind
-
-def plot(pred,true):
+def plot_forecast(pred,true,title):
     plt.figure()
-    plt.scatter(temp.values,dailymeanSeries.values, color='green', s=1)
-    plt.xlabel('Mean Daily Temp (degC)')
-    plt.ylabel('Mean Daily Heat Pump Demand (kW)')
-
-    plt.figure()
-    
-    plt.plot(pred, label='Presistence Forecast')
+    plt.title(title)
+    plt.plot(pred, label='Forecast')
     plt.plot(true, linestyle='--', label='Actual')
     plt.ylabel('Total Heat Pump Demand (kW)')
     plt.xlabel('Settlement Period')
     plt.legend()
 
-##########Bin dates by temp
+totalHP=seasonal()
 
-TempBins=pd.cut(temp,bins=10, labels=range(1,11), retbins=True)
-d=1
-###### dailycheck
-day=temp.index[d]
-pred=heatpump[d*48:(d+1)*48].sum(axis=1)
-true=heatpump[(d+1)*48:(d+2)*48].sum(axis=1)
-
-BaseNMAE = mean_absolute_error(true.values,pred.values)
-
-todayBin=TempBins[0][day]
-tomorrowBin = TempBins[0][day+timedelta(days=1)]
-
+TempBins=pd.cut(temp,bins=20, labels=range(1,21), retbins=True)
 days=pd.Series(range(0,len(tempind)),index=tempind)
 
-MatchDays=pd.DataFrame(columns=['Day','MAE'])
-if todayBin != tomorrowBin:
-    MatchDays['Day']=days[TempBins[0]==tomorrowBin][1:]
-    #MatchDays=TempBins[0].iloc[MatchDays[1:]]
 
-for i in MatchDays['Day'].index:
-    pred_n=heatpump[MatchDays['Day'][i]*48:(MatchDays['Day'][i]+1)*48].sum(axis=1)
-    MatchDays['MAE'][i]=float(mean_absolute_error(pred_n.values, pred.values))
+MAE_Base={}
+MAE_Upgrade={}
+MAE_Base_Av={}
+MAE_Upgrade_Av={}
 
-plot(pred.values,true.values)
+#smkeys2 = ["WinterWknd"]
+for k in smkeys:
+    
+    MAE_Base[k]=[]
+    MAE_Upgrade[k]=[]
+    MatchDays={}
+    for d in range(1,len(totalHP[k]['HPNorm_kW_hh'][:-1])):
+        pred=totalHP[k]['HPNorm_kW_hh'][d].values
+        true=totalHP[k]['HPNorm_kW_hh'][d+1].values
+        MAE_Base[k].append(mean_absolute_error(true,pred))
+        
+        day=totalHP[k]['HPNorm_Date'][d]
+        #plot_forecast(pred,true,str(day)+'Original')
+        todayBin=TempBins[0][day]
+        tomorrowBin = TempBins[0][day+timedelta(days=1)]
+    
+        MatchDays[d]=pd.DataFrame(columns=['Day','Date','MAE'])
+        
+        if todayBin != tomorrowBin:
+            seasonals = TempBins[0][totalHP[k]['HPNorm_Date']]
+            if seasonals.index.contains(day+timedelta(days=1)):
+                print('sadasda')
+                seasonals.drop(day+timedelta(days=1))
+                
+            MatchDays[d]['Date']=seasonals[seasonals==tomorrowBin].index
+        
+            for i in range(0,len(MatchDays[d]['Date'])):
+                HP_Normdate_Series=pd.Series(totalHP[k]['HPNorm_Date'])
+                matchday=HP_Normdate_Series[HP_Normdate_Series==MatchDays[d]['Date'][i]]
+                MatchDays[d]['Day'][i]=matchday.index.values[0]
+                pred_n=totalHP[k]['HPNorm_kW_hh'][matchday.index.values[0]]
+                MatchDays[d]['MAE'][i]=float(mean_absolute_error(pred_n, pred))
+        
+        if len(MatchDays[d]) > 0:
+            bestday=MatchDays[d]['Day'][MatchDays[d]['MAE'].astype(float).idxmin()]
+        
+            best_pred=totalHP[k]['HPNorm_kW_hh'][bestday].values
+        
+            #plot_forecast(best_pred,true,str(day)+'Upgrade')
+            MAE_Upgrade[k].append(mean_absolute_error(true,best_pred))
+        
+    MAE_Base_Av[k]=np.array(MAE_Base[k]).mean()
+    MAE_Upgrade_Av[k]=np.array(MAE_Upgrade[k]).mean()
 
-bestday=MatchDays['Day'][MatchDays['MAE'].astype(float).idxmin()]
+##dailymeanSeries=pd.Series(dailymean)
+##dailymeanSeries.index=tempind
+#
+#def plot_temp_mean():
+#    plt.figure()
+#    plt.scatter(temp.values,dailymeanSeries.values, color='green', s=1)
+#    plt.xlabel('Mean Daily Temp (degC)')
+#    plt.ylabel('Mean Daily Heat Pump Demand (kW)')
+#
 
-best_pred=heatpump[bestday*48:(bestday+1)*48].sum(axis=1)
 
-plot(best_pred.values,true.values)
-BestNMAE = mean_absolute_error(true.values,best_pred.values)
+#plot_forecast(pred.values,true.values)
+#BaseNMAE = mean_absolute_error(true.values,pred.values)
+#
+##########Bin dates by temp
 
-#Temp = temp.iloc[day+1]
-#a = next(i for i in range(11) if Temp > TempBins[1][i] and Temp < TempBins[1][i+1])+1
 
+#days=pd.Series(range(0,len(tempind)),index=tempind)
+
+#MatchDays=pd.DataFrame(columns=['Day','MAE'])
+#if todayBin != tomorrowBin:
+#    MatchDays['Day']=days[TempBins[0]==tomorrowBin][1:]
+#    #MatchDays=TempBins[0].iloc[MatchDays[1:]]
+#
+#for i in MatchDays['Day'].index:
+#    pred_n=heatpump[MatchDays['Day'][i]*48:(MatchDays['Day'][i]+1)*48].sum(axis=1)
+#    MatchDays['MAE'][i]=float(mean_absolute_error(pred_n.values, pred.values))
+##
+#plot(pred.values,true.values)
+#
+#bestday=MatchDays['Day'][MatchDays['MAE'].astype(float).idxmin()]
+#
+#best_pred=heatpump[bestday*48:(bestday+1)*48].sum(axis=1)
+#
+#plot(best_pred.values,true.values)
+#BestNMAE = mean_absolute_error(true.values,best_pred.values)
+#
+##Temp = temp.iloc[day+1]
+##a = next(i for i in range(11) if Temp > TempBins[1][i] and Temp < TempBins[1][i+1])+1
+#
