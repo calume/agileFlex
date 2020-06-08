@@ -75,33 +75,34 @@ wknd_dates= (all_dates.weekday >= 5) & (all_dates.weekday <= 6)
 wkd_dates=WinterInputs['demand_delta'].index[wkd_dates]
 wknd_dates=WinterInputs['demand_delta'].index[wknd_dates]
 
-wkd_dates[range(0, len(wkd_dates), 48)]
 wkd_temps = all_temp[wkd_dates[range(0, len(wkd_dates), 48)]]
 wknd_temps = all_temp[wknd_dates[range(0, len(wknd_dates), 48)]]
 
-
-def advance_forecast(dates, temp):
+def advance_forecast(dates, temps,plot_title):
     dailyrange={}
     DailyDelta={}
     DailyByBin={}
     cols=['b','c','g','r']
     r=0
     tempLabels=range(1,5)
-    TempBins=pd.cut(temp,bins=4, labels=tempLabels, retbins=True)
-    plt.figure()
+    TempBins=pd.cut(temps,bins=[2.06254,3.935,5.8,7.665,9.53], labels=tempLabels, retbins=True)
+    plt.figure(str(plot_title)+' P99 Power Injection Requirement (kWs) by Temperature Range')
+    plt.tight_layout()
     for c in WinterInputs['demand_delta'].columns:
         dailyrange=range(0, len(dates), 48)
     
         DailyDelta[c]=pd.DataFrame(index=dates[dailyrange], columns=range(0,48))
         
-        for d in range(0,len(DailyDelta[c].index)):
-            DailyDelta[c].iloc[d]=WinterInputs['demand_delta'][c][d*48:(d+1)*48].values
+        for d in DailyDelta[c].index:
+            mask=(WinterInputs['demand_delta'][c].index>=d) & (WinterInputs['demand_delta'][c].index<(d+timedelta(days=1)))
+            DailyDelta[c].loc[d]=WinterInputs['demand_delta'][c].loc[mask].values
         
         
         datesBinned={}
         DailyByBin[c]={}
         n=0
         r=r+1
+        plt.tight_layout()
         plt.subplot(3,4,r)
         if r <5:
             plt.title('Feeder - '+str(r))
@@ -116,8 +117,8 @@ def advance_forecast(dates, temp):
             for i in datesBinned[z]:
                 DailyByBin[c][z].loc[i]=DailyDelta[c].loc[i].values
             for p in range(0,48):
-                DailyByBin[c]['Q99'+str(z)][p]=DailyByBin[c][z][p].max()#quantile(0.99)
-                DailyByBin[c]['Q95'+str(z)][p]=DailyByBin[c][z][p].quantile(0.95)
+                DailyByBin[c]['Q99'+str(z)][p]=DailyByBin[c][z][p].quantile(0.99)
+                #DailyByBin[c]['Q95'+str(z)][p]=DailyByBin[c][z][p].quantile(0.95)
                 DailyByBin[c]['Median'+str(z)][p]=DailyByBin[c][z][p].quantile(0.5)
             lbl=str(round(TempBins[1][z-1],1))+' - '+str(round(TempBins[1][z],1))+' deg C'
             y=DailyByBin[c]['Q99'+str(z)].values
@@ -128,15 +129,16 @@ def advance_forecast(dates, temp):
             plt.ylim(0,25)
             n=n+1
     plt.legend()
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.tight_layout()
-        
-    #plt.figure(c)       
-    #plt.scatter(temp.values,DailyDelta[c].max(axis=1).values,s=0.8)
-    #plt.xlabel('Temp degC')
-    #plt.ylabel('Mean daily adjust (kW)')
+#    plt.figure(c)       
+#    plt.scatter(temps.values,DailyDelta[c].max(axis=1).values,s=0.8)
+#    plt.xlabel('Temp degC')
+#    plt.ylabel('Mean daily adjust (kW)')
     return DailyByBin
 
-DailyByBinWkd=advance_forecast(wkd_dates, wkd_temps)
-DailyByBinWknd=advance_forecast(wknd_dates, wknd_temps)
+#DailyByBin_Wkd=advance_forecast(wkd_dates, wkd_temps,'Week Days')
+#DailyByBin_Wknd=advance_forecast(wknd_dates, wknd_temps,'Weekend')
 
-#advance_forecast(all_dates, all_temp)
+DailyByBin_All=advance_forecast(all_dates, all_temp,'All Days')
