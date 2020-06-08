@@ -64,7 +64,7 @@ def Create_Customer_Summary(sims_halfhours):
         ].index
 
         SM_reduced = SM_DataFrame[i]['WinterWkd'].count() > 6000
-        print(sum(SM_reduced))
+        print('SMs left '+str(i) +str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
     
         for z in acorn_index:
@@ -73,8 +73,10 @@ def Create_Customer_Summary(sims_halfhours):
     ### Heat Pump
     Customer_Summary["heatpump_ID"] = 0
     # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count()>10000
+    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count()==len(HP_DataFrame.loc[sims_halfhours.tolist()])
+    
     HP_reduced = HP_reduced[HP_reduced]
+    print('HPs left '+str(len(HP_reduced)))
     heatpump_index = Customer_Summary["Heat_Pump_Flag"][
         Customer_Summary["Heat_Pump_Flag"] > 0
     ].index
@@ -92,8 +94,8 @@ def Create_Customer_Summary(sims_halfhours):
     for i in pv_sites:
         PV_DataFrame[i][PV_DataFrame[i]["P_kW"] < 0.005] = 0
 
-    ####----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
-    ####------randomly assigned each run. We then load from the pickle file rather than generating it
+    ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
+    ###------randomly assigned each run. We then load from the pickle file rather than generating it
 
     pickle_out = open("../Data/Customer_Summary.pickle", "wb")
     pickle.dump(Customer_Summary, pickle_out)
@@ -105,8 +107,10 @@ def Create_Customer_Summary(sims_halfhours):
 ######--------- Run power flow Timeseries--------------------------#
 ####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
 
-start_date = date(2013, 11, 7)
-end_date = date(2014, 10, 3)
+#start_date = date(2013, 11, 7)
+#end_date = date(2014, 10, 3)
+start_date = date(2014, 6, 1)
+end_date = date(2014, 9, 1)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -130,10 +134,6 @@ demand = {}  # Sum of smartmeter, heatpump and EV
 demand_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
 pv_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
 PFControl = {}  # Reactive power compensation for high voltage control
-
-start_date = date(2013, 12, 1)
-end_date = date(2014, 3, 1)
-sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 
 #####-------------Initialise Output --------------
 #####-- These are produced by the OpenDSS Load Flow
@@ -302,3 +302,15 @@ Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
 #Vmax, Vmin, Cmax = plot_current_voltage(
 #    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray
 #)
+
+pickle_out = open("../Data/Summer14HdRm.pickle", "wb")
+pickle.dump(Headrm, pickle_out)
+pickle_out.close()
+
+pickle_out = open("../Data/Summer14NetworkSummary.pickle", "wb")
+pickle.dump(network_summary_new, pickle_out)
+pickle_out.close()
+
+pickle_out = open("../Data/Summer14Inputs.pickle", "wb")
+pickle.dump(InputsbyFP_new, pickle_out)
+pickle_out.close()
