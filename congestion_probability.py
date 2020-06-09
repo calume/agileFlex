@@ -98,9 +98,9 @@ def Create_Customer_Summary(sims_halfhours):
     ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ###------randomly assigned each run. We then load from the pickle file rather than generating it
 
-    pickle_out = open("../Data/Customer_Summary.pickle", "wb")
-    pickle.dump(Customer_Summary, pickle_out)
-    pickle_out.close()
+#    #pickle_out = open("../Data/Customer_Summary.pickle", "wb")
+#    #pickle.dump(Customer_Summary, pickle_out)
+#    #pickle_out.close()
 
     return Coords, Lines, Customer_Summary
 
@@ -124,7 +124,7 @@ Coords, Lines, Customer_Summary = Create_Customer_Summary(
 )  # only returns Coords, customer_summary is fixed
 
 #####------ For when the customer summary table is fixed we laod it in from the pickle file
-pickin = open("../Data/Customer_Summary.pickle", "rb")
+pickin = open("../Data/Customer_Summary14.pickle", "rb")
 Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
