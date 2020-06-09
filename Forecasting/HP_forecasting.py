@@ -54,8 +54,8 @@ tempind=tempind[:-1]
 # pred is the previous days data using persistence forecasting
 # true is the actual output for the day in question.
 
-start_date = date(2013, 11, 1)
-end_date = date(2015, 3, 1)
+start_date = date(2014, 12,24)
+end_date = date(2014,12 , 25)
 delta_halfhours = timedelta(hours=0.5)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 

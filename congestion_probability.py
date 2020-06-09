@@ -62,8 +62,9 @@ def Create_Customer_Summary(sims_halfhours):
         acorn_index = Customer_Summary["Acorn_Group"][
             Customer_Summary["Acorn_Group"] == i
         ].index
-
-        SM_reduced = SM_DataFrame[i]['WinterWkd'].count() > 6000
+                
+        datacount=SM_DataFrame[i]['WinterWkd'].loc[sims_halfhours.tolist()]
+        SM_reduced = datacount.count()>(len(datacount)*0.7)
         print('SMs left '+str(i) +str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
     
@@ -109,8 +110,8 @@ def Create_Customer_Summary(sims_halfhours):
 
 #start_date = date(2013, 11, 7)
 #end_date = date(2014, 10, 3)
-start_date = date(2014, 6, 1)
-end_date = date(2014, 9, 1)
+start_date = date(2013, 12, 1)
+end_date = date(2014, 3, 1)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -303,14 +304,14 @@ Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
 #    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray
 #)
 
-pickle_out = open("../Data/Summer14HdRm.pickle", "wb")
+pickle_out = open("../Data/Winter14HdRm.pickle", "wb")
 pickle.dump(Headrm, pickle_out)
 pickle_out.close()
 
-pickle_out = open("../Data/Summer14NetworkSummary.pickle", "wb")
+pickle_out = open("../Data/Winter14NetworkSummary.pickle", "wb")
 pickle.dump(network_summary_new, pickle_out)
 pickle_out.close()
 
-pickle_out = open("../Data/Summer14Inputs.pickle", "wb")
+pickle_out = open("../Data/Winter14Inputs.pickle", "wb")
 pickle.dump(InputsbyFP_new, pickle_out)
 pickle_out.close()
