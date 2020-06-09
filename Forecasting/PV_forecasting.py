@@ -24,7 +24,8 @@ import pandas as pd
 from random import uniform
 from random import seed
 from opendssdirect.utils import run_command
-import os,sys,inspect
+import os, sys, inspect
+
 pd.options.mode.chained_assignment = None
 import timeit
 from matplotlib import pyplot as plt
@@ -65,6 +66,7 @@ end_date = date(2014, 7, 5)
 
 delta_halfhours = timedelta(hours=0.5)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
+
 
 def forecasts(pred, true, Forecast_Type):
     if Forecast_Type == "Day Ahead":
@@ -295,5 +297,6 @@ def visualise_overall_error():
     plt.xticks(fontsize=8)
     plt.yticks(fontsize=8)
     plt.legend()
-    
+
+
 multirun()

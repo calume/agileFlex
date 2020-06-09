@@ -250,10 +250,10 @@ def DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup):
     return SM_ByAcorn
 
 
-#DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup)
-#pickle_out = open("../../Data/SM_Summary.pickle", "wb")
-#pickle.dump(SM_Summary, pickle_out)
-#pickle_out.close()
+# DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup)
+# pickle_out = open("../../Data/SM_Summary.pickle", "wb")
+# pickle.dump(SM_Summary, pickle_out)
+# pickle_out.close()
 
 
 # -------- Converting the data from a single column to rows of 48 hours of Data
@@ -338,8 +338,8 @@ def SM_Visualise(SM_DistsConsolidated, smkeys, times):
 
 
 ## ---------- Removing heating loads
-#pick_in = open("../../Data/SM_DistsByAcorn.pickle", "rb")
-#SM_DistsByAcorn = pickle.load(pick_in)
+# pick_in = open("../../Data/SM_DistsByAcorn.pickle", "rb")
+# SM_DistsByAcorn = pickle.load(pick_in)
 
 
 def Heaters(SM_DataFrame):
@@ -405,7 +405,6 @@ def removeHeating(SM_DataFrame, SM_Summary, ToRemove):
     return SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH
 
 
-        
 # Create new DF with heat demand removed
 def nowdf(SM_DataFrame):
     ToRemove, HeatersSort = Heaters(SM_DataFrame)
@@ -414,7 +413,6 @@ def nowdf(SM_DataFrame):
     )
     # ToRemove_NH, HeatersSort_NH = Heaters(SM_DataFrame_NH)
     return SM_Summary_NH, SM_DataFrame_NH, SM_ByAcorn_NH
-
 
 
 # Convert from Individual SMs by Acorn to consolidated by ACorn

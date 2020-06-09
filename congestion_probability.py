@@ -43,7 +43,7 @@ pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
 ###- Plus 1 year to SM timestamps to line up with PV and HP
-#for i in SM_DataFrame.keys():
+# for i in SM_DataFrame.keys():
 #    for z in SM_DataFrame[i].keys():
 #        SM_DataFrame[i][z].index = SM_DataFrame[i][z].index + timedelta(days=364)
 
@@ -62,22 +62,24 @@ def Create_Customer_Summary(sims_halfhours):
         acorn_index = Customer_Summary["Acorn_Group"][
             Customer_Summary["Acorn_Group"] == i
         ].index
-                
-        datacount=SM_DataFrame[i]['WinterWkd'].loc[sims_halfhours.tolist()]
-        SM_reduced = datacount.count()>(len(datacount)*0.7)
-        print('SMs left '+str(i) +str(sum(SM_reduced)))
+
+        datacount = SM_DataFrame[i]["WinterWkd"].loc[sims_halfhours.tolist()]
+        SM_reduced = datacount.count() > (len(datacount) * 0.7)
+        print("SMs left " + str(i) + str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
-    
+
         for z in acorn_index:
             Customer_Summary["smartmeter_ID"][z] = random.choice(SM_reduced.index)
 
     ### Heat Pump
     Customer_Summary["heatpump_ID"] = 0
     # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count()==len(HP_DataFrame.loc[sims_halfhours.tolist()])
-    
+    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count() == len(
+        HP_DataFrame.loc[sims_halfhours.tolist()]
+    )
+
     HP_reduced = HP_reduced[HP_reduced]
-    print('HPs left '+str(len(HP_reduced)))
+    print("HPs left " + str(len(HP_reduced)))
     heatpump_index = Customer_Summary["Heat_Pump_Flag"][
         Customer_Summary["Heat_Pump_Flag"] > 0
     ].index
@@ -98,9 +100,9 @@ def Create_Customer_Summary(sims_halfhours):
     ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ###------randomly assigned each run. We then load from the pickle file rather than generating it
 
-#    #pickle_out = open("../Data/Customer_Summary.pickle", "wb")
-#    #pickle.dump(Customer_Summary, pickle_out)
-#    #pickle_out.close()
+    #    #pickle_out = open("../Data/Customer_Summary.pickle", "wb")
+    #    #pickle.dump(Customer_Summary, pickle_out)
+    #    #pickle_out.close()
 
     return Coords, Lines, Customer_Summary
 
@@ -108,8 +110,8 @@ def Create_Customer_Summary(sims_halfhours):
 ######--------- Run power flow Timeseries--------------------------#
 ####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
 
-#start_date = date(2013, 11, 7)
-#end_date = date(2014, 10, 3)
+# start_date = date(2013, 11, 7)
+# end_date = date(2014, 10, 3)
 start_date = date(2013, 12, 1)
 end_date = date(2014, 3, 1)
 
@@ -222,12 +224,12 @@ Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc
     demand_delta,
     pv_delta,
 )
-#Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
-#Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
-#Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray)
+# Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
+# Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
+# Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray)
 #
 labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
-#plot_headroom(Headrm, Footrm, Flow, Rate, labels)
+# plot_headroom(Headrm, Footrm, Flow, Rate, labels)
 
 ##----------- Calculation of adjusted demand for Thermal Violations------------------#
 ## This pinchlist is network specific of where feeders overload
@@ -294,15 +296,15 @@ labels = {
     "label": "With Adjustments",
     "TranskVA": TransRatekVA,
 }
-#plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels)
-#plot_flex(InputsbyFP_new)
+# plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels)
+# plot_flex(InputsbyFP_new)
 Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
     network_summary_new, Coords
 )
-#Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new)
-#Vmax, Vmin, Cmax = plot_current_voltage(
+# Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new)
+# Vmax, Vmin, Cmax = plot_current_voltage(
 #    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray
-#)
+# )
 
 pickle_out = open("../Data/Winter14HdRm.pickle", "wb")
 pickle.dump(Headrm, pickle_out)

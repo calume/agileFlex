@@ -100,8 +100,9 @@ def createDataFrame(lst):
         pickle.dump(HP_DataFrame, pickle_out)
         pickle_out.close()
 
-#lst=getlist()
-#createDataFrame(lst)
+
+# lst=getlist()
+# createDataFrame(lst)
 
 pick_in = open("../../Data/HP_DataFrame.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
@@ -122,7 +123,7 @@ def HPhisto():
 
 
 def DataFramebySeason(HP_DataFrame, smkeys):
-    HP_DataFrame=HP_DataFrame.loc[sims_halfhours]
+    HP_DataFrame = HP_DataFrame.loc[sims_halfhours]
     HP_BySeason = {}
     Winter = HP_DataFrame[
         (HP_DataFrame.index.month == 12) | (HP_DataFrame.index.month <= 2)
@@ -166,6 +167,7 @@ def DataFramebySeason(HP_DataFrame, smkeys):
 
     return HP_BySeason
 
+
 HP_BySeason = DataFramebySeason(HP_DataFrame, smkeys)
 pickle_out = open("../../Data/HP_DataFrameBySeason.pickle", "wb")
 pickle.dump(HP_BySeason, pickle_out)
@@ -198,8 +200,8 @@ def profilesBySM(HP_BySeason):
     return HP_DistsBySeason
 
 
-#pick_in = open("../../Data/HP_DistsBySeason.pickle", "rb")
-#HP_DistsBySeason = pickle.load(pick_in)
+# pick_in = open("../../Data/HP_DistsBySeason.pickle", "rb")
+# HP_DistsBySeason = pickle.load(pick_in)
 
 
 def HeatVisuals(times, HP_DistsBySeason):
@@ -236,7 +238,8 @@ def HeatVisuals(times, HP_DistsBySeason):
         n = n + 1
 
 
-#HeatVisuals(times,HP_DistsBySeason)
+# HeatVisuals(times,HP_DistsBySeason)
+
 
 def ConsolidatefromAcornSMs(HP_DistsBySeason):
     HP_DistsConsolidated = {}
@@ -250,11 +253,11 @@ def ConsolidatefromAcornSMs(HP_DistsBySeason):
     return HP_DistsConsolidated
 
 
-#HP_DistsConsolidated = ConsolidatefromAcornSMs(HP_DistsBySeason)
+# HP_DistsConsolidated = ConsolidatefromAcornSMs(HP_DistsBySeason)
 #
-#pickle_out = open("../../Data/HP_DistsConsolidated.pickle", "wb")
-#pickle.dump(HP_DistsConsolidated, pickle_out)
-#pickle_out.close()
+# pickle_out = open("../../Data/HP_DistsConsolidated.pickle", "wb")
+# pickle.dump(HP_DistsConsolidated, pickle_out)
+# pickle_out.close()
 
 # ------------------- Data Visualisation -----------------------------#
 def SM_Visualise(HP_DistsConsolidated, smkeys, times):
@@ -305,4 +308,4 @@ def SM_Visualise(HP_DistsConsolidated, smkeys, times):
         plt.tight_layout()
 
 
-#SM_Visualise(HP_DistsConsolidated, smkeys, times)
+# SM_Visualise(HP_DistsConsolidated, smkeys, times)
