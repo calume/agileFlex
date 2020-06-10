@@ -74,9 +74,9 @@ def Create_Customer_Summary(sims_halfhours):
     ### Heat Pump
     Customer_Summary["heatpump_ID"] = 0
     # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count() == len(
-        HP_DataFrame.loc[sims_halfhours.tolist()]
-    )
+    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count()>0# == len(
+    #    HP_DataFrame.loc[sims_halfhours.tolist()]
+    #)
 
     HP_reduced = HP_reduced[HP_reduced]
     print("HPs left " + str(len(HP_reduced)))
@@ -100,11 +100,11 @@ def Create_Customer_Summary(sims_halfhours):
     ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ###------randomly assigned each run. We then load from the pickle file rather than generating it
 
-    #    #pickle_out = open("../Data/Customer_Summary.pickle", "wb")
-    #    #pickle.dump(Customer_Summary, pickle_out)
-    #    #pickle_out.close()
+    pickle_out = open("../Data/Customer_Summary15.pickle", "wb")
+    pickle.dump(Customer_Summary, pickle_out)
+    pickle_out.close()
 
-    return Coords, Lines, Customer_Summary
+    return Coords, Lines, Customer_Summary,HP_reduced
 
 
 ######--------- Run power flow Timeseries--------------------------#
@@ -112,8 +112,8 @@ def Create_Customer_Summary(sims_halfhours):
 
 # start_date = date(2013, 11, 7)
 # end_date = date(2014, 10, 3)
-start_date = date(2013, 12, 1)
-end_date = date(2014, 3, 1)
+start_date = date(2014, 12, 1)
+end_date = date(2015, 3, 1)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -121,12 +121,12 @@ delta_days = timedelta(days=1)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 sims_days = pd.date_range(start_date, end_date, freq=delta_days)
 
-Coords, Lines, Customer_Summary = Create_Customer_Summary(
+Coords, Lines, Customer_Summary, HP_reduced = Create_Customer_Summary(
     sims_halfhours
 )  # only returns Coords, customer_summary is fixed
 
 #####------ For when the customer summary table is fixed we laod it in from the pickle file
-pickin = open("../Data/Customer_Summary14.pickle", "rb")
+pickin = open("../Data/Customer_Summary15.pickle", "rb")
 Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
@@ -186,7 +186,7 @@ for i in sims_halfhours.tolist():
         if Customer_Summary["PV_kW"][z] != 0:
             pv[i][z] = (
                 Customer_Summary["PV_kW"][z]
-                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]
+                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i-timedelta(days=364)]
             )
         demand[i][z] = smartmeter[i][z] + heatpump[i][z]
 
@@ -306,14 +306,14 @@ Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
 #    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray
 # )
 
-pickle_out = open("../Data/Winter14HdRm.pickle", "wb")
+pickle_out = open("../Data/Winter15HdRm.pickle", "wb")
 pickle.dump(Headrm, pickle_out)
 pickle_out.close()
 
-pickle_out = open("../Data/Winter14NetworkSummary.pickle", "wb")
+pickle_out = open("../Data/Winter15NetworkSummary.pickle", "wb")
 pickle.dump(network_summary_new, pickle_out)
 pickle_out.close()
 
-pickle_out = open("../Data/Winter14Inputs.pickle", "wb")
+pickle_out = open("../Data/Winter15Inputs.pickle", "wb")
 pickle.dump(InputsbyFP_new, pickle_out)
 pickle_out.close()

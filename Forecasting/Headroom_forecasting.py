@@ -40,11 +40,18 @@ temp = pd.read_csv(
 radiation = pd.read_csv(
     "../../Data/NASA_POWER_AllSkyInsolation_01032014_13092014.csv", skiprows=10
 )
+
+radiation_W = pd.read_csv(
+    "../../Data/NASA_POWER_AllSkyInsolation_01122013_01032014.csv", skiprows=10
+)
+
 temp = temp[30:120]
 radiation = radiation[92:-31]
+radiation_W=radiation_W[:-1]
 # temp=temp[395:483]
 tempind = []
 radind = []
+radind_W=[]
 for i in temp.index:
     tempind.append(
         datetime.datetime(
@@ -62,11 +69,25 @@ for i in radiation.index:
         )
     )
 
+for i in radiation_W.index:
+    radind_W.append(
+        datetime.datetime(
+            int(radiation_W["YEAR"][i]),
+            int(radiation_W["MO"][i]),
+            int(radiation_W["DY"][i]),
+            0,
+        )
+    )
+
 all_temp = temp["T2M"]
 all_temp.index = tempind
 
 all_rad = radiation["ALLSKY_SFC_SW_DWN"]
 all_rad.index = radind
+
+all_rad_W = radiation_W["ALLSKY_SFC_SW_DWN"]
+all_rad_W.index = radind_W
+
 
 plt.figure()
 plt.hist(all_temp, bins=4)
@@ -75,7 +96,12 @@ plt.ylabel("Frequency")
 
 plt.figure()
 plt.hist(all_rad, bins=4)
-plt.xlabel("kW-hr/m^2/day")
+plt.xlabel(" Summer All Sky Insolation (kW-hr/m^2/day)") # All Sky Insolation Incident on a Horizontal surface
+plt.ylabel("Frequency")
+
+plt.figure()
+plt.hist(all_rad_W, bins=4)
+plt.xlabel(" Winter All Sky Insolation (kW-hr/m^2/day)") # All Sky Insolation Incident on a Horizontal surface
 plt.ylabel("Frequency")
 
 ###----------Winter Data------------------#####
@@ -130,130 +156,161 @@ Settings = {}
 Settings["summer Ftrm"] = {
     "min": -25,
     "max": 75,
-    "Q": "Q1-",
+    "Q": "P5-",
     "Title": " Summer Footroom ",
     "units": " kW-hr/m^2/day ",
     "min/max": "min",
+    "dates": summer_dates,
+    "data": Footrm_DF[:-1],
+    "temps": all_rad,
+    "negative": 'Dont'
 }
 Settings["summer pv"] = {
     "min": -25,
     "max": 0,
-    "Q": "Q1-",
+    "Q": "P5-",
     "Title": " Summer PV Adjust ",
     "units": " kW-hr/m^2/day ",
     "min/max": "min",
+    "dates": summer_dates,
+    "data": SummerInputs['pv_delta'][:-1],
+    "temps": all_rad,
+    "negative": True
 }
+
 Settings["winter Hdrm"] = {
-    "min": -20,
-    "max": 40,
-    "Q": "Q1-",
+    "min": -30,
+    "max": 50,
+    "Q": "P5-",
     "Title": " Winter Headroom ",
     "units": " degC ",
     "min/max": "min",
+    "dates": winter_dates,
+    "data": Headrm_DF[:-1],
+    "temps": all_temp,
+    "negative": 'Dont'
 }
 Settings["winter demand"] = {
-    "min": -20,
-    "max": 40,
-    "Q": "Q99-",
+    "min": 0,
+    "max": 30,
+    "Q": "P95-",
     "Title": " Winter demand turn-down ",
     "units": " degC ",
-    "min/max": "min",
+    "min/max": "max",
+    "dates": winter_dates,
+    "data": WinterInputs['demand_delta'][:-1]*-1,
+    "temps": all_temp,
+    "negative": False
 }
 
-settings = Settings["summer Ftrm"]
-dates = summer_dates
-data = Footrm_DF[:-1]  # SummerInputs['pv_delta']
-temps = all_rad
+Settings["winter pv"] = {
+    "min": -15,
+    "max": 0,
+    "Q": "P5-",
+    "Title": " Winter pv turn-down ",
+    "units": " kW-hr/m^2/day  ",
+    "min/max": "min",
+    "dates": winter_dates,
+    "data": WinterInputs['pv_delta'][:-1],
+    "temps": all_rad_W,
+    "negative": True
+}
 
-# def advance_forecast(dates,data,temps,settings):
-dailyrange = {}
-DailyDelta = {}
-DailyByBin = {}
-cols = ["b", "c", "g", "r"]
-r = 0
-tempLabels = range(1, 5)
-# TempBins=pd.cut(temps,bins=[2.06254,3.935,5.8,7.665,9.53], labels=tempLabels, retbins=True)
-TempBins = pd.cut(temps, bins=4, labels=tempLabels, retbins=True)
-plt.figure(
-    str(settings["Title"])
-    + str(settings["Q"][:-1])
-    + " requirement (kWs) vs Settlement Period"
-)
 
-for c in data.columns:
-    dailyrange = range(0, len(dates), 48)
-
-    DailyDelta[c] = pd.DataFrame(index=dates[dailyrange], columns=range(0, 48))
-
-    for d in DailyDelta[c].index:
-        mask = (data[c].index >= d) & (data[c].index < (d + timedelta(days=1)))
-        DailyDelta[c].loc[d] = data[c].loc[mask].values
-
-    datesBinned = {}
-    DailyByBin[c] = {}
-    n = 0
-    r = r + 1
+def advance_forecast(settings):
+    dailyrange = {}
+    DailyDelta = {}
+    DailyByBin = {}
+    cols = ["#9467bd","#bcbd22", "#ff7f0e", "#d62728"]
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    r = 0
+    tempLabels = range(1, 5)
+    # TempBins=pd.cut(settings['temps'],bins=[2.06254,3.935,5.8,7.665,9.53], labels=tempLabels, retbins=True)
+    TempBins = pd.cut(settings['temps'], bins=4, labels=tempLabels, retbins=True)
+    plt.figure(
+        str(settings["Title"])
+        + str(settings["Q"][:-1])
+        + " (kWs) vs Settlement Period"
+    )
+    if settings["negative"]==True:
+        tempLabels=tempLabels[::-1]
+        cols = cols[::-1]
+    for c in settings['data'].columns:
+        dailyrange = range(0, len(settings['dates']), 48)
+    
+        DailyDelta[c] = pd.DataFrame(index=settings['dates'][dailyrange], columns=range(0, 48))
+    
+        for d in DailyDelta[c].index:
+            mask = (settings['data'][c].index >= d) & (settings['data'][c].index < (d + timedelta(days=1)))
+            DailyDelta[c].loc[d] = settings['data'][c].loc[mask].values
+    
+        datesBinned = {}
+        DailyByBin[c] = {}
+        n = 0
+        r = r + 1
+        plt.tight_layout()
+        plt.subplot(3, 4, r)
+        if r < 5:
+            plt.title("Feeder - " + str(r))
+        if r % 2 != 0:
+            plt.ylabel("Phase " + str(c[0]))
+        plt.plot(np.full(47, 0), color="red", linestyle="--", linewidth=0.5)
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+        plt.xticks(range(0,47,8),times)
+        for z in tempLabels:
+            datesBinned[z] = TempBins[0][TempBins[0] == z].index
+            DailyByBin[c][z] = pd.DataFrame(index=datesBinned[z], columns=range(0, 48))
+            DailyByBin[c]["P95-" + str(z)] = pd.Series(index=range(0, 48))
+            DailyByBin[c]["P5-" + str(z)] = pd.Series(index=range(0, 48))
+            DailyByBin[c]["Median-" + str(z)] = pd.Series(index=range(0, 48))
+            for i in datesBinned[z]:
+                DailyByBin[c][z].loc[i] = DailyDelta[c].loc[i].values
+            for p in range(0, 48):
+                DailyByBin[c]["P95-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.95)
+                DailyByBin[c]["P5-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.05)
+                DailyByBin[c]["Median-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.5)
+            lbl = (
+                str(round(TempBins[1][z - 1], 1))
+                + " - "
+                + str(round(TempBins[1][z], 1))
+                + str(settings["units"])
+            )
+            y = DailyByBin[c][str(settings["Q"]) + str(z)].values
+            plt.plot(y, linewidth=1, color=cols[n], label=lbl)
+            if settings["negative"]!= 'Dont':
+                plt.fill_between(range(0,48),0,y, facecolor=cols[n])
+            # plt.plot(DailyByBin[c]['Q95'+str(z)].values, linewidth=0.5, label=lbl, linestyle='--')
+            # plt.plot(DailyByBin[c]['Median'+str(z)].values, linewidth=1, linestyle='--')
+            plt.ylim(settings["min"], settings["max"])
+            plt.xlim(0, 47)
+            n = n + 1
+            plt.tight_layout()
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.tight_layout()
-    plt.subplot(3, 4, r)
-    if r < 5:
-        plt.title("Feeder - " + str(r))
-    if r % 2 != 0:
-        plt.ylabel("Phase " + str(c[0]))
-    for z in tempLabels:
-        datesBinned[z] = TempBins[0][TempBins[0] == z].index
-        DailyByBin[c][z] = pd.DataFrame(index=datesBinned[z], columns=range(0, 48))
-        DailyByBin[c]["Q99-" + str(z)] = pd.Series(index=range(0, 48))
-        DailyByBin[c]["Q1-" + str(z)] = pd.Series(index=range(0, 48))
-        DailyByBin[c]["Median-" + str(z)] = pd.Series(index=range(0, 48))
-        for i in datesBinned[z]:
-            DailyByBin[c][z].loc[i] = DailyDelta[c].loc[i].values
-        for p in range(0, 48):
-            DailyByBin[c]["Q99-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.99)
-            DailyByBin[c]["Q1-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.01)
-            DailyByBin[c]["Median-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.5)
-        lbl = (
-            str(round(TempBins[1][z - 1], 1))
-            + " - "
-            + str(round(TempBins[1][z], 1))
-            + str(settings["units"])
-        )
-        y = DailyByBin[c][str(settings["Q"]) + str(z)].values
-        plt.plot(y, linewidth=1.5, color=cols[n], label=lbl)
-        # plt.fill_between(range(0,48),0,y, facecolor=cols[n])
-        # plt.plot(DailyByBin[c]['Q95'+str(z)].values, linewidth=0.5, label=lbl, linestyle='--')
-        # plt.plot(DailyByBin[c]['Median'+str(z)].values, linewidth=1, linestyle='--')
-        plt.ylim(settings["min"], settings["max"])
-        plt.xlim(0, 47)
-        n = n + 1
-plt.tight_layout()
-plt.legend()
-plt.figure(str(settings["units"]) + " vs" + str(settings["Title"]))
-u = 0
-for c in data.columns:
-    print(u)
-    u = u + 1
-    plt.subplot(3, 4, u)
-    if u < 5:
-        plt.title("Feeder - " + str(u))
-    if u == 1 or u == 5 or u == 9:
-        plt.ylabel("Phase " + str(c[0]))
-        if settings["min/max"] == "min":
-            vals = DailyDelta[c].min(axis=1).values
-        if settings["min/max"] == "max":
-            vals = DailyDelta[c].max(axis=1).values
-    plt.scatter(temps.values, vals, s=0.8)
-    # plt.tight_layout()
+    plt.legend()
+    plt.figure('Daily '+str(settings["units"]) + " vs " +str(settings["min/max"])+str(settings["Title"]))
+    u = 0
+    for c in settings['data'].columns:
+        print(u)
+        u = u + 1
+        plt.subplot(3, 4, u)
+        if u < 5:
+            plt.title("Feeder - " + str(u))
+        if u == 1 or u == 5 or u == 9:
+            plt.ylabel("Phase " + str(c[0]))
+            if settings["min/max"] == "min":
+                vals = DailyDelta[c].min(axis=1).values
+            if settings["min/max"] == "max":
+                vals = DailyDelta[c].max(axis=1).values
+        plt.scatter(settings['temps'].values, vals, s=0.8)
+        plt.tight_layout()
+        plt.xticks(fontsize=8)
+        plt.yticks(fontsize=8)
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    plt.tight_layout()
+    return DailyByBin, DailyDelta
 
-figManager = plt.get_current_fig_manager()
-figManager.window.showMaximized()
-
-# return DailyByBin, DailyDelta
-
-# DailyByBin_Wkd=advance_forecast(wkd_dates, wkd_temps,'Week Days')
-# DailyByBin_Wknd=advance_forecast(wknd_dates, wknd_temps,'Weekend')
-
-# DailyByBin_All,DailyDelta_All=advance_forecast(winter_dates,WinterInputs['demand_delta'][:-1]*-1, all_temp,' Winter Power Injection: ',' degC','Q99')
-
-# DailyByBin_All=advance_forecast(summer_dates, SummerInputs['demand_delta'], all_rad,' Summer Demand Turn-up: ',' kW-hr/m^2/day','Q99')
-
-# DailyByBin_All,DailyDelta_All=advance_forecast(winter_dates,WinterInputs['demand_delta'], all_temp,' Winter Power Injection: ',' degC')
+DailyByBin, DailyDelta = advance_forecast(Settings["winter Hdrm"])
