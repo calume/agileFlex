@@ -1,0 +1,1 @@
+New Generator.GEN11 Bus1=134.1 kV=0.213 kW=0 PF=1

@@ -45,10 +45,10 @@ radiation_W = pd.read_csv(
     "../../Data/NASA_POWER_AllSkyInsolation_01122013_01032014.csv", skiprows=10
 )
 
-temp = temp[30:120]
+temp = temp[30:120]#.append(temp[395:484])
 radiation = radiation[92:-31]
 radiation_W=radiation_W[:-1]
-# temp=temp[395:483]
+#temp=temp[395:484]
 tempind = []
 radind = []
 radind_W=[]
@@ -105,11 +105,24 @@ plt.xlabel(" Winter All Sky Insolation (kW-hr/m^2/day)") # All Sky Insolation In
 plt.ylabel("Frequency")
 
 ###----------Winter Data------------------#####
+
 pick_in = open("../../Data/Winter14HdRm.pickle", "rb")
 Winter_HdRm = pickle.load(pick_in)
 
+#pick_in = open("../../Data/Winter15HdRm.pickle", "rb")
+#Winter_HdRm = pickle.load(pick_in)
+
+#for i in Winter_HdRm.keys():
+#    Winter_HdRm[i]=Winter14_HdRm[i][:-1].append(Winter_HdRm[i][:-1])
+
 pick_in = open("../../Data/Winter14Inputs.pickle", "rb")
 WinterInputs = pickle.load(pick_in)
+
+#pick_in = open("../../Data/Winter15Inputs.pickle", "rb")
+#WinterInputs = pickle.load(pick_in)
+#
+#for i in WinterInputs.keys():
+#    WinterInputs[i]=Winter14Inputs[i][:-1].append(WinterInputs[i][:-1])
 
 ###----------Summer Data------------------#####
 
@@ -180,16 +193,17 @@ Settings["summer pv"] = {
 
 Settings["winter Hdrm"] = {
     "min": -30,
-    "max": 50,
+    "max": 100,
     "Q": "P5-",
     "Title": " Winter Headroom ",
-    "units": " degC ",
+    "units": "deg C",#" kW-hr/m^2/day ",
     "min/max": "min",
     "dates": winter_dates,
     "data": Headrm_DF[:-1],
     "temps": all_temp,
     "negative": 'Dont'
 }
+
 Settings["winter demand"] = {
     "min": 0,
     "max": 30,
@@ -280,7 +294,7 @@ def advance_forecast(settings):
             plt.plot(y, linewidth=1, color=cols[n], label=lbl)
             if settings["negative"]!= 'Dont':
                 plt.fill_between(range(0,48),0,y, facecolor=cols[n])
-            # plt.plot(DailyByBin[c]['Q95'+str(z)].values, linewidth=0.5, label=lbl, linestyle='--')
+            plt.plot(DailyByBin[c]['Median-'+str(z)].values, linewidth=1, linestyle='--')
             # plt.plot(DailyByBin[c]['Median'+str(z)].values, linewidth=1, linestyle='--')
             plt.ylim(settings["min"], settings["max"])
             plt.xlim(0, 47)
@@ -300,10 +314,10 @@ def advance_forecast(settings):
             plt.title("Feeder - " + str(u))
         if u == 1 or u == 5 or u == 9:
             plt.ylabel("Phase " + str(c[0]))
-            if settings["min/max"] == "min":
-                vals = DailyDelta[c].min(axis=1).values
-            if settings["min/max"] == "max":
-                vals = DailyDelta[c].max(axis=1).values
+        if settings["min/max"] == "min":
+            vals = DailyDelta[c].min(axis=1).values
+        if settings["min/max"] == "max":
+            vals = DailyDelta[c].max(axis=1).values
         plt.scatter(settings['temps'].values, vals, s=0.8)
         plt.tight_layout()
         plt.xticks(fontsize=8)

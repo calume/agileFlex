@@ -2,6 +2,15 @@
 
 ## Test Feeder
 
+Network 17 has been chosen due to having the most customers (883). With a large variation in loads between feeders (from 8 to 188) and a high Feeder cable supply rating (400 A). Mid level phase imbalance.
+
+Network 5 has been chosen due to having a low Feeder supply cable rating (71 A to 240 A), medium number of customers (335), large variation in customer numbers between feeders (4,18,156,30,49,17,23,38). Phases are well balanced.
+
+Network 10 has a small number of customers (64) with a high cable supply rating (355 A to 400 A). Medium spread across feeders, phases well balanced.
+
+Network 18 is mid range. Medium supply cable rating (from 200 A to 400 A) , 328 customers spread fairly evenly across 9 feeders and well balanced across phases.
+
+
 The test feeder used to demonstrate the AGILE aggregation model is the Low Voltage Network Solutions (LVNS) Network 1 Feeder 1. https://www.enwl.co.uk/zero-carbon/innovation/smaller-projects/low-carbon-networks-fund/low-voltage-network-solutions/
 
 The feeder has 55 customers spread across the 3 phases. Flexibility is assigned as per Acorn Group.

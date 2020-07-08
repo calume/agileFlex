@@ -22,6 +22,7 @@ from matplotlib import pyplot as plt
 import pickle
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from arcgis.gis import GIS
 
 pd.options.mode.chained_assignment = None
 from tabulate import tabulate
@@ -51,10 +52,9 @@ def customer_summary(Network_Path):
     weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
 
     LoadsByAcorn = {}
-    LoadsByAcorn["Affluent"] = list(range(1, 68))
-    LoadsByAcorn["Affluent"] = list(range(1, 68))
-    LoadsByAcorn["Comfortable"] = list(range(1, 66))
-    LoadsByAcorn["Adversity"] = list(range(1, 66))
+    LoadsByAcorn["Affluent"] = list(range(1,int(len(Loads)/3)))
+    LoadsByAcorn["Comfortable"] = list(range(1, int(len(Loads)/3)))
+    LoadsByAcorn["Adversity"] = list(range(1, int(len(Loads)/3)))
 
     Customer_Summary = pd.DataFrame(
         0,
@@ -79,10 +79,10 @@ def customer_summary(Network_Path):
     )
     Customer_Summary["ID"] = Loads.index + 1
     Customer_Summary["Node"] = Loads["Bus1"].str[5:-2].astype(int)
-    Customer_Summary["Acorn_Group"][132:200] = "Adversity"
-    Customer_Summary["Acorn_Group"][66:132] = "Comfortable"
-    Customer_Summary["Acorn_Group"][0:68] = "Affluent"
-    # Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
+    Customer_Summary["Acorn_Group"][int(len(Loads)/(3/2)):int(len(Loads))] = "Adversity"
+    Customer_Summary["Acorn_Group"][int(len(Loads)/3):int(len(Loads)/(3/2))] = "Comfortable"
+    Customer_Summary["Acorn_Group"][0:int(len(Loads)/3)] = "Affluent"
+    Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
     Customer_Summary["Feeder"] = Loads["Load"].str[9]
     Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
@@ -287,12 +287,12 @@ def Network_plot(Coords, Lines, Loads):
     plt.tight_layout()
 
 
-#
-# Feeder = "Network1"
-# Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
-# Network_plot(Coords, Lines, Loads)
-# Customer_Summary.style.hide_index()
-# print(
+
+#Feeder = "Network1"
+#Customer_Summary,Coords, Lines,Loads = customer_summary(Feeder)
+#Network_plot(Coords, Lines, Loads)
+#Customer_Summary.style.hide_index()
+#print(
 #    tabulate(
 #        Customer_Summary.drop(columns="Color"),
 #        tablefmt="pipe",

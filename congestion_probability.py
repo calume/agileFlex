@@ -15,7 +15,7 @@ from datetime import timedelta, date
 import random
 import pickle
 from Test_Network.network_plot import customer_summary
-from runDSS import runDSS, network_outputs
+from runDSS import runDSS, network_outputs, create_gens
 from crunch_results import (
     counts,
     plots,
@@ -27,9 +27,11 @@ from crunch_results import (
 
 ####----------Set Test Network ------------
 
-Network_Path = "Test_Network/Network1/"
+Network_Path = "Test_Network/network_5/"
+###create_gens(Network_Path)
 
 #### Load in Test data Set ##########
+
 ####  Note: These Data Files can be found in the AGILE dropbox folder:
 ###-- 'AGILE Project Documents\Data\Network_Inputs_SM_PV_HP'
 
@@ -42,10 +44,10 @@ HP_DataFrame = pickle.load(pick_in)
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-###- Plus 1 year to SM timestamps to line up with PV and HP
-# for i in SM_DataFrame.keys():
-#    for z in SM_DataFrame[i].keys():
-#        SM_DataFrame[i][z].index = SM_DataFrame[i][z].index + timedelta(days=364)
+##----- Plus 1 year to SM timestamps to line up with PV and HP
+#for i in SM_DataFrame.keys():
+#   for z in SM_DataFrame[i].keys():
+#      SM_DataFrame[i][z].index = SM_DataFrame[i][z].index + timedelta(days=364)
 
 
 def Create_Customer_Summary(sims_halfhours):
@@ -63,7 +65,7 @@ def Create_Customer_Summary(sims_halfhours):
             Customer_Summary["Acorn_Group"] == i
         ].index
 
-        datacount = SM_DataFrame[i]["WinterWkd"].loc[sims_halfhours.tolist()]
+        datacount = SM_DataFrame[i]["WinterWkd"].reindex(sims_halfhours)
         SM_reduced = datacount.count() > (len(datacount) * 0.7)
         print("SMs left " + str(i) + str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
@@ -100,9 +102,9 @@ def Create_Customer_Summary(sims_halfhours):
     ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ###------randomly assigned each run. We then load from the pickle file rather than generating it
 
-    pickle_out = open("../Data/Customer_Summary15.pickle", "wb")
-    pickle.dump(Customer_Summary, pickle_out)
-    pickle_out.close()
+#    #pickle_out = open("../Data/Customer_Summary15.pickle", "wb")
+#    #pickle.dump(Customer_Summary, pickle_out)
+#    #pickle_out.close()
 
     return Coords, Lines, Customer_Summary,HP_reduced
 
@@ -112,8 +114,8 @@ def Create_Customer_Summary(sims_halfhours):
 
 # start_date = date(2013, 11, 7)
 # end_date = date(2014, 10, 3)
-start_date = date(2014, 12, 1)
-end_date = date(2015, 3, 1)
+start_date = date(2013, 12, 6)
+end_date = date(2013, 12, 7)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -123,11 +125,11 @@ sims_days = pd.date_range(start_date, end_date, freq=delta_days)
 
 Coords, Lines, Customer_Summary, HP_reduced = Create_Customer_Summary(
     sims_halfhours
-)  # only returns Coords, customer_summary is fixed
+)  
 
 #####------ For when the customer summary table is fixed we laod it in from the pickle file
-pickin = open("../Data/Customer_Summary15.pickle", "rb")
-Customer_Summary = pickle.load(pickin)
+#pickin = open("../Data/Customer_Summary15.pickle", "rb")
+#Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
 smartmeter = {}
@@ -150,6 +152,15 @@ TranskVA_sum = {}
 Trans_kVA = {}
 network_summary = {}
 network_summary_new = {}
+
+genres=pd.Series(index=sims_halfhours.tolist(), dtype=float)
+genresnew=pd.Series(index=sims_halfhours.tolist(), dtype=float)
+colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
+          
+pinchClist=[]
+for i in Lines['Line'].str[9:10].unique():
+    pinchClist.append(Lines[Lines['Line'].str[9:10] == i].index[0])
+
 for i in sims_halfhours.tolist():
     print(i)
     # -------------- Sample for each day weekday/weekend and season -----------#
@@ -186,7 +197,7 @@ for i in sims_halfhours.tolist():
         if Customer_Summary["PV_kW"][z] != 0:
             pv[i][z] = (
                 Customer_Summary["PV_kW"][z]
-                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i-timedelta(days=364)]
+                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]#-timedelta(days=364)]
             )
         demand[i][z] = smartmeter[i][z] + heatpump[i][z]
 
@@ -203,15 +214,17 @@ for i in sims_halfhours.tolist():
         Trans_kVA[i],
         RateArray,
         TransRatekVA,
+        genres[i],
     ) = runDSS(
         Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
     )
     ###--- These are converted into headrooms and summarised in network_summary
     network_summary[i] = network_outputs(
-        CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA
+        CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
     )
     ###---- A new network summary is created to store any adjustments
     network_summary_new[i] = network_summary[i]
+    genresnew[i]=genres[i]
 
 #####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
 Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(
@@ -223,33 +236,55 @@ Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc
     demand,
     demand_delta,
     pv_delta,
+    pinchClist
 )
-# Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords)
-# Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count)
-# Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray)
+Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
+Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
+Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
 #
 labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
-# plot_headroom(Headrm, Footrm, Flow, Rate, labels)
+plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)
 
 ##----------- Calculation of adjusted demand for Thermal Violations------------------#
 ## This pinchlist is network specific of where feeders overload
-pinchVlist = [0, 906, 1410, 1913, 3142]
-
+##pinchVlist = [0, 906, 1410, 1913, 3142]
+    
 for i in network_summary:
     print(i)
     for p in range(1, 4):
-        for f in range(1, 5):
-            if Headrm[f][p][i] < 0 and Flow[f][p][i] > 0:
+        for f in range(1, len(pinchClist)+1):
+            if Headrm[f][p][i] < 0 and Flow[f][p][i] > 0 and len(custph[p][f])>0:
                 demand_delta[i][custph[p][f].index] = Headrm[f][p][i] / len(
                     custph[p][f]
                 )
+                
 
-            if Footrm[f][p][i] < 0 and Flow[f][p][i] < 0:
+            if Footrm[f][p][i] < 0 and Flow[f][p][i] < 0 and len(custph[p][f][custph[p][f]["PV_kW"] > 0])>0:
                 pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index] = Footrm[f][
                     p
                 ][i] / len(custph[p][f][custph[p][f]["PV_kW"] > 0].index)
                 PFControl[i] = 1
 
+            ####---------- Check Low Voltage ----------###
+            
+            if Vmin[str(p)+str(f)][i] < 0.94 and len(custph[p][f])>0:
+                demand_delta[i][custph[p][f].index] = min(demand_delta[i][custph[p][f].index][0],-((0.94-Vmin[str(p)+str(f)][i])*Cmax[str(p)+str(f)][i]/len(custph[p][f])))
+  
+            ###---------- Check High Voltage ----------###
+            
+            if Vmax[str(p)+str(f)][i] > 1.1 and len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])>0:
+                pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index] = min(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],((1.1-Vmax[str(p)+str(f)][i])*abs(Cmax[str(p)+str(f)][i])/len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])))
+                PFControl[i] = 1              
+            
+            ####----- Check Secondary Substation-------###
+            
+            if Headrm[0][i] > labels["TranskVA"] and len(custph[p][f])>0:
+                demand_delta[i][custph[p][f].index]=min(demand_delta[i][custph[p][f].index][0],-(Headrm[0][i]-labels["TranskVA"])/len(demand_delta[i]))
+            
+            if Headrm[0][i] < -labels["TranskVA"] and len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])>0:
+                pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index]=min(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],-((-Headrm[0][i]-labels["TranskVA"])/sum((Customer_Summary['PV_kW']>0))))
+                PFControl[i] = 1
+                
     if (demand_delta[i].sum() + pv_delta[i].sum()) != 0:
         (
             CurArray[i],
@@ -259,6 +294,7 @@ for i in network_summary:
             Trans_kVA[i],
             RateArray,
             TransRatekVA,
+            genresnew[i]
         ) = runDSS(
             Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
         )
@@ -270,6 +306,7 @@ for i in network_summary:
             PowArray[i],
             Trans_kVA[i],
             TransRatekVA,
+            pinchClist
         )
 
 (
@@ -289,6 +326,7 @@ for i in network_summary:
     demand,
     demand_delta,
     pv_delta,
+    pinchClist
 )
 labels = {
     "col": "blue",
@@ -296,24 +334,24 @@ labels = {
     "label": "With Adjustments",
     "TranskVA": TransRatekVA,
 }
-# plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels)
-# plot_flex(InputsbyFP_new)
-Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
-    network_summary_new, Coords
+plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels,pinchClist,InputsbyFP_new,genresnew,colors)
+plot_flex(InputsbyFP_new,pinchClist,colors)
+#Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(
+#    network_summary_new, Coords,pinchClist
+#)
+#Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new)
+Vmax, Vmin, Cmax = plot_current_voltage(
+    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray, pinchClist, colors
 )
-# Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new)
-# Vmax, Vmin, Cmax = plot_current_voltage(
-#    CurArray, VoltArray, Coords, Lines, Flow_new, RateArray
-# )
-
-pickle_out = open("../Data/Winter15HdRm.pickle", "wb")
-pickle.dump(Headrm, pickle_out)
-pickle_out.close()
-
-pickle_out = open("../Data/Winter15NetworkSummary.pickle", "wb")
-pickle.dump(network_summary_new, pickle_out)
-pickle_out.close()
-
-pickle_out = open("../Data/Winter15Inputs.pickle", "wb")
-pickle.dump(InputsbyFP_new, pickle_out)
-pickle_out.close()
+#
+#pickle_out = open("../Data/Winter15HdRm.pickle", "wb")
+#pickle.dump(Headrm, pickle_out)
+#pickle_out.close()
+#
+#pickle_out = open("../Data/Winter15NetworkSummary.pickle", "wb")
+#pickle.dump(network_summary_new, pickle_out)
+#pickle_out.close()
+#
+#pickle_out = open("../Data/Winter15Inputs.pickle", "wb")
+#pickle.dump(InputsbyFP_new, pickle_out)
+#pickle_out.close()
