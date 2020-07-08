@@ -20,9 +20,9 @@ import os
 
 HP_Summary = pd.read_excel("../../Data/RHPP-Beis-Summary.xlsx", sheet_name=0)
 HP_Summary_ASHP = HP_Summary[HP_Summary["Heat pump Type"] == "ASHP"]
-HP_Summary_ASHP_Domestic = HP_Summary_ASHP["RHPP Name"][
-    HP_Summary_ASHP["Site Type"] == "Domestic"
-]
+HP_Summary_ASHP_Domestic = HP_Summary_ASHP["RHPP Name"]#[
+#    HP_Summary_ASHP["Site Type"] == "Domestic"
+#]
 
 smkeys = [
     "WinterWknd",
@@ -38,74 +38,82 @@ times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
 
 
 # This function returns a list of Heat Domestic ASHP for collating
-def getlist():
-    lst = []
-    for f in range(0, len(HP_Summary_ASHP_Domestic)):
-        try:
-            lst.append(HP_Summary_ASHP_Domestic.iloc[f][-4:])
-            print(f)
-        except:
-            print()
-    return lst
+#def getlist():
+#    lst = []
+#    for f in range(0, len(HP_Summary_ASHP_Domestic)):
+#        try:
+#            lst.append(HP_Summary_ASHP_Domestic.iloc[f][-4:])
+#            print(f)
+#        except:
+#            print()
+#    return lst
 
+path = "../../Data/heatpump/HP"
+IDs = []
+for f in os.listdir(path):
+    IDs.append(f[-8:-4])
+    print(f)
 
-startdate = date(2013, 11, 1)
-enddate = date(2015, 4, 1)
+startdate = date(2013, 12, 1)
+enddate = date(2015, 3, 1)
 delta = timedelta(hours=0.5)
 dt = pd.date_range(startdate, enddate, freq=delta)
 
 
 # This function creates a DataFrame with all Domestic ASHP
-def createDataFrame(lst):
-    hist30 = []
-    path = "../../Data/heatpump/processed_rhpp"
-    for f in lst:
-        print(f, end=": ")
-        HP_RawFile = pd.read_csv(
-            path + f + ".csv",
-            index_col=["Matlab_time"],
-            usecols=["Matlab_time", "Year", "Month", "Ehp", "Edhw"],
+#def createDataFrame(IDs):
+hist30 = []
+path = "../../Data/heatpump/HP/processed_rhpp"
+HP_DataFrame = pd.DataFrame(index=dt)
+for f in IDs:
+    print(f, end=": ")
+    HP_RawFile = pd.read_csv(
+    path + f + ".csv",
+    index_col=["Matlab_time"],
+    usecols=["Matlab_time", "Year", "Month", "Ehp", "Edhw"])
+
+        
+    # hist2.append(round(((HP_RawFile['Ehp']+HP_RawFile['Edhw'])/1000*30).max(),1))
+    # hist30.append(round(HP_DataFrame[f].max()))
+    out_datetime = pd.Series(index=range(0, len(HP_RawFile.index)))
+    for i in range(0, len(HP_RawFile.index)):
+        days = HP_RawFile.index.values[i] % 1
+        hours = days % 1 * 24
+        minutes = hours % 1 * 60
+
+        out_date = (
+            date.fromordinal(int(HP_RawFile.index.values[i]))
+            + timedelta(days=days)
+            - timedelta(days=366)
         )
-        # hist2.append(round(((HP_RawFile['Ehp']+HP_RawFile['Edhw'])/1000*30).max(),1))
-        # hist30.append(round(HP_DataFrame[f].max()))
-        out_datetime = pd.Series(index=range(0, len(HP_RawFile.index)))
-        for i in range(0, len(HP_RawFile.index)):
-            days = HP_RawFile.index.values[i] % 1
-            hours = days % 1 * 24
-            minutes = hours % 1 * 60
 
-            out_date = (
-                date.fromordinal(int(HP_RawFile.index.values[i]))
-                + timedelta(days=days)
-                - timedelta(days=366)
-            )
-
-            out_datetime[i] = (
-                datetime.fromisoformat(str(out_date))
-                + timedelta(hours=int(hours))
-                + timedelta(minutes=int(minutes))
-            )
-
-        HP_RawFile.index = out_datetime
-        HP_RawFile["HPTotDem"] = HP_RawFile["Ehp"] + HP_RawFile["Edhw"]
-
-        HP_Out = HP_RawFile["HPTotDem"].resample("30T").sum() / 1000 / 0.5
-        HP_DataFrame = pd.DataFrame(index=dt)
-        HP_DataFrame = pd.concat(
-            [HP_DataFrame, HP_Out], axis=1, join="outer", sort=False
+        out_datetime[i] = (
+            datetime.fromisoformat(str(out_date))
+            + timedelta(hours=int(hours))
+            + timedelta(minutes=int(minutes))
         )
-        HP_DataFrame.columns = lst
-        HP_DataFrame = HP_DataFrame.drop(columns=["5251"])
-        pickle_out = open("../../Data/HP_DataFrame.pickle", "wb")
-        pickle.dump(HP_DataFrame, pickle_out)
-        pickle_out.close()
 
+    HP_RawFile.index = out_datetime
+    HP_RawFile["HPTotDem"] = HP_RawFile["Ehp"] + HP_RawFile["Edhw"]
 
-# lst=getlist()
-# createDataFrame(lst)
+    HP_Out = HP_RawFile["HPTotDem"].resample("30T").sum() / 1000 / 0.5
+    HP_DataFrame = pd.concat(
+        [HP_DataFrame, HP_Out], axis=1, join="outer", sort=False
+    )
+    
+HP_DataFrame.columns = IDs
+HP_reduced = HP_DataFrame.count()>(len(dt)*0.7)
+HP_reduced = HP_reduced[HP_reduced]
+HP_DataFrame=HP_DataFrame[HP_reduced.index]
+    
+pickle_out = open("../../Data/HP_DataFrame.pickle", "wb")
+pickle.dump(HP_DataFrame, pickle_out)
+pickle_out.close()
 
-pick_in = open("../../Data/HP_DataFrame.pickle", "rb")
-HP_DataFrame = pickle.load(pick_in)
+#createDataFrame(IDs)
+
+#pick_in = open("../../Data/HP_DataFrame.pickle", "rb")
+#HP_DataFrame = pickle.load(pick_in)
 
 # This function plots a histogram of heat pump maximum output
 def HPhisto():
@@ -168,10 +176,10 @@ def DataFramebySeason(HP_DataFrame, smkeys):
     return HP_BySeason
 
 
-HP_BySeason = DataFramebySeason(HP_DataFrame, smkeys)
-pickle_out = open("../../Data/HP_DataFrameBySeason.pickle", "wb")
-pickle.dump(HP_BySeason, pickle_out)
-pickle_out.close()
+#HP_BySeason = DataFramebySeason(HP_DataFrame, smkeys)
+#pickle_out = open("../../Data/HP_DataFrameBySeason.pickle", "wb")
+#pickle.dump(HP_BySeason, pickle_out)
+#pickle_out.close()
 
 #####- Generate Daily HP demand profiles by season, timestamp removed
 def profilesBySM(HP_BySeason):
