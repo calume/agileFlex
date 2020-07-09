@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu May 02 13:48:06 2019
+Date ranges
+Smart Meter Data: 1/6/2012 - 28/2/2014
+Heat Pump Data: 1/12/2013 - 1/3/2015
+
+Full overlap 1/12/2013 to 28/2/2014
 
 @author: Calum Edmunds
 """
@@ -16,6 +21,7 @@ import random
 import pickle
 from Test_Network.network_plot import customer_summary
 from runDSS import runDSS, network_outputs, create_gens
+import matplotlib.pyplot as plt
 from crunch_results import (
     counts,
     plots,
@@ -24,10 +30,11 @@ from crunch_results import (
     plot_flex,
     plot_current_voltage,
 )
+from itertools import cycle, islice
 
 ####----------Set Test Network ------------
 
-Network_Path = "Test_Network/network_5/"
+Network_Path = "Test_Network/Network1/"
 ###create_gens(Network_Path)
 
 #### Load in Test data Set ##########
@@ -35,19 +42,23 @@ Network_Path = "Test_Network/network_5/"
 ####  Note: These Data Files can be found in the AGILE dropbox folder:
 ###-- 'AGILE Project Documents\Data\Network_Inputs_SM_PV_HP'
 
-pick_in = open("../Data/SM_DataFrame_byAcorn_NH.pickle", "rb")
+pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/HP_DataFrame.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 
+#pick_in = open("../Data/HP_DataFrameBySeason.pickle", "rb")
+#HP_DataFramebySeason = pickle.load(pick_in)
+
+#HP_DataFrame=HP_DataFramebySeason['WinterWknd']
+
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-##----- Plus 1 year to SM timestamps to line up with PV and HP
-#for i in SM_DataFrame.keys():
-#   for z in SM_DataFrame[i].keys():
-#      SM_DataFrame[i][z].index = SM_DataFrame[i][z].index + timedelta(days=364)
+############----- Plus 1 year to SM timestamps to line up with PV and HP
+for i in SM_DataFrame.keys():
+   SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
 
 
 def Create_Customer_Summary(sims_halfhours):
@@ -60,33 +71,33 @@ def Create_Customer_Summary(sims_halfhours):
     #### Smart Meter
     # --- only include SMs with data for day 2014-3-1
     Customer_Summary["smartmeter_ID"] = 0
+    SMlist={}
     for i in SM_DataFrame.keys():
         acorn_index = Customer_Summary["Acorn_Group"][
             Customer_Summary["Acorn_Group"] == i
         ].index
 
-        datacount = SM_DataFrame[i]["WinterWkd"].reindex(sims_halfhours)
+        datacount = SM_DataFrame[i].reindex(sims_halfhours)
         SM_reduced = datacount.count() > (len(datacount) * 0.7)
         print("SMs left " + str(i) + str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
-
+        SMlist[i]=list(islice(cycle(SM_reduced.index),len(acorn_index)))
         for z in acorn_index:
-            Customer_Summary["smartmeter_ID"][z] = random.choice(SM_reduced.index)
+            Customer_Summary["smartmeter_ID"][z] = SMlist[i][z]
 
     ### Heat Pump
     Customer_Summary["heatpump_ID"] = 0
     # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.loc[sims_halfhours.tolist()].count()>0# == len(
-    #    HP_DataFrame.loc[sims_halfhours.tolist()]
-    #)
+    HP_reduced = HP_DataFrame.reindex(sims_halfhours.tolist()).count()> (0.9* len(sims_halfhours))
 
     HP_reduced = HP_reduced[HP_reduced]
     print("HPs left " + str(len(HP_reduced)))
     heatpump_index = Customer_Summary["Heat_Pump_Flag"][
         Customer_Summary["Heat_Pump_Flag"] > 0
     ].index
+    HPlist=list(islice(cycle(HP_reduced.index),len(heatpump_index)))
     for z in heatpump_index:
-        Customer_Summary["heatpump_ID"][z] = random.choice(HP_reduced.index)
+        Customer_Summary["heatpump_ID"][z] = HPlist[z]
 
     ### PV are assigned randomly
     Customer_Summary["pv_ID"] = 0
@@ -106,7 +117,7 @@ def Create_Customer_Summary(sims_halfhours):
 #    #pickle.dump(Customer_Summary, pickle_out)
 #    #pickle_out.close()
 
-    return Coords, Lines, Customer_Summary,HP_reduced
+    return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
 
 
 ######--------- Run power flow Timeseries--------------------------#
@@ -114,8 +125,8 @@ def Create_Customer_Summary(sims_halfhours):
 
 # start_date = date(2013, 11, 7)
 # end_date = date(2014, 10, 3)
-start_date = date(2013, 12, 6)
-end_date = date(2013, 12, 7)
+start_date = date(2014, 12, 1)
+end_date = date(2015, 3, 1)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -123,7 +134,7 @@ delta_days = timedelta(days=1)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 sims_days = pd.date_range(start_date, end_date, freq=delta_days)
 
-Coords, Lines, Customer_Summary, HP_reduced = Create_Customer_Summary(
+Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
     sims_halfhours
 )  
 
@@ -161,23 +172,10 @@ pinchClist=[]
 for i in Lines['Line'].str[9:10].unique():
     pinchClist.append(Lines[Lines['Line'].str[9:10] == i].index[0])
 
-for i in sims_halfhours.tolist():
+for i in sims_halfhours.tolist()[:-1]:
     print(i)
     # -------------- Sample for each day weekday/weekend and season -----------#
     ##-- Needed for SM data, and will be used for sampling --#
-    if (i.weekday() >= 5) & (i.weekday() <= 6):  ###Weekend######
-        day = "Wknd"
-    if (i.weekday() >= 0) & (i.weekday() <= 4):
-        day = "Wkd"
-    if (i.month == 12) | (i.month <= 2):  # Dec-Feb
-        season = "Winter"
-    if (i.month >= 3) & (i.month <= 5):  # Mar-May
-        season = "Spring"
-    if (i.month >= 6) & (i.month <= 8):  # Jun-Aug
-        season = "Summer"
-    if (i.month >= 9) & (i.month <= 11):  # Sept-Nov
-        season = "Autumn"
-
     smartmeter[i] = np.zeros(len(Customer_Summary))
     heatpump[i] = np.zeros(len(Customer_Summary))
     pv[i] = np.zeros(len(Customer_Summary))
@@ -189,15 +187,13 @@ for i in sims_halfhours.tolist():
     PFControl[i] = 0
     # -----for each customer set timestep demand and PV output----#
     for z in range(0, len(Customer_Summary)):
-        smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][
-            season + day
-        ][Customer_Summary["smartmeter_ID"][z]][i]
+        smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][Customer_Summary["smartmeter_ID"][z]][i]
         if Customer_Summary["heatpump_ID"][z] != 0:
             heatpump[i][z] = HP_DataFrame[str(Customer_Summary["heatpump_ID"][z])][i]
         if Customer_Summary["PV_kW"][z] != 0:
             pv[i][z] = (
                 Customer_Summary["PV_kW"][z]
-                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]#-timedelta(days=364)]
+                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i-timedelta(days=364)]
             )
         demand[i][z] = smartmeter[i][z] + heatpump[i][z]
 
@@ -343,15 +339,15 @@ plot_flex(InputsbyFP_new,pinchClist,colors)
 Vmax, Vmin, Cmax = plot_current_voltage(
     CurArray, VoltArray, Coords, Lines, Flow_new, RateArray, pinchClist, colors
 )
-#
-#pickle_out = open("../Data/Winter15HdRm.pickle", "wb")
-#pickle.dump(Headrm, pickle_out)
-#pickle_out.close()
-#
-#pickle_out = open("../Data/Winter15NetworkSummary.pickle", "wb")
-#pickle.dump(network_summary_new, pickle_out)
-#pickle_out.close()
-#
-#pickle_out = open("../Data/Winter15Inputs.pickle", "wb")
-#pickle.dump(InputsbyFP_new, pickle_out)
-#pickle_out.close()
+
+pickle_out = open("../Data/Winter15HdRm.pickle", "wb")
+pickle.dump(Headrm, pickle_out)
+pickle_out.close()
+
+pickle_out = open("../Data/Winter15NetworkSummary.pickle", "wb")
+pickle.dump(network_summary_new, pickle_out)
+pickle_out.close()
+
+pickle_out = open("../Data/Winter15Inputs.pickle", "wb")
+pickle.dump(InputsbyFP_new, pickle_out)
+pickle_out.close()
