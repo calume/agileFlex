@@ -22,7 +22,7 @@ from matplotlib import pyplot as plt
 import pickle
 import matplotlib.image as mpimg
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
-from arcgis.gis import GIS
+#from arcgis.gis import GIS
 
 pd.options.mode.chained_assignment = None
 from tabulate import tabulate
