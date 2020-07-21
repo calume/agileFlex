@@ -56,7 +56,7 @@ HP_DataFrame = pickle.load(pick_in)
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-###########----- Plus 1 year to SM timestamps to line up with PV and HP
+#########----- Plus 1 year to SM timestamps to line up with PV and HP
 for i in SM_DataFrame.keys():
    SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
 
@@ -78,7 +78,7 @@ def Create_Customer_Summary(sims_halfhours):
         ].index
     
         datacount = SM_DataFrame[i].reindex(sims_halfhours)
-        SM_reduced = datacount.count() > (len(datacount) * 0.7)
+        SM_reduced = datacount.count() > (len(datacount) * 0.95)
         print("SMs left " + str(i) + str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
         SMlist[i]=list(islice(cycle(SM_reduced.index),len(acorn_index)))
@@ -102,9 +102,9 @@ def Create_Customer_Summary(sims_halfhours):
     ### PV are assigned randomly
     Customer_Summary["pv_ID"] = 0
     pv_index = Customer_Summary["PV_kW"][Customer_Summary["PV_kW"] > 0].index
-    pv_sites = list(PV_DataFrame.keys())
+    pv_sites = list(islice(cycle(PV_DataFrame.keys()),len(Customer_Summary["pv_ID"])))
     for z in pv_index:
-        Customer_Summary["pv_ID"][z] = random.choice(pv_sites)
+        Customer_Summary["pv_ID"][z] = pv_sites[z]
     
     ## Also remove data <0.005  (overnight)
     for i in pv_sites:
@@ -123,10 +123,10 @@ def Create_Customer_Summary(sims_halfhours):
 ######--------- Run power flow Timeseries--------------------------#
 ####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
 
-# start_date = date(2013, 11, 7)
-# end_date = date(2014, 10, 3)
-start_date = date(2014, 12, 1)
-end_date = date(2015, 2, 27)
+#start_date = date(2014, 6, 1)
+#end_date = date(2014, 9, 3)
+start_date = date(2014, 6, 11)
+end_date = date(2014, 6, 15)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
@@ -167,7 +167,8 @@ network_summary_new = {}
 genres=pd.Series(index=sims_halfhours.tolist(), dtype=float)
 genresnew=pd.Series(index=sims_halfhours.tolist(), dtype=float)
 colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
-          
+bad_halfhours=[]
+bad_halfhours_n=[]     
 pinchClist=[]
 for i in Lines['Line'].str[9:10].unique():
     pinchClist.append(Lines[Lines['Line'].str[9:10] == i].index[0])
@@ -193,7 +194,7 @@ for i in sims_halfhours.tolist():
         if Customer_Summary["PV_kW"][z] != 0:
             pv[i][z] = (
                 Customer_Summary["PV_kW"][z]
-                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i-timedelta(days=364)]
+                * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]#-timedelta(days=364)]
             )
         demand[i][z] = smartmeter[i][z] + heatpump[i][z]
 
@@ -211,13 +212,21 @@ for i in sims_halfhours.tolist():
         RateArray,
         TransRatekVA,
         genres[i],
+        converged
     ) = runDSS(
-        Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
+        Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i] 
     )
+            
     ###--- These are converted into headrooms and summarised in network_summary
     network_summary[i] = network_outputs(
         CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
     )
+    
+    if converged==False:
+        j=i-timedelta(hours=0.5)
+        bad_halfhours.append(i)
+        network_summary[i]=network_summary[j]
+        CurArray[i],VoltArray[i],PowArray[i],Trans_kVA[i] = CurArray[j],VoltArray[j],PowArray[j],Trans_kVA[j]
     ###---- A new network summary is created to store any adjustments
     network_summary_new[i] = network_summary[i]
     genresnew[i]=genres[i]
@@ -269,7 +278,7 @@ for i in network_summary:
             ###---------- Check High Voltage ----------###
             
             if Vmax[str(p)+str(f)][i] > 1.1 and len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])>0:
-                pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index] = min(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],((1.1-Vmax[str(p)+str(f)][i])*abs(Cmax[str(p)+str(f)][i])/len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])))
+                pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index] = min(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],2.5*((1.1-Vmax[str(p)+str(f)][i])*abs(Cmax[str(p)+str(f)][i])/len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])))
                 PFControl[i] = 1              
             
             ####----- Check Secondary Substation-------###
@@ -290,7 +299,8 @@ for i in network_summary:
             Trans_kVA[i],
             RateArray,
             TransRatekVA,
-            genresnew[i]
+            genresnew[i],
+            converged,
         ) = runDSS(
             Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
         )
@@ -304,7 +314,11 @@ for i in network_summary:
             TransRatekVA,
             pinchClist
         )
-
+    if converged==False:
+        j=i-timedelta(hours=0.5)
+        bad_halfhours_n.append(i)
+        network_summary_new[i]=network_summary_new[j]
+        CurArray[i],VoltArray[i],PowArray[i],Trans_kVA[i] = CurArray[j],VoltArray[j],PowArray[j],Trans_kVA[j]
 (
     Headrm_new,
     Footrm_new,
@@ -338,14 +352,16 @@ Vmax, Vmin, Cmax = plot_current_voltage(
     CurArray, VoltArray, Coords, Lines, Flow_new, RateArray, pinchClist, colors
 )
 
-pickle_out = open("../Data/Winter15HdRm_new.pickle", "wb")
+
+pickle_out = open("../Data/Summer14HdRm_new.pickle", "wb")
 pickle.dump(Headrm, pickle_out)
 pickle_out.close()
 
-pickle_out = open("../Data/Winter15NetworkSummary_new.pickle", "wb")
-pickle.dump(network_summary_new, pickle_out)
-pickle_out.close()
 
-pickle_out = open("../Data/Winter15Inputs_new.pickle", "wb")
-pickle.dump(InputsbyFP_new, pickle_out)
-pickle_out.close()
+#pickle_out = open("../Data/Winter14NetworkSummary_new.pickle", "wb")
+#pickle.dump(network_summary_new, pickle_out)
+#pickle_out.close()
+#
+#pickle_out = open("../Data/Winter14Inputs_new.pickle", "wb")
+#pickle.dump(InputsbyFP_new, pickle_out)
+#pickle_out.close()

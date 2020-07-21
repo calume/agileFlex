@@ -45,10 +45,10 @@ radiation_W = pd.read_csv(
     "../../Data/NASA_POWER_AllSkyInsolation_01122013_01032014.csv", skiprows=10
 )
 
-temp = temp[30:120]#.append(temp[395:484])
+temp = temp[30:118]#.append(temp[395:483])
 radiation = radiation[92:-31]
 radiation_W=radiation_W[:-1]
-#temp=temp[395:484]
+#temp=temp[395:483]
 tempind = []
 radind = []
 radind_W=[]
@@ -106,25 +106,26 @@ plt.ylabel("Frequency")
 
 ###----------Winter Data------------------#####
 
-pick_in = open("../../Data/Winter14HdRm.pickle", "rb")
-Winter_HdRm = pickle.load(pick_in)
-
-#pick_in = open("../../Data/Winter15HdRm.pickle", "rb")
+#pick_in = open("../../Data/Winter15HdRm_new.pickle", "rb")
 #Winter_HdRm = pickle.load(pick_in)
 
+pick_in = open("../../Data/Winter14HdRm_new.pickle", "rb")
+Winter_HdRm = pickle.load(pick_in)
+#
 #for i in Winter_HdRm.keys():
 #    Winter_HdRm[i]=Winter14_HdRm[i][:-1].append(Winter_HdRm[i][:-1])
 
-pick_in = open("../../Data/Winter14Inputs.pickle", "rb")
-WinterInputs = pickle.load(pick_in)
-
-#pick_in = open("../../Data/Winter15Inputs.pickle", "rb")
+#pick_in = open("../../Data/Winter15Inputs_new.pickle", "rb")
 #WinterInputs = pickle.load(pick_in)
+
+#pick_in = open("../../Data/Winter14Inputs_new.pickle", "rb")
+#Winter14Inputs = pickle.load(pick_in)
 #
 #for i in WinterInputs.keys():
 #    WinterInputs[i]=Winter14Inputs[i][:-1].append(WinterInputs[i][:-1])
 
 ###----------Summer Data------------------#####
+
 
 pick_in = open("../../Data/Summer14Inputs.pickle", "rb")
 SummerInputs = pickle.load(pick_in)
@@ -156,7 +157,7 @@ for p in range(1, 4):
 #########---------Convert to daily timeseries--------
 
 summer_dates = SummerInputs["pv_delta"].index[:-1]
-winter_dates = WinterInputs["demand_delta"].index[:-1]
+winter_dates = Headrm_DF.index[:-1]
 wkd_dates = (winter_dates.weekday >= 0) & (winter_dates.weekday <= 4)
 wknd_dates = (winter_dates.weekday >= 5) & (winter_dates.weekday <= 6)
 wkd_dates = winter_dates[wkd_dates]
@@ -199,36 +200,36 @@ Settings["winter Hdrm"] = {
     "units": "deg C",#" kW-hr/m^2/day ",
     "min/max": "min",
     "dates": winter_dates,
-    "data": Headrm_DF[:-1],
+    "data": Headrm_DF,
     "temps": all_temp,
     "negative": 'Dont'
 }
 
-Settings["winter demand"] = {
-    "min": 0,
-    "max": 30,
-    "Q": "P95-",
-    "Title": " Winter demand turn-down ",
-    "units": " degC ",
-    "min/max": "max",
-    "dates": winter_dates,
-    "data": WinterInputs['demand_delta'][:-1]*-1,
-    "temps": all_temp,
-    "negative": False
-}
+#Settings["winter demand"] = {
+#    "min": 0,
+#    "max": 30,
+#    "Q": "P95-",
+#    "Title": " Winter demand turn-down ",
+#    "units": " degC ",
+#    "min/max": "max",
+#    "dates": winter_dates,
+#    "data": WinterInputs['demand_delta'][:-1]*-1,
+#    "temps": all_temp,
+#    "negative": False
+#}
 
-Settings["winter pv"] = {
-    "min": -15,
-    "max": 0,
-    "Q": "P5-",
-    "Title": " Winter pv turn-down ",
-    "units": " kW-hr/m^2/day  ",
-    "min/max": "min",
-    "dates": winter_dates,
-    "data": WinterInputs['pv_delta'][:-1],
-    "temps": all_rad_W,
-    "negative": True
-}
+#Settings["winter pv"] = {
+#    "min": -15,
+#    "max": 0,
+#    "Q": "P95-",
+#    "Title": " Winter pv turn-down ",
+#    "units": " kW-hr/m^2/day  ",
+#    "min/max": "min",
+#    "dates": winter_dates,
+#    "data": WinterInputs['pv_delta'][:-1],
+#    "temps": all_rad_W,
+#    "negative": True
+#}
 
 
 def advance_forecast(settings):
@@ -294,7 +295,7 @@ def advance_forecast(settings):
             plt.plot(y, linewidth=1, color=cols[n], label=lbl)
             if settings["negative"]!= 'Dont':
                 plt.fill_between(range(0,48),0,y, facecolor=cols[n])
-            plt.plot(DailyByBin[c]['Median-'+str(z)].values, linewidth=1, linestyle='--')
+            #plt.plot(DailyByBin[c]['Median-'+str(z)].values, linewidth=1, linestyle='--')
             # plt.plot(DailyByBin[c]['Median'+str(z)].values, linewidth=1, linestyle='--')
             plt.ylim(settings["min"], settings["max"])
             plt.xlim(0, 47)

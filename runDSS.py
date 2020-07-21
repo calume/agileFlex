@@ -24,7 +24,7 @@ DSSTransformers = dss.Transformers
 
 dss.Basic.ClearAll()
 dss.Basic.Start(0)
-#Network_Path = "Test_Network/Network1/"
+Network_Path = "Test_Network/Network1/"
 
 ####----- For each Load a generator is created to allow PV to be added
 def create_gens(Network_Path):
@@ -52,10 +52,9 @@ def create_gens(Network_Path):
         str(Network_Path) + "Generators.txt", sep=" ", index=False, header=False
     )
 
-
 ####### Compile the OpenDSS file using the Master.txt directory#########
 def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
-   
+       
     Voltages = {}
     Currents = {}
     Powers = {}
@@ -66,31 +65,40 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     iLoad = DSSLoads.First()
     while iLoad > 0:
         DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
+        DSSLoads.Vmaxpu(1.5)
+        DSSLoads.Vminpu(0.5)
+        DSSLoads.kV(0.23)
         iLoad = DSSLoads.Next()
     
     ################### Calculating Gen for each Demand ############################
     iGen = DSSGens.First()
     while iGen > 0:
+        DSSGens.kV(0.253)
         DSSGens.kW(pv[iGen - 1] + pv_delta[iGen - 1])
         DSSGens.PF(1)
-        if PFControl == 1:
+        
+        if PFControl == 6:
             DSSGens.kW((pv[iGen - 1] + pv_delta[iGen - 1]) * 0.95)
             DSSGens.PF(-0.95)
-        DSSGens.Vmaxpu(1.2)
-        DSSGens.Vminpu(0.8)
+        DSSGens.Vmaxpu(1.5)
+        DSSGens.Vminpu(0.5)
         DSSGens.Phases(1)
-        DSSGens.Model(7)
+        DSSGens.Model(3)
         iGen = DSSGens.Next()
     
     ######### Solve the Circuit ############
-    dss.Solution.SolveSnap()
+    dss.Solution.Mode(0)
+    dss.Solution.Convergence(0.0001)
+    dss.Solution.MaxIterations(1000)
+    dss.Solution.Solve()
     dss.Monitors.SampleAll()
-    
+    print(dss.Solution.Iterations())
     ############-----Export Results-------------------------#################
-    
+        
     iGen = DSSGens.First()
     genres=[]
     while iGen > 0:
+        #print(DSSGens.kV())
         genres.append(DSSGens.kW())
         iGen = DSSGens.Next()
     genres=sum(genres)
@@ -124,11 +132,12 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     Losses = dss.Circuit.Losses()[0] / 1000
     RateArray = np.array(list(Rates.values()), dtype=float)
     TranskVA = (dss.Circuit.TotalPower()[0])
-#        np.sign(dss.Circuit.TotalPower()[0])
-#        * (dss.Circuit.TotalPower()[0] ** 2 + dss.Circuit.TotalPower()[1] ** 2) ** 0.5
-#    )
+    #        np.sign(dss.Circuit.TotalPower()[0])
+    #        * (dss.Circuit.TotalPower()[0] ** 2 + dss.Circuit.TotalPower()[1] ** 2) ** 0.5
+    #    )
     TransRatekVA = DSSTransformers.kVA()
-    return CurArray, VoltArray, PowArray, Losses, TranskVA, RateArray, TransRatekVA,genres
+    converged=dss.Solution.Converged()
+    return CurArray, VoltArray, PowArray, Losses, TranskVA, RateArray, TransRatekVA,genres,converged
 
 ###------- Using the network outputs (voltage and current) from Opendss
 ###------- network summary is generated including overvoltage and current locations
