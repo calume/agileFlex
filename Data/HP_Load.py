@@ -96,7 +96,7 @@ for f in IDs:
     HP_RawFile.index = out_datetime
     HP_RawFile["HPTotDem"] = HP_RawFile["Ehp"] + HP_RawFile["Edhw"]
 
-    HP_Out = HP_RawFile["HPTotDem"].resample("30T").sum() / 1000 / 0.5
+    HP_Out = HP_RawFile["HPTotDem"].resample("2T").sum() / 1000 / 0.5
     HP_DataFrame = pd.concat(
         [HP_DataFrame, HP_Out], axis=1, join="outer", sort=False
     )
@@ -106,7 +106,7 @@ HP_reduced = HP_DataFrame.count()>(len(dt)*0.7)
 HP_reduced = HP_reduced[HP_reduced]
 HP_DataFrame=HP_DataFrame[HP_reduced.index]
     
-pickle_out = open("../../Data/HP_DataFrame.pickle", "wb")
+pickle_out = open("../../Data/HP_DataFrame_2mins.pickle", "wb")
 pickle.dump(HP_DataFrame, pickle_out)
 pickle_out.close()
 

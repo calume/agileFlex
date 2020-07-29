@@ -24,7 +24,6 @@ DSSTransformers = dss.Transformers
 
 dss.Basic.ClearAll()
 dss.Basic.Start(0)
-Network_Path = "Test_Network/Network1/"
 
 ####----- For each Load a generator is created to allow PV to be added
 def create_gens(Network_Path):
@@ -86,13 +85,13 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSGens.Vmaxpu(1.5)
             DSSGens.Vminpu(0.5)
             DSSGens.Phases(1)
-            DSSGens.Model(3)
+            DSSGens.Model(7)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############
         dss.Solution.Mode(0)
         dss.Solution.Convergence(0.0001)
-        dss.Solution.MaxIterations(1000)
+        dss.Solution.MaxIterations(100)
         dss.Solution.Solve()
         dss.Monitors.SampleAll()
         iterations=dss.Solution.Iterations()
@@ -170,9 +169,7 @@ def network_outputs(CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRat
         # ---------Negative power flow represents export.
 
         for n in range(1, len(pinchClist)+1):
-            network_summary[i]["C_Rate"][n] = (
-                RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5)
-            )
+            network_summary[i]["C_Rate"][n] = 0.9*(RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5))
             network_summary[i]["C_Flow"][n] = Pseries[pinchClist[n - 1]]
 
         network_summary[i]["Vhigh_nodes"] = Vhigh_nodes

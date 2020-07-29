@@ -124,9 +124,14 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors)
             Coords["Color"].iloc[Vhigh_keys] = "black"
             Coords["size"].iloc[Vhigh_keys] = list(Vhigh_count[p].values())
             ##### Plot Currents for each Phase ####
+        if len(Vlow_count[p]) > 0:
+            Vlow_keys = [x for x in list(Vlow_count[p].keys())]
+            Coords["Color"].iloc[Vlow_keys] = "black"
+            Coords["size"].iloc[Vlow_keys] = list(Vlow_count[p].values())
+            ##### Plot Currents for each Phase ####
         plt.figure()
         # plt.figure(311+p)
-        plt.title("Current + High Voltage, Phase  " + str(p))
+        plt.title("Current + High/Low Voltage, Phase  " + str(p))
         nx.draw(
             G,
             pos,
@@ -299,11 +304,11 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genr
                 label="Feeder " + str(f),
                 color=colors[f - 1]
             )
-            plt.plot(Rate[f][p].values, color="red", linestyle="--", linewidth=0.5)
+            plt.plot(Rate[f][p].values/0.9, color="red", linestyle="--", linewidth=0.5)
             plt.plot(
                 np.zeros(len(Headrm[0])), color="blue", linestyle="--", linewidth=0.5
             )
-            plt.plot(-Rate[f][p].values, color="red", linestyle="--", linewidth=0.5)
+            plt.plot(-Rate[f][p].values/0.9, color="red", linestyle="--", linewidth=0.5)
         plt.title("Phase " + str(p))
         plt.ylabel("Power Flow (kW)")
 
@@ -458,7 +463,7 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
             cs.append(str(p)+str(f))
     pinchVlist=pinchClist.copy()        
     pinchVlist.append(len(RateArray)-1)
-    print(pinchVlist)
+    #print(pinchVlist)
     Vmax = pd.DataFrame(
         index=CurArray.keys(),
         columns=cs,
@@ -544,7 +549,7 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         plt.ylabel("Min Voltage (p.u.)")
 
         plt.xlim([0, len(Cmax)])
-        plt.ylim([0.9, 1.15])
+        plt.ylim([0.8, 1.15])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
@@ -567,18 +572,18 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                 label="Feeder " + str(f),
                 color=colors[f - 1]
             )
-        plt.plot(
-            np.full(len(Cmax), RateArray[pinchClist[f - 1]]),
-            color="red",
-            linestyle="--",
-            linewidth=0.5,
-        )
-        plt.plot(
-            np.full(len(Cmax), -RateArray[pinchClist[f - 1]]),
-            color="red",
-            linestyle="--",
-            linewidth=0.5,
-        )
+            plt.plot(
+                np.full(len(Cmax), RateArray[pinchClist[f - 1]]),
+                color="red",
+                linestyle="--",
+                linewidth=0.5,
+            )
+            plt.plot(
+                np.full(len(Cmax), -RateArray[pinchClist[f - 1]]),
+                color="red",
+                linestyle="--",
+                linewidth=0.5,
+            )
         plt.title("Phase " + str(p))
         plt.ylabel("Current (Amps)")
 
