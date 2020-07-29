@@ -62,37 +62,43 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     
     run_command("Redirect ./" + str(Network_Path) + "Master.dss")
     ################### Calculating Load for each Demand ############################
-    iLoad = DSSLoads.First()
-    while iLoad > 0:
-        DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
-        DSSLoads.Vmaxpu(1.5)
-        DSSLoads.Vminpu(0.5)
-        DSSLoads.kV(0.23)
-        iLoad = DSSLoads.Next()
-    
-    ################### Calculating Gen for each Demand ############################
-    iGen = DSSGens.First()
-    while iGen > 0:
-        DSSGens.kV(0.253)
-        DSSGens.kW(pv[iGen - 1] + pv_delta[iGen - 1])
-        DSSGens.PF(1)
+    iterations=100
+    v_delta=0
+    while iterations==100:
+        iLoad = DSSLoads.First()
+        while iLoad > 0:
+            DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
+            DSSLoads.Vmaxpu(1.5)
+            DSSLoads.Vminpu(0.5)
+            DSSLoads.kV(0.23)
+            iLoad = DSSLoads.Next()
         
-        if PFControl == 6:
-            DSSGens.kW((pv[iGen - 1] + pv_delta[iGen - 1]) * 0.95)
-            DSSGens.PF(-0.95)
-        DSSGens.Vmaxpu(1.5)
-        DSSGens.Vminpu(0.5)
-        DSSGens.Phases(1)
-        DSSGens.Model(3)
-        iGen = DSSGens.Next()
-    
-    ######### Solve the Circuit ############
-    dss.Solution.Mode(0)
-    dss.Solution.Convergence(0.0001)
-    dss.Solution.MaxIterations(1000)
-    dss.Solution.Solve()
-    dss.Monitors.SampleAll()
-    print(dss.Solution.Iterations())
+        ################### Calculating Gen for each Demand ############################
+        iGen = DSSGens.First()
+        while iGen > 0:
+            DSSGens.kV(0.23+v_delta)
+            DSSGens.kW(pv[iGen - 1] + pv_delta[iGen - 1])
+            DSSGens.PF(1)
+            
+            if PFControl == 6:
+                DSSGens.kW((pv[iGen - 1] + pv_delta[iGen - 1]) * 0.95)
+                DSSGens.PF(-0.95)
+            DSSGens.Vmaxpu(1.5)
+            DSSGens.Vminpu(0.5)
+            DSSGens.Phases(1)
+            DSSGens.Model(3)
+            iGen = DSSGens.Next()
+        
+        ######### Solve the Circuit ############
+        dss.Solution.Mode(0)
+        dss.Solution.Convergence(0.0001)
+        dss.Solution.MaxIterations(1000)
+        dss.Solution.Solve()
+        dss.Monitors.SampleAll()
+        iterations=dss.Solution.Iterations()
+        print(iterations)
+        v_delta=v_delta+0.05
+        
     ############-----Export Results-------------------------#################
         
     iGen = DSSGens.First()

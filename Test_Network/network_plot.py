@@ -68,10 +68,7 @@ def customer_summary(Network_Path):
             "Y",
             "Phase",
             "Feeder",
-            "Home_Battery_kW",
-            "Home_Battery_kWh",
-            "EV_Charger_Size_kW",
-            "EV_Battery_Size_kWh",
+            "EV_ID",
             "PV_kW",
             "Heat_Pump_Flag",
             "Color",
@@ -86,18 +83,9 @@ def customer_summary(Network_Path):
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
     Customer_Summary["Feeder"] = Loads["Load"].str[9]
     Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
-    Customer_Summary["Home_Battery_kW"][
+    Customer_Summary["EV_ID"][
         Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 5
-    Customer_Summary["Home_Battery_kWh"][
-        Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 13.5
-    Customer_Summary["EV_Charger_Size_kW"][
-        Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 7.4
-    Customer_Summary["EV_Battery_Size_kWh"][
-        Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 40
+    ] = 0
     MoreComfortable = Customer_Summary["PV_kW"][
         Customer_Summary["Acorn_Group"] == "Comfortable"
     ].index[: int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2)]

@@ -45,8 +45,8 @@ radiation_W = pd.read_csv(
     "../../Data/NASA_POWER_AllSkyInsolation_01122013_01032014.csv", skiprows=10
 )
 
-temp = temp[30:118]#.append(temp[395:483])
-radiation = radiation[92:-31]
+temp = temp[29:118].append(temp[404:483])
+radiation = radiation[40:-31]
 radiation_W=radiation_W[:-1]
 #temp=temp[395:483]
 tempind = []
@@ -106,32 +106,35 @@ plt.ylabel("Frequency")
 
 ###----------Winter Data------------------#####
 
-#pick_in = open("../../Data/Winter15HdRm_new.pickle", "rb")
-#Winter_HdRm = pickle.load(pick_in)
+pick_in = open("../../Data/Winter15HdRm_new.pickle", "rb")
+Winter_HdRm = pickle.load(pick_in)
 
 pick_in = open("../../Data/Winter14HdRm_new.pickle", "rb")
-Winter_HdRm = pickle.load(pick_in)
-#
-#for i in Winter_HdRm.keys():
-#    Winter_HdRm[i]=Winter14_HdRm[i][:-1].append(Winter_HdRm[i][:-1])
+Winter14_HdRm = pickle.load(pick_in)
 
-#pick_in = open("../../Data/Winter15Inputs_new.pickle", "rb")
-#WinterInputs = pickle.load(pick_in)
+for i in Winter_HdRm.keys():
+    Winter_HdRm[i]=Winter14_HdRm[i][:-1].append(Winter_HdRm[i][:-1])
 
-#pick_in = open("../../Data/Winter14Inputs_new.pickle", "rb")
-#Winter14Inputs = pickle.load(pick_in)
-#
-#for i in WinterInputs.keys():
-#    WinterInputs[i]=Winter14Inputs[i][:-1].append(WinterInputs[i][:-1])
+pick_in = open("../../Data/Winter15Demand_delta.pickle", "rb")
+WinterInputs = pickle.load(pick_in)
+
+pick_in = open("../../Data/Winter14Demand_delta_new.pickle", "rb")
+Winter14Inputs = pickle.load(pick_in)
+
+for i in WinterInputs.keys():
+    WinterInputs[i]=Winter14Inputs[i][:-1].append(WinterInputs[i][:-1])
 
 ###----------Summer Data------------------#####
 
 
-pick_in = open("../../Data/Summer14Inputs.pickle", "rb")
+pick_in = open("../../Data/Summer14Demand_delta_new.pickle", "rb")
 SummerInputs = pickle.load(pick_in)
 
-pick_in = open("../../Data/Summer14FtRm.pickle", "rb")
+pick_in = open("../../Data/Summer14FtRm_new.pickle", "rb")
 Summer_FtRm = pickle.load(pick_in)
+
+pick_in = open("../../Data/Summer14HdRm_new.pickle", "rb")
+Summer_Hdrm = pickle.load(pick_in)
 
 ########---------Convert Headroom to feeder+phase column dataframe
 Headrm_DF = pd.DataFrame(
@@ -148,15 +151,21 @@ Footrm_DF = pd.DataFrame(
     columns=["11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34",],
 )
 
+SmrHeadrm_DF = pd.DataFrame(
+    index=Summer_Hdrm[1].index,
+    columns=["11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34",],
+)
+
+
 for p in range(1, 4):
     for f in range(1, 5):
         Headrm_DF[str(p) + str(f)] = Winter_HdRm[f][p]
         Footrm_DF[str(p) + str(f)] = Summer_FtRm[f][p]
-
+        SmrHeadrm_DF[str(p) + str(f)] = Summer_Hdrm[f][p]
 
 #########---------Convert to daily timeseries--------
 
-summer_dates = SummerInputs["pv_delta"].index[:-1]
+summer_dates = SummerInputs.index[:-1]
 winter_dates = Headrm_DF.index[:-1]
 wkd_dates = (winter_dates.weekday >= 0) & (winter_dates.weekday <= 4)
 wknd_dates = (winter_dates.weekday >= 5) & (winter_dates.weekday <= 6)
@@ -179,15 +188,29 @@ Settings["summer Ftrm"] = {
     "temps": all_rad,
     "negative": 'Dont'
 }
-Settings["summer pv"] = {
+
+Settings["summer Hdrm"] = {
     "min": -25,
-    "max": 0,
+    "max": 75,
     "Q": "P5-",
-    "Title": " Summer PV Adjust ",
+    "Title": " Summer Headroom ",
     "units": " kW-hr/m^2/day ",
     "min/max": "min",
     "dates": summer_dates,
-    "data": SummerInputs['pv_delta'][:-1],
+    "data": SmrHeadrm_DF[:-1],
+    "temps": all_rad,
+    "negative": 'Dont'
+}
+
+Settings["summer pv"] = {
+    "min": 0,
+    "max": 25,
+    "Q": "P95-",
+    "Title": " Summer PV Adjust ",
+    "units": " kW-hr/m^2/day ",
+    "min/max": "max",
+    "dates": summer_dates,
+    "data": SummerInputs[:-1],
     "temps": all_rad,
     "negative": True
 }
@@ -205,18 +228,18 @@ Settings["winter Hdrm"] = {
     "negative": 'Dont'
 }
 
-#Settings["winter demand"] = {
-#    "min": 0,
-#    "max": 30,
-#    "Q": "P95-",
-#    "Title": " Winter demand turn-down ",
-#    "units": " degC ",
-#    "min/max": "max",
-#    "dates": winter_dates,
-#    "data": WinterInputs['demand_delta'][:-1]*-1,
-#    "temps": all_temp,
-#    "negative": False
-#}
+Settings["winter demand"] = {
+    "min": 0,
+    "max": 30,
+    "Q": "P95-",
+    "Title": " Winter demand turn-down ",
+    "units": " degC ",
+    "min/max": "max",
+    "dates": winter_dates,
+    "data": WinterInputs[:-1]*-1,
+    "temps": all_temp,
+    "negative": False
+}
 
 #Settings["winter pv"] = {
 #    "min": -15,
@@ -295,7 +318,7 @@ def advance_forecast(settings):
             plt.plot(y, linewidth=1, color=cols[n], label=lbl)
             if settings["negative"]!= 'Dont':
                 plt.fill_between(range(0,48),0,y, facecolor=cols[n])
-            #plt.plot(DailyByBin[c]['Median-'+str(z)].values, linewidth=1, linestyle='--')
+            #plt.plot(DailyByBin[c]['Median-'+str(z)].values, linewidth=1, linestyle='--', label=lbl)
             # plt.plot(DailyByBin[c]['Median'+str(z)].values, linewidth=1, linestyle='--')
             plt.ylim(settings["min"], settings["max"])
             plt.xlim(0, 47)
@@ -329,3 +352,7 @@ def advance_forecast(settings):
     return DailyByBin, DailyDelta
 
 DailyByBin, DailyDelta = advance_forecast(Settings["winter Hdrm"])
+
+#pickle_out = open("../../Data/Network1SummerHdrm.pickle", "wb")
+#pickle.dump(DailyByBin, pickle_out)
+#pickle_out.close()

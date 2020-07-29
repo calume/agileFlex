@@ -47,6 +47,10 @@ SM_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/HP_DataFrame.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
+#
+pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
+EV_DataFrame = pickle.load(pick_in)
+
 
 #pick_in = open("../Data/HP_DataFrameBySeason.pickle", "rb")
 #HP_DataFramebySeason = pickle.load(pick_in)
@@ -99,6 +103,15 @@ def Create_Customer_Summary(sims_halfhours):
     for z in heatpump_index:
         Customer_Summary["heatpump_ID"][z] = HPlist[z]
     
+    Customer_Summary['zone']=0
+    for i in Customer_Summary.index:
+        Customer_Summary['zone'].loc[i]=str(Customer_Summary['Phase'][i])+str(Customer_Summary['Feeder'][i])
+    ## Assign EVs ######
+    for u in EV_DataFrame.keys():
+        sub=Customer_Summary[Customer_Summary['Phase']==u[0]]
+        sub=sub[sub['Feeder']==u[1]].index[0:len(EV_DataFrame[u].columns)]
+        Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
+    
     ### PV are assigned randomly
     Customer_Summary["pv_ID"] = 0
     pv_index = Customer_Summary["PV_kW"][Customer_Summary["PV_kW"] > 0].index
@@ -125,13 +138,13 @@ def Create_Customer_Summary(sims_halfhours):
 
 #start_date = date(2014, 6, 1)
 #end_date = date(2014, 9, 3)
-start_date = date(2014, 6, 11)
-end_date = date(2014, 6, 15)
+start_date = date(2013, 12, 1)
+end_date = date(2013, 12, 3)
 
 delta_halfhours = timedelta(hours=0.5)
 delta_days = timedelta(days=1)
 
-sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
+sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)[24:72]
 sims_days = pd.date_range(start_date, end_date, freq=delta_days)
 
 Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
@@ -150,7 +163,7 @@ demand = {}  # Sum of smartmeter, heatpump and EV
 demand_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
 pv_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
 PFControl = {}  # Reactive power compensation for high voltage control
-
+ev={}
 #####-------------Initialise Output --------------
 #####-- These are produced by the OpenDSS Load Flow
 CurArray = {}
@@ -179,6 +192,7 @@ for i in sims_halfhours.tolist():
     ##-- Needed for SM data, and will be used for sampling --#
     smartmeter[i] = np.zeros(len(Customer_Summary))
     heatpump[i] = np.zeros(len(Customer_Summary))
+    ev[i] = np.zeros(len(Customer_Summary))
     pv[i] = np.zeros(len(Customer_Summary))
     demand[i] = np.zeros(len(Customer_Summary))
     demand_delta[i] = np.zeros(len(Customer_Summary))
@@ -196,7 +210,10 @@ for i in sims_halfhours.tolist():
                 Customer_Summary["PV_kW"][z]
                 * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]#-timedelta(days=364)]
             )
-        demand[i][z] = smartmeter[i][z] + heatpump[i][z]
+        if Customer_Summary["EV_ID"][z] != 0:
+            ev[i][z] = EV_DataFrame[Customer_Summary["zone"][z]][Customer_Summary["EV_ID"][z]][i]
+        ev[i] = np.nan_to_num(ev[i])    
+        demand[i][z] = smartmeter[i][z] + heatpump[i][z] + ev[i][z]
 
     ###------ Demand includes Smartmeter and heatpump
     demand[i] = np.nan_to_num(demand[i])
@@ -353,9 +370,9 @@ Vmax, Vmin, Cmax = plot_current_voltage(
 )
 
 
-pickle_out = open("../Data/Summer14HdRm_new.pickle", "wb")
-pickle.dump(Headrm, pickle_out)
-pickle_out.close()
+#pickle_out = open("../Data/Summer14HdRm_new.pickle", "wb")
+#pickle.dump(Headrm, pickle_out)
+#pickle_out.close()
 
 
 #pickle_out = open("../Data/Winter14NetworkSummary_new.pickle", "wb")
