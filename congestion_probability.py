@@ -52,17 +52,16 @@ SM_DataFrame = pickle.load(pick_in)
 pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 
-pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
-EV_DataFrame = pickle.load(pick_in)
+#pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
+#EV_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
        
 #########----- Plus 1 year to SM timestamps to line up with PV and HP
-for i in SM_DataFrame.keys():
-   SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
-
+#for i in SM_DataFrame.keys():
+#   SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
 
 def Create_Customer_Summary(sims,EV_Validation):
     ####--------- Create Customer Summary ----------
@@ -99,8 +98,8 @@ def Create_Customer_Summary(sims,EV_Validation):
         Customer_Summary["Heat_Pump_Flag"] > 0
     ].index
     HPlist=list(islice(cycle(HP_reduced.index),len(heatpump_index)))
-    for z in heatpump_index:
-        Customer_Summary["heatpump_ID"][z] = HPlist[z]
+    for z in range(0,len(heatpump_index)):
+        Customer_Summary["heatpump_ID"][heatpump_index[z]] = HPlist[z]
     
     Customer_Summary['zone']=0
     for i in Customer_Summary.index:
@@ -130,7 +129,6 @@ def Create_Customer_Summary(sims,EV_Validation):
     #    #pickle_out = open("../Data/Customer_Summary15.pickle", "wb")
     #    #pickle.dump(Customer_Summary, pickle_out)
     #    #pickle_out.close()
-
     return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
 
 
@@ -148,7 +146,7 @@ sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
 
 sims=sims_halfhours
 if Twominutely==1:
-    sims=sims_twominutes[360:1080]
+    sims=sims_twominutes[360:380]#1080]
 
     pick_in = open("../Data/HP_DataFrame_2mins_week.pickle", "rb")
     HP_DataFrame = pickle.load(pick_in)
@@ -412,15 +410,14 @@ if EV_Validation==0:
 
 end=datetime.now()
 time=end-start
-#pickle_out = open("../Data/Summer14HdRm_new.pickle", "wb")
-#pickle.dump(Headrm, pickle_out)
-#pickle_out.close()
+pickle_out = open("../Data/100HPDec1st2013_2mins_Hdrm.pickle", "wb")
+pickle.dump(Headrm, pickle_out)
+pickle_out.close()
 
+pickle_out = open("../Data/100HPDec1st2013_2mins_Ftrm..pickle", "wb")
+pickle.dump(Footrm, pickle_out)
+pickle_out.close()
 
-#pickle_out = open("../Data/Winter14NetworkSummary_new.pickle", "wb")
-#pickle.dump(network_summary_new, pickle_out)
-#pickle_out.close()
-#
-#pickle_out = open("../Data/Winter14Inputs_new.pickle", "wb")
-#pickle.dump(InputsbyFP_new, pickle_out)
-#pickle_out.close()
+pickle_out = open("../Data/100HPDec1st2013_2mins_Advance..pickle", "wb")
+pickle.dump(InputsbyFP_new['demand_delta'], pickle_out)
+pickle_out.close()

@@ -76,9 +76,9 @@ def customer_summary(Network_Path):
     )
     Customer_Summary["ID"] = Loads.index + 1
     Customer_Summary["Node"] = Loads["Bus1"].str[5:-2].astype(int)
-    Customer_Summary["Acorn_Group"][int(len(Loads)/(3/2)):int(len(Loads))] = "Adversity"
-    Customer_Summary["Acorn_Group"][int(len(Loads)/3):int(len(Loads)/(3/2))] = "Comfortable"
-    Customer_Summary["Acorn_Group"][0:int(len(Loads)/3)] = "Affluent"
+    Customer_Summary["Acorn_Group"][::4] = "Adversity"
+    Customer_Summary["Acorn_Group"][2::4] = "Comfortable"
+    Customer_Summary["Acorn_Group"][1::2] = "Affluent"
     Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
     Customer_Summary["Feeder"] = Loads["Load"].str[9]
@@ -92,17 +92,17 @@ def customer_summary(Network_Path):
     Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = choice(
         pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Affluent")), weights
     )  # Every house has PV
-    Customer_Summary["PV_kW"][MoreComfortable] = choice(
-        pvcaplist,
-        int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2),
-        weights,
-    )
+#    Customer_Summary["PV_kW"][MoreComfortable] = choice(
+#        pvcaplist,
+#        int(sum(Customer_Summary["Acorn_Group"] == "Comfortable") / 2),
+#        weights,
+#    )
     Customer_Summary["Heat_Pump_Flag"][
         Customer_Summary["Acorn_Group"] == "Affluent"
     ] = 1
     Customer_Summary["Heat_Pump_Flag"][
         Customer_Summary["Acorn_Group"] == "Comfortable"
-    ] = 1
+    ] = 0
 
     acorns = ["Affluent", "Comfortable", "Adversity"]
     colors = ["green", "#17becf", "black"]
