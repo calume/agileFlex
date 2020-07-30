@@ -5,6 +5,7 @@ Created on Fri Aug  2 11:54:13 2019
 @author: qsb15202
 """
 ######## Importing the OpenDSS Engine  #########
+
 import opendssdirect as dss
 import numpy as np
 import pandas as pd
@@ -59,11 +60,11 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     Powers = {}
     Rates = {}
     
-    run_command("Redirect ./" + str(Network_Path) + "Master.dss")
+    run_command("Redirect ./" + str(Network_Path) + "/Master.dss")
     ################### Calculating Load for each Demand ############################
     iterations=100
     v_delta=0
-    while iterations==100:
+    while iterations==100 and v_delta<0.05:
         iLoad = DSSLoads.First()
         while iLoad > 0:
             DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
@@ -85,7 +86,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSGens.Vmaxpu(1.5)
             DSSGens.Vminpu(0.5)
             DSSGens.Phases(1)
-            DSSGens.Model(7)
+            DSSGens.Model(3)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############
@@ -96,7 +97,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
         dss.Monitors.SampleAll()
         iterations=dss.Solution.Iterations()
         print(iterations)
-        v_delta=v_delta+0.05
+        v_delta=v_delta+0.01
         
     ############-----Export Results-------------------------#################
         
@@ -113,7 +114,6 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     VoltArray = np.zeros((len(Voltages[0]), 3))
     for i in range(0, 3):
         VoltArray[:, i] = np.array(Voltages[i], dtype=float)
-    
     ########## Export Current and Power ###########
     i_Line = DSSLines.First()
     while i_Line > 0:

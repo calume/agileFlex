@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 pd.options.mode.chained_assignment = None
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 import random
 import pickle
 from Test_Network.network_plot import customer_summary
@@ -33,10 +33,13 @@ from crunch_results import (
 from itertools import cycle, islice
 
 ####----------Set Test Network ------------
-
+start=datetime.now()
 EV_Validation=0
-Network_Path = "Test_Network/network_18/"
-###create_gens(Network_Path)
+
+Twominutely=1
+
+Network_Path = "Test_Network/Network1"
+##create_gens(Network_Path)
 
 #### Load in Test data Set ##########
 
@@ -46,27 +49,22 @@ Network_Path = "Test_Network/network_18/"
 pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 
-pick_in = open("../Data/HP_DataFrame.pickle", "rb")
+pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
-#
+
 pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
 EV_DataFrame = pickle.load(pick_in)
-
-
-#pick_in = open("../Data/HP_DataFrameBySeason.pickle", "rb")
-#HP_DataFramebySeason = pickle.load(pick_in)
-
-#HP_DataFrame=HP_DataFramebySeason['WinterWknd']
 
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
+       
 #########----- Plus 1 year to SM timestamps to line up with PV and HP
 for i in SM_DataFrame.keys():
    SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
 
 
-def Create_Customer_Summary(sims_halfhours,EV_Validation):
+def Create_Customer_Summary(sims,EV_Validation):
     ####--------- Create Customer Summary ----------
     
     Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path)
@@ -82,7 +80,7 @@ def Create_Customer_Summary(sims_halfhours,EV_Validation):
             Customer_Summary["Acorn_Group"] == i
         ].index
     
-        datacount = SM_DataFrame[i].reindex(sims_halfhours)
+        datacount = SM_DataFrame[i].reindex(sims)
         SM_reduced = datacount.count() > (len(datacount) * 0.95)
         print("SMs left " + str(i) + str(sum(SM_reduced)))
         SM_reduced = SM_reduced[SM_reduced]
@@ -93,7 +91,7 @@ def Create_Customer_Summary(sims_halfhours,EV_Validation):
     ### Heat Pump
     Customer_Summary["heatpump_ID"] = 0
     # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.reindex(sims_halfhours.tolist()).count()> (0.9*len(sims_halfhours))
+    HP_reduced = HP_DataFrame.reindex(sims.tolist()).count()> (0.9*len(sims))
     
     HP_reduced = HP_reduced[HP_reduced]
     print("HPs left " + str(len(HP_reduced)))
@@ -141,17 +139,36 @@ def Create_Customer_Summary(sims_halfhours,EV_Validation):
 
 #start_date = date(2014, 6, 1)
 #end_date = date(2014, 9, 3)
-start_date = date(2013, 12, 16)
-end_date = date(2013, 12, 17)
-
+start_date = date(2013, 12, 1)
+end_date = date(2013, 12, 3)
 delta_halfhours = timedelta(hours=0.5)
-delta_days = timedelta(days=1)
-
+delta_twominutes = timedelta(minutes=2)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
-sims_days = pd.date_range(start_date, end_date, freq=delta_days)
+sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
 
+sims=sims_halfhours
+if Twominutely==1:
+    sims=sims_twominutes[360:1080]
+
+    pick_in = open("../Data/HP_DataFrame_2mins_week.pickle", "rb")
+    HP_DataFrame = pickle.load(pick_in)
+    HP_DataFrame = HP_DataFrame.loc[sims]
+    
+    for i in SM_DataFrame.keys():
+        SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
+        SM_DataFrame[i]=SM_DataFrame[i].resample('2T').mean()
+#        for k in SM_DataFrame[i].columns:
+#            for j in range(0,len(sims_halfhours.tolist())):
+#                SM_DataFrame[i][k].iloc[(j*15)+1:(j+1)*15]=max([0],np.random.normal(SM_DataFrame[i][k].iloc[j*15], SM_DataFrame[i][k].iloc[j*15]*.5, 1))[0]
+        SM_DataFrame[i]=SM_DataFrame[i].interpolate()
+    
+    for i in PV_DataFrame.keys():
+        PV_DataFrame[i]=PV_DataFrame[i].reindex(sims_halfhours.tolist())
+        PV_DataFrame[i]=PV_DataFrame[i].resample('2T')
+        PV_DataFrame[i]=PV_DataFrame[i].interpolate()
+    
 Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
-    sims_halfhours, EV_Validation
+    sims, EV_Validation
 )  
 
 #####------ For when the customer summary table is fixed we laod it in from the pickle file
@@ -184,18 +201,19 @@ Trans_kVA = {}
 network_summary = {}
 network_summary_new = {}
 
-genres=pd.Series(index=sims_halfhours.tolist(), dtype=float)
-genresnew=pd.Series(index=sims_halfhours.tolist(), dtype=float)
+genres=pd.Series(index=sims.tolist(), dtype=float)
+genresnew=pd.Series(index=sims.tolist(), dtype=float)
 colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
 bad_halfhours=[]
 bad_halfhours_n=[]     
 pinchClist=[]
 for i in Lines['Line'].str[9:10].unique():
     pinchClist.append(Lines[Lines['Line'].str[9:10] == i].index[0])
+
 if Network_Path == "Test_Network/network_5/":
     pinchClist[2]=342
 
-for i in sims_halfhours.tolist():
+for i in sims.tolist():
     print(i)
     # -------------- Sample for each day weekday/weekend and season -----------#
     ##-- Needed for SM data, and will be used for sampling --#
@@ -391,7 +409,9 @@ if EV_Validation==0:
     Vmax_new, Vmin_new, Cmax_new = plot_current_voltage(
         CurArray_new, VoltArray_new, Coords, Lines, Flow_new, RateArray, pinchClist, colors
     )
-    
+
+end=datetime.now()
+time=end-start
 #pickle_out = open("../Data/Summer14HdRm_new.pickle", "wb")
 #pickle.dump(Headrm, pickle_out)
 #pickle_out.close()

@@ -487,10 +487,7 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                 Cmax[str(p) + str(f)][i] = (
                 np.sign(Flow[f][p][i]) * CurArray[i][pinchClist[f - 1], p - 1]
                 )
-                Vmax[str(p) + str(f)][i] = VoltArray[i][
-                    Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
-                    p - 1,
-                ].max()
+                Vmax[str(p) + str(f)][i] = VoltArray[i][Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,p - 1].max()
                 Vmin[str(p) + str(f)][i] = VoltArray[i][
                     Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
                     p - 1,

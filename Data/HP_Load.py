@@ -55,8 +55,8 @@ for f in os.listdir(path):
     print(f)
 
 startdate = date(2013, 12, 1)
-enddate = date(2015, 3, 1)
-delta = timedelta(hours=0.5)
+enddate = date(2015, 10, 1)
+delta = timedelta(minutes=2)
 dt = pd.date_range(startdate, enddate, freq=delta)
 
 
@@ -70,44 +70,42 @@ for f in IDs:
     HP_RawFile = pd.read_csv(
     path + f + ".csv",
     index_col=["Matlab_time"],
-    usecols=["Matlab_time", "Year", "Month", "Ehp", "Edhw"])
-
-        
+    usecols=["Matlab_time", "Year", "Month","Day","Hour","Minute", "Ehp", "Edhw"])
+    HP_index=[]
+    for i in range(0, len(HP_RawFile.index)):
+        HP_index.append(datetime(HP_RawFile['Year'].iloc[i],HP_RawFile['Month'].iloc[i],HP_RawFile['Day'].iloc[i],HP_RawFile['Hour'].iloc[i],HP_RawFile['Minute'].iloc[i]))    
     # hist2.append(round(((HP_RawFile['Ehp']+HP_RawFile['Edhw'])/1000*30).max(),1))
     # hist30.append(round(HP_DataFrame[f].max()))
-    out_datetime = pd.Series(index=range(0, len(HP_RawFile.index)))
-    for i in range(0, len(HP_RawFile.index)):
-        days = HP_RawFile.index.values[i] % 1
-        hours = days % 1 * 24
-        minutes = hours % 1 * 60
-
-        out_date = (
-            date.fromordinal(int(HP_RawFile.index.values[i]))
-            + timedelta(days=days)
-            - timedelta(days=366)
-        )
-
-        out_datetime[i] = (
-            datetime.fromisoformat(str(out_date))
-            + timedelta(hours=int(hours))
-            + timedelta(minutes=int(minutes))
-        )
-
-    HP_RawFile.index = out_datetime
+    
+    HP_RawFile.index = HP_index
     HP_RawFile["HPTotDem"] = HP_RawFile["Ehp"] + HP_RawFile["Edhw"]
 
-    HP_Out = HP_RawFile["HPTotDem"].resample("2T").sum() / 1000 / 0.5
+    HP_Out = HP_RawFile["HPTotDem"] / 1000 *30   # Convert Wh/2mins into kW
     HP_DataFrame = pd.concat(
         [HP_DataFrame, HP_Out], axis=1, join="outer", sort=False
     )
-    
+
 HP_DataFrame.columns = IDs
-HP_reduced = HP_DataFrame.count()>(len(dt)*0.7)
+HP_DataFrame=HP_DataFrame.loc[dt]
+
+HP_reduced = HP_DataFrame.count()>(len(dt)*0.3)
 HP_reduced = HP_reduced[HP_reduced]
 HP_DataFrame=HP_DataFrame[HP_reduced.index]
-    
+
 pickle_out = open("../../Data/HP_DataFrame_2mins.pickle", "wb")
 pickle.dump(HP_DataFrame, pickle_out)
+pickle_out.close()
+
+HP_DataFrame_hh_max=HP_DataFrame.resample("30T").max()
+
+pickle_out = open("../../Data/HP_DataFrame_hh_max.pickle", "wb")
+pickle.dump(HP_DataFrame_hh_max, pickle_out)
+pickle_out.close()
+
+HP_DataFrame_hh_mean=HP_DataFrame.resample("30T").mean()
+
+pickle_out = open("../../Data/HP_DataFrame_hh_mean.pickle", "wb")
+pickle.dump(HP_DataFrame_hh_mean, pickle_out)
 pickle_out.close()
 
 #createDataFrame(IDs)
