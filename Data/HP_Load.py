@@ -56,7 +56,7 @@ for f in os.listdir(path):
 
 startdate = date(2013, 12, 1)
 enddate = date(2015, 10, 1)
-delta = timedelta(minutes=2)
+delta = timedelta(minutes=10)
 dt = pd.date_range(startdate, enddate, freq=delta)
 
 
@@ -80,7 +80,8 @@ for f in IDs:
     HP_RawFile.index = HP_index
     HP_RawFile["HPTotDem"] = HP_RawFile["Ehp"] + HP_RawFile["Edhw"]
 
-    HP_Out = HP_RawFile["HPTotDem"] / 1000 *30   # Convert Wh/2mins into kW
+#    HP_Out = HP_RawFile["HPTotDem"] / 1000 *30   # Convert Wh/2mins into kW
+    HP_Out = HP_RawFile["HPTotDem"].resample('10T').max() / 1000 *30   # Convert Wh/10mins into kW
     HP_DataFrame = pd.concat(
         [HP_DataFrame, HP_Out], axis=1, join="outer", sort=False
     )
@@ -88,25 +89,30 @@ for f in IDs:
 HP_DataFrame.columns = IDs
 HP_DataFrame=HP_DataFrame.loc[dt]
 
-HP_reduced = HP_DataFrame.count()>(len(dt)*0.3)
+HP_reduced = HP_DataFrame.count()>(len(dt)*0.4)
 HP_reduced = HP_reduced[HP_reduced]
 HP_DataFrame=HP_DataFrame[HP_reduced.index]
 
-pickle_out = open("../../Data/HP_DataFrame_2mins.pickle", "wb")
-pickle.dump(HP_DataFrame, pickle_out)
+pickle_out = open("../../Data/HP_DataFrame_10mins_max.pickle", "wb")
+pickle.dump(HP_DataFrame, pickle_out, protocol=pickle.HIGHEST_PROTOCOL)
 pickle_out.close()
 
-HP_DataFrame_hh_max=HP_DataFrame.resample("30T").max()
 
-pickle_out = open("../../Data/HP_DataFrame_hh_max.pickle", "wb")
-pickle.dump(HP_DataFrame_hh_max, pickle_out)
-pickle_out.close()
+#pickle_out = open("../../Data/HP_DataFrame_2mins.pickle", "wb")
+#pickle.dump(HP_DataFrame, pickle_out)
+#pickle_out.close()
 
-HP_DataFrame_hh_mean=HP_DataFrame.resample("30T").mean()
-
-pickle_out = open("../../Data/HP_DataFrame_hh_mean.pickle", "wb")
-pickle.dump(HP_DataFrame_hh_mean, pickle_out)
-pickle_out.close()
+#HP_DataFrame_hh_max=HP_DataFrame.resample("30T").max()
+#
+#pickle_out = open("../../Data/HP_DataFrame_hh_max.pickle", "wb")
+#pickle.dump(HP_DataFrame_hh_max, pickle_out)
+#pickle_out.close()
+#
+#HP_DataFrame_hh_mean=HP_DataFrame.resample("30T").mean()
+#
+#pickle_out = open("../../Data/HP_DataFrame_hh_mean.pickle", "wb")
+#pickle.dump(HP_DataFrame_hh_mean, pickle_out)
+#pickle_out.close()
 
 #createDataFrame(IDs)
 

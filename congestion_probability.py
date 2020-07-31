@@ -29,6 +29,8 @@ from crunch_results import (
     plot_headroom,
     plot_flex,
     plot_current_voltage,
+    
+    
 )
 from itertools import cycle, islice
 
@@ -143,27 +145,27 @@ delta_halfhours = timedelta(hours=0.5)
 delta_twominutes = timedelta(minutes=2)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
+sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
 
 sims=sims_halfhours
 if Twominutely==1:
-    sims=sims_twominutes[360:380]#1080]
+    sims=sims_tenminutes
 
-    pick_in = open("../Data/HP_DataFrame_2mins_week.pickle", "rb")
+    pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
     HP_DataFrame = pickle.load(pick_in)
     HP_DataFrame = HP_DataFrame.loc[sims]
     
     for i in SM_DataFrame.keys():
         SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
-        SM_DataFrame[i]=SM_DataFrame[i].resample('2T').mean()
-#        for k in SM_DataFrame[i].columns:
-#            for j in range(0,len(sims_halfhours.tolist())):
-#                SM_DataFrame[i][k].iloc[(j*15)+1:(j+1)*15]=max([0],np.random.normal(SM_DataFrame[i][k].iloc[j*15], SM_DataFrame[i][k].iloc[j*15]*.5, 1))[0]
-        SM_DataFrame[i]=SM_DataFrame[i].interpolate()
+        SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
+        for k in SM_DataFrame[i].columns:
+           SM_DataFrame[i][k]=SM_DataFrame[i][k].interpolate(method='pad')
     
     for i in PV_DataFrame.keys():
         PV_DataFrame[i]=PV_DataFrame[i].reindex(sims_halfhours.tolist())
-        PV_DataFrame[i]=PV_DataFrame[i].resample('2T')
-        PV_DataFrame[i]=PV_DataFrame[i].interpolate()
+        PV_DataFrame[i]=PV_DataFrame[i].resample('10T').mean()
+        for k in PV_DataFrame[i].columns:
+            PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
     
 Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
     sims, EV_Validation
@@ -421,3 +423,6 @@ pickle_out.close()
 pickle_out = open("../Data/100HPDec1st2013_2mins_Advance..pickle", "wb")
 pickle.dump(InputsbyFP_new['demand_delta'], pickle_out)
 pickle_out.close()
+
+
+#def compareHP():
