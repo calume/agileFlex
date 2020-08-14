@@ -23,9 +23,6 @@ DSSLines = dss.Lines
 DSSGens = dss.Generators
 DSSTransformers = dss.Transformers
 
-dss.Basic.ClearAll()
-dss.Basic.Start(0)
-
 ####----- For each Load a generator is created to allow PV to be added
 def create_gens(Network_Path):
     LoadsIn = pd.read_csv(
@@ -54,7 +51,10 @@ def create_gens(Network_Path):
 
 ####### Compile the OpenDSS file using the Master.txt directory#########
 def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
-       
+      
+    dss.Basic.ClearAll()
+    dss.Basic.Start(0)
+
     Voltages = {}
     Currents = {}
     Powers = {}

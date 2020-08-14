@@ -278,7 +278,7 @@ for N in networks:
                         
                 ###--- These are converted into headrooms and summarised in network_summary
                 network_summary[i] = network_outputs(
-                    CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
+                    Network_Path,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
                 )
                 
                 if converged==False:
@@ -379,6 +379,7 @@ for N in networks:
                         )
                 
                         network_summary_new[i] = network_outputs(
+                            Network_Path,
                             CurArray_new[i],
                             RateArray,
                             VoltArray_new[i],
