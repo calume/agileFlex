@@ -1,0 +1,8 @@
+New Load.LOAD172_1 Phases=1 Bus1=172_30.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_2 Phases=1 Bus1=172_110.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_3 Phases=1 Bus1=172_118.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_4 Phases=1 Bus1=172_186.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_5 Phases=1 Bus1=172_193.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_6 Phases=1 Bus1=172_254.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_7 Phases=1 Bus1=172_259.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD172_8 Phases=1 Bus1=172_460.1 kV=0.23 kW=1 PF=0.95

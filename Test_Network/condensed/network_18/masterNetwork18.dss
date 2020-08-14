@@ -1,0 +1,89 @@
+clear
+new circuit.network18
+
+! === STUFF COMMON TO ALL:
+!Edit Vsource.Source BasekV=11 pu=1.00  ISC3=3000  ISC1=2500
+!Edit Vsource.Source BasekV=11 pu=1.00  ISC3=3000000  ISC1=2500000
+Edit Vsource.Source basekV=11 pu=1.00 R1=0.0001 X1=0.0001 R0=0.0001 X0=0.0001
+
+new line.sourceZ bus1=SourceBus bus2=SourceBusZ phases=3 R1=0.51344 X1=2.0537 R0=1.0729 X0=3.2186
+
+Redirect Feeder_1\Transformers.txt
+edit transformer.TR1 buses=[SourceBusZ,1,]
+!Redirect LoadShapes.txt
+! === FEEDER LOADS + LINES
+new line.feeder1 bus1=1 bus2=181_1 phases=3 switch=True
+Redirect Feeder_1\LineCode.txt
+Redirect Feeder_1\LinesUnq.txt
+Redirect Feeder_1\LoadsCopyUnq.txt
+
+new line.feeder2 bus1=1 bus2=182_1 phases=3 switch=True
+Redirect Feeder_2\LineCode.txt
+Redirect Feeder_2\LinesUnq.txt
+Redirect Feeder_2\LoadsCopyUnq.txt
+
+new line.feeder3 bus1=1 bus2=183_1 phases=3 switch=True
+Redirect Feeder_3\LineCode.txt
+Redirect Feeder_3\LinesUnq.txt
+Redirect Feeder_3\LoadsCopyUnq.txt
+
+new line.feeder4 bus1=1 bus2=184_1 phases=3 switch=True
+Redirect Feeder_4\LineCode.txt
+Redirect Feeder_4\LinesUnq.txt
+Redirect Feeder_4\LoadsCopyUnq.txt
+
+new line.feeder5 bus1=1 bus2=185_1 phases=3 switch=True
+Redirect Feeder_5\LineCode.txt
+Redirect Feeder_5\LinesUnq.txt
+Redirect Feeder_5\LoadsCopyUnq.txt
+
+new line.feeder6 bus1=1 bus2=186_1 phases=3 switch=True
+Redirect Feeder_6\LineCode.txt
+Redirect Feeder_6\LinesUnq.txt
+Redirect Feeder_6\LoadsCopyUnq.txt
+
+new line.feeder7 bus1=1 bus2=187_1 phases=3 switch=True
+Redirect Feeder_7\LineCode.txt
+Redirect Feeder_7\LinesUnq.txt
+Redirect Feeder_7\LoadsCopyUnq.txt
+
+new line.feeder8 bus1=1 bus2=188_1 phases=3 switch=True
+Redirect Feeder_8\LineCode.txt
+Redirect Feeder_8\LinesUnq.txt
+Redirect Feeder_8\LoadsCopyUnq.txt
+
+new line.feeder9 bus1=1 bus2=189_1 phases=3 switch=True
+Redirect Feeder_9\LineCode.txt
+Redirect Feeder_9\LinesUnq.txt
+Redirect Feeder_9\LoadsCopyUnq.txt
+
+set voltagebases="11,0.3984"
+calcvoltagebases
+! === FEEDER BUSCOORDS
+buscoords Feeder_1\XY_Position.csv
+buscoords Feeder_2\XY_Position.csv
+buscoords Feeder_3\XY_Position.csv
+buscoords Feeder_4\XY_Position.csv
+buscoords Feeder_5\XY_Position.csv
+buscoords Feeder_6\XY_Position.csv
+buscoords Feeder_7\XY_Position.csv
+buscoords Feeder_8\XY_Position.csv
+buscoords Feeder_9\XY_Position.csv
+new energymeter.m1 element=transformer.TR1
+
+solve
+!plot profile phases=all
+!plot circuit
+
+
+!set marktransformers=true
+!set markcapacitors=true
+!set markregulators=true
+!plot
+!plot profile phases=all
+
+! steps:
+! 1. put in this new master.dss file
+! 2. copy loads and remove load shapes (Daily=Shape_..\r\n)
+! 3. Remove top line of XY_Position and save as csv.
+! 4. Run!

@@ -3,7 +3,7 @@ clear
 Set DefaultBaseFrequency=50  ! for European system
 
 New circuit.LVTest
-Edit Vsource.Source BasekV=11 pu=1.05  ISC3=3000  ISC1=5
+Edit Vsource.Source BasekV=11 pu=1.00  ISC3=3000  ISC1=2500
 Redirect LineCode.txt
 Redirect Lines.txt
 Redirect Transformers.txt

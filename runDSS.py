@@ -60,7 +60,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     Powers = {}
     Rates = {}
     
-    run_command("Redirect ./" + str(Network_Path) + "/Master.dss")
+    run_command("Redirect ./" + str(Network_Path) + "Master.dss")
     ################### Calculating Load for each Demand ############################
     iterations=100
     v_delta=0
@@ -68,8 +68,8 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
         iLoad = DSSLoads.First()
         while iLoad > 0:
             DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
-            DSSLoads.Vmaxpu(1.5)
-            DSSLoads.Vminpu(0.5)
+            DSSLoads.Vmaxpu(50)
+            DSSLoads.Vminpu(0.02)
             DSSLoads.kV(0.23)
             iLoad = DSSLoads.Next()
         
@@ -83,10 +83,10 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             if PFControl == 6:
                 DSSGens.kW((pv[iGen - 1] + pv_delta[iGen - 1]) * 0.95)
                 DSSGens.PF(-0.95)
-            DSSGens.Vmaxpu(1.5)
-            DSSGens.Vminpu(0.5)
+            DSSGens.Vmaxpu(50)
+            DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
-            DSSGens.Model(3)
+            DSSGens.Model(1)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############
@@ -148,7 +148,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
 ###------- network summary is generated including overvoltage and current locations
 
 
-def network_outputs(CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRatekVA, pinchClist):
+def network_outputs(Network_Path,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRatekVA, pinchClist):
 
     network_summary = {}   
     for i in range(1, 4):
@@ -170,8 +170,10 @@ def network_outputs(CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRat
 
         for n in range(1, len(pinchClist)+1):
             network_summary[i]["C_Rate"][n] = 0.9*(RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5))
+            if Network_Path=='Test_Network/network_26' and n==7 and (i==2 or i==3):
+                network_summary[i]["C_Rate"][n] = 0.35*(RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5))
             network_summary[i]["C_Flow"][n] = Pseries[pinchClist[n - 1]]
-
+            
         network_summary[i]["Vhigh_nodes"] = Vhigh_nodes
         network_summary[i]["Vlow_nodes"] = Vlow_nodes
 

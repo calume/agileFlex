@@ -1,0 +1,17 @@
+New Load.LOAD56_1 Phases=1 Bus1=56_59.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_2 Phases=1 Bus1=56_87.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_3 Phases=1 Bus1=56_114.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_4 Phases=1 Bus1=56_128.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_5 Phases=1 Bus1=56_156.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_6 Phases=1 Bus1=56_189.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_7 Phases=1 Bus1=56_194.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_8 Phases=1 Bus1=56_213.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_9 Phases=1 Bus1=56_216.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_10 Phases=1 Bus1=56_233.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_11 Phases=1 Bus1=56_235.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_12 Phases=1 Bus1=56_263.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_13 Phases=1 Bus1=56_292.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_14 Phases=1 Bus1=56_321.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_15 Phases=1 Bus1=56_333.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_16 Phases=1 Bus1=56_343.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD56_17 Phases=1 Bus1=56_347.1 kV=0.23 kW=1 PF=0.95

@@ -1,0 +1,15 @@
+New Load.LOAD103_1 Phases=1 Bus1=103_335.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_2 Phases=1 Bus1=103_337.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_3 Phases=1 Bus1=103_343.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_4 Phases=1 Bus1=103_346.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_5 Phases=1 Bus1=103_348.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_6 Phases=1 Bus1=103_349.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_7 Phases=1 Bus1=103_357.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_8 Phases=1 Bus1=103_359.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_9 Phases=1 Bus1=103_363.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_10 Phases=1 Bus1=103_365.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_11 Phases=1 Bus1=103_368.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_12 Phases=1 Bus1=103_391.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_13 Phases=1 Bus1=103_393.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_14 Phases=1 Bus1=103_397.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD103_15 Phases=1 Bus1=103_401.3 kV=0.23 kW=1 PF=0.95

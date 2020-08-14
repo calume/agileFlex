@@ -156,6 +156,7 @@ def Headroom_calc(
     smartmeter,
     heatpump,
     pv,
+    ev,
     demand,
     demand_delta,
     pv_delta,
@@ -190,6 +191,10 @@ def Headroom_calc(
         index=network_summary.keys(),
         columns=cs,
     )
+    InputsbyFP["EV"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
     InputsbyFP["demand"] = pd.DataFrame(
         index=network_summary.keys(),
         columns=cs,
@@ -215,6 +220,9 @@ def Headroom_calc(
                     custph[p][f].index
                 ].sum()
                 InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
+                    custph[p][f].index
+                ].sum()
+                InputsbyFP["EV"][str(p) + str(f)][i] = np.nan_to_num(ev[i])[
                     custph[p][f].index
                 ].sum()
                 InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
@@ -313,7 +321,7 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genr
         plt.ylabel("Power Flow (kW)")
 
         plt.xlim([0, len(Headrm[0])])
-        plt.ylim([-200, 200])
+        plt.ylim([-100, 100])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
@@ -428,14 +436,14 @@ def plot_flex(InputsbyFP,pinchClist,colors):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
             plt.plot(
-                InputsbyFP["PV"][str(p) + str(f)].values,
+                InputsbyFP["EV"][str(p) + str(f)].values,
                 linewidth=1,
                 linestyle="-",
                 color=colors[f - 1],
                 label="Feeder " + str(f),
             )
 
-        plt.title("PV: Phase " + str(p))
+        plt.title("EV: Phase " + str(p))
         plt.ylabel("Output (kW)")
 
         plt.xlim([0, len(InputsbyFP["PV"])])
@@ -444,7 +452,7 @@ def plot_flex(InputsbyFP,pinchClist,colors):
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(
-            range(0, len(InputsbyFP["PV"]), 24),
+            range(0, len(InputsbyFP["EV"]), 24),
             InputsbyFP["HP"].index.strftime("%d/%m %H:%M")[
                 range(0, len(InputsbyFP["PV"]), 24)
             ],

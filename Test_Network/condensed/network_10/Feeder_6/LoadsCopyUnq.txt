@@ -1,0 +1,5 @@
+New Load.LOAD106_1 Phases=1 Bus1=106_64.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD106_2 Phases=1 Bus1=106_286.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD106_3 Phases=1 Bus1=106_367.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD106_4 Phases=1 Bus1=106_442.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD106_5 Phases=1 Bus1=106_459.2 kV=0.23 kW=1 PF=0.95

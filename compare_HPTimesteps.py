@@ -26,7 +26,7 @@ HP_reduced = HP_DataFrame_two.reindex(sims_twominutes.tolist()).count()> (0.9*le
 HP_reduced=HP_reduced[HP_reduced].index
 HP_DataFrame_two=HP_DataFrame_two[HP_reduced]
 
-HP_DataFrame_ten = HP_DataFrame_two.resample('10T').max()
+HP_DataFrame_ten = HP_DataFrame_two.resample('10T').mean()
 
 #pick_in = open("../Data/HP_DataFrame_10mins_week.pickle", "rb")
 #HP_DataFrame = pickle.load(pick_in)
@@ -44,8 +44,13 @@ HP_DataFrame_hh=HP_DataFrame_hh[HP_reduced]
 
 for i in HP_DataFrame_ten.columns[16:17]:
     plt.figure()
-    plt.plot(HP_DataFrame_two[i], linestyle=":", color='black', label='Two Minutes')
+    plt.plot(HP_DataFrame_two[i], linestyle=":", color='orange', label='Two Minutes')
     plt.plot(HP_DataFrame_ten[i], linestyle="--", color='blue', label='Ten Minutes')
-    plt.plot(HP_DataFrame_hh[i], linestyle="-", color='green', label='Half Hours')
+    plt.plot(HP_DataFrame_hh[i], linestyle="-", color='black', label='Half Hours')
     plt.legend()
     plt.ylabel('Heat Pump Demand (kW)')
+    plt.tight_layout()
+    plt.xticks(fontsize=8)
+    plt.yticks(fontsize=8)
+    times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+    #plt.xticks(times)

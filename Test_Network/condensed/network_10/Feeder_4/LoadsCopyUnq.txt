@@ -1,0 +1,7 @@
+New Load.LOAD104_1 Phases=1 Bus1=104_169.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_2 Phases=1 Bus1=104_185.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_3 Phases=1 Bus1=104_273.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_4 Phases=1 Bus1=104_289.1 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_5 Phases=1 Bus1=104_495.2 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_6 Phases=1 Bus1=104_496.3 kV=0.23 kW=1 PF=0.95
+New Load.LOAD104_7 Phases=1 Bus1=104_497.1 kV=0.23 kW=1 PF=0.95

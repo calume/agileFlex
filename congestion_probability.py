@@ -22,6 +22,9 @@ import pickle
 from Test_Network.network_plot import customer_summary
 from runDSS import runDSS, network_outputs, create_gens
 import matplotlib.pyplot as plt
+from Forecasting.Headroom_forecasting import hdrm_forecast
+from zonal_summary import daily_EVSchedule
+from itertools import cycle, islice
 from crunch_results import (
     counts,
     plots,
@@ -32,15 +35,21 @@ from crunch_results import (
     
     
 )
-from itertools import cycle, islice
+
 
 ####----------Set Test Network ------------
 start=datetime.now()
-EV_Validation=0
+EV_Validation=1
 
 Twominutely=1
+Case='25PV25HP'
+Network='Network1/'
 
-Network_Path = "Test_Network/Network1"
+########### Create Forecast File if not already Done ##########
+
+#wkd_temps,wknd_temps=hdrm_forecast(Network,Case)
+
+Network_Path = "Test_Network/"+str(Network)
 ##create_gens(Network_Path)
 
 #### Load in Test data Set ##########
@@ -53,9 +62,9 @@ SM_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
-
-#pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
-#EV_DataFrame = pickle.load(pick_in)
+if EV_Validation==1:
+    pick_in = open("../Data/"+str(Network)+"EV_Dispatch_OneDay"+str(Case)+".pickle", "rb")
+    EV_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
@@ -73,7 +82,7 @@ def Create_Customer_Summary(sims,EV_Validation):
     
     # ---------- Assign Smart Meter and Heat Pump IDs--------------#
     #### Smart Meter
-    # --- only include SMs with data for day 2014-3-1
+    # --- only include SMs with data
     Customer_Summary["smartmeter_ID"] = 0
     SMlist={}
     for i in SM_DataFrame.keys():
@@ -107,13 +116,6 @@ def Create_Customer_Summary(sims,EV_Validation):
     for i in Customer_Summary.index:
         Customer_Summary['zone'].loc[i]=str(Customer_Summary['Phase'][i])+str(Customer_Summary['Feeder'][i])
     
-    ## Assign EVs ######
-    if EV_Validation==1:
-        for u in EV_DataFrame.keys():
-            sub=Customer_Summary[Customer_Summary['Phase']==u[0]]
-            sub=sub[sub['Feeder']==u[1]].index[0:len(EV_DataFrame[u].columns)]
-            Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
-    
     ### PV are assigned randomly
     Customer_Summary["pv_ID"] = 0
     pv_index = Customer_Summary["PV_kW"][Customer_Summary["PV_kW"] > 0].index
@@ -124,7 +126,17 @@ def Create_Customer_Summary(sims,EV_Validation):
     ## Also remove data <0.005  (overnight)
     for i in pv_sites:
         PV_DataFrame[i][PV_DataFrame[i]["P_kW"] < 0.005] = 0
+        ## Assign EVs ######
     
+    if EV_Validation==1:
+        
+        ######------ For when the customer summary table is fixed we laod it in from the pickle file
+        pickin = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+".pickle", "rb")
+        Customer_Summary = pickle.load(pickin)
+        for u in EV_DataFrame.keys():
+            sub=Customer_Summary[Customer_Summary['Phase']==u[0]]
+            sub=sub[sub['Feeder']==u[1]].index[0:len(EV_DataFrame[u].columns)]
+            Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
     ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
     ###------randomly assigned each run. We then load from the pickle file rather than generating it
     
@@ -145,16 +157,17 @@ delta_halfhours = timedelta(hours=0.5)
 delta_twominutes = timedelta(minutes=2)
 sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
 sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
-sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
+sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
 
 sims=sims_halfhours
 if Twominutely==1:
     sims=sims_tenminutes
-
-    pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
+    pick_in = open("../Data/HP_DataFrame_10mins_week.pickle", "rb")
     HP_DataFrame = pickle.load(pick_in)
     HP_DataFrame = HP_DataFrame.loc[sims]
     
+    for i in EV_DataFrame.keys():
+        EV_DataFrame[i].index=(sims_tenminutes.tolist())
     for i in SM_DataFrame.keys():
         SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
         SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
@@ -166,14 +179,21 @@ if Twominutely==1:
         PV_DataFrame[i]=PV_DataFrame[i].resample('10T').mean()
         for k in PV_DataFrame[i].columns:
             PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
-    
+
+if sims.date[0] in wkd_temps.index:
+    daytype='wkd'
+    temp=wkd_temps[sims.date[0]]
+
+if sims.date[0] in wknd_temps.index:
+    daytype='wknd'
+    temp=wknd_temps[sims.date[0]]
+
+EVCapacitySummary = daily_EVSchedule(Network,Case, 1, daytype, temp)
+
 Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
     sims, EV_Validation
 )  
 
-#####------ For when the customer summary table is fixed we laod it in from the pickle file
-#pickin = open("../Data/Customer_Summary15.pickle", "rb")
-#Customer_Summary = pickle.load(pickin)
 
 #####------------ Initialise Input--------------------
 smartmeter = {}
@@ -263,11 +283,15 @@ for i in sims.tolist():
             
     ###--- These are converted into headrooms and summarised in network_summary
     network_summary[i] = network_outputs(
-        CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
+        Network_Path,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
     )
     
     if converged==False:
-        j=i-timedelta(hours=0.5)
+        if Twominutely==1:
+            mins=10
+        if Twominutely==0:
+            mins=30       
+        j=i-timedelta(minutes=mins)
         bad_halfhours.append(i)
         network_summary[i]=network_summary[j]
         CurArray[i],VoltArray[i],PowArray[i],Trans_kVA[i] = CurArray[j],VoltArray[j],PowArray[j],Trans_kVA[j]
@@ -283,15 +307,16 @@ Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc
     smartmeter,
     heatpump,
     pv,
+    ev,
     demand,
     demand_delta,
     pv_delta,
     pinchClist
 )
-#Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
-#Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
+Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
+Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
 Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
-#
+plot_flex(InputsbyFP,pinchClist,colors)
 labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
 plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)
 
@@ -319,15 +344,18 @@ if EV_Validation==0:
                 VmaxLoc=VbyFP.index(max(VbyFP))
                 CbyFP = list(CurArray[i][Lines.index[Lines["Line"].astype(str).str[9] == str(f)].values, p - 1])
                 
-                if Vmin[str(p)+str(f)][i] < 0.94 and len(custph[p][f])>0:
-                    if Vmin[str(p)+str(f)][i] >0.9:
-                        factor=1.5
-                    if Vmin[str(p)+str(f)][i] <0.9:
-                        factor=0.8
-                    if Vmin[str(p)+str(f)][i] <0.75:
-                        factor=0.45
+                if Vmin[str(p)+str(f)][i] < 0.94:
+#                    if Vmin[str(p)+str(f)][i] >0.9:
+#                        factor=1.5
+#                    if Vmin[str(p)+str(f)][i] <0.85:
+#                        factor=0.85
+#                    if Vmin[str(p)+str(f)][i] <0.8:
+#                        factor=0.65
+#                    if Vmin[str(p)+str(f)][i] <0.75:
+#                        factor=0.45
 #                    if Vmin[str(p)+str(f)][i] <0.7:
 #                        factor=0.4
+                    factor = 3.33*Vmin[str(p)+str(f)][i]**2-1.733*Vmin[str(p)+str(f)][i]+0.045
                     demand_delta[i][custph[p][f].index] = min(demand_delta[i][custph[p][f].index][0],-factor*((0.94-Vmin[str(p)+str(f)][i])*abs(Cmax[str(p)+str(f)][i])/len(custph[p][f])))
 #                    print(0.94-Vmin[str(p)+str(f)][i])
 #                    print(CbyFP[VminLoc], Cmax[str(p)+str(f)][i]) 
@@ -364,6 +392,7 @@ if EV_Validation==0:
             )
     
             network_summary_new[i] = network_outputs(
+                Network_Path,
                 CurArray_new[i],
                 RateArray,
                 VoltArray_new[i],
@@ -391,6 +420,7 @@ if EV_Validation==0:
         smartmeter,
         heatpump,
         pv,
+        ev,
         demand,
         demand_delta,
         pv_delta,
@@ -411,18 +441,22 @@ if EV_Validation==0:
     )
 
 end=datetime.now()
+print('=========== RESULTS FOR '+str(Network)+' Case '+str(Case)+'==============')
+print('Tomorrow is a '+str(daytype)+ ' with forecast temperature '+str(temp)+'deg C')
 time=end-start
-pickle_out = open("../Data/100HPDec1st2013_2mins_Hdrm.pickle", "wb")
-pickle.dump(Headrm, pickle_out)
-pickle_out.close()
-
-pickle_out = open("../Data/100HPDec1st2013_2mins_Ftrm..pickle", "wb")
-pickle.dump(Footrm, pickle_out)
-pickle_out.close()
-
-pickle_out = open("../Data/100HPDec1st2013_2mins_Advance..pickle", "wb")
-pickle.dump(InputsbyFP_new['demand_delta'], pickle_out)
-pickle_out.close()
+print('Days Optimisation took '+str(time))
+print('Number of EVs able to charge is '+str(EVCapacitySummary['EV Capacity'].sum())+' out of '+str(EVCapacitySummary['Customers'].sum())+' Customers')
+#pickle_out = open("../Data/100HPDec1st2013_2mins_Hdrm.pickle", "wb")
+#pickle.dump(Headrm, pickle_out)
+#pickle_out.close()
+#
+#pickle_out = open("../Data/100HPDec1st2013_2mins_Ftrm..pickle", "wb")
+#pickle.dump(Footrm, pickle_out)
+#pickle_out.close()
+#
+#pickle_out = open("../Data/100HPDec1st2013_2mins_Advance..pickle", "wb")
+#pickle.dump(InputsbyFP_new['demand_delta'], pickle_out)
+#pickle_out.close()
 
 
 #def compareHP():
