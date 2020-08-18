@@ -44,7 +44,7 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_18/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
 #networks=['network_17/','network_18/']
 
