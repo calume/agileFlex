@@ -431,13 +431,10 @@ for N in networks:
         pickle.dump(Headrm, pickle_out)
         pickle_out.close()
         
-        pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
-        pickle.dump(Footrm, pickle_out)
-        pickle_out.close()
+        # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
+        # pickle.dump(Footrm, pickle_out)
+        # pickle_out.close()
         
-        pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Advance.pickle", "wb")
-        pickle.dump(InputsbyFP_new['demand_delta'], pickle_out)
-        pickle_out.close()
         
 pickle_out = open("../Data/Full_Batch_Summary.pickle", "wb")
 pickle.dump(FullSummmary, pickle_out)
