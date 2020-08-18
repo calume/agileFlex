@@ -20,4 +20,4 @@ New LineCode.4_XSC nphases=3 R1=4.61 X1=0.091 R0=4.8 X0=0.091 C1=0 C0=0 Units=km
 New LineCode.4c_.06 nphases=3 R1=0.469 X1=0.075 R0=1.581 X0=0.091 C1=0 C0=0 Units=km Normamps=175
 New LineCode.4c_.12 nphases=3 R1=0.242 X1=0.072 R0=0.851 X0=0.079 C1=0 C0=0 Units=km Normamps=230
 New LineCode.4c_.25 nphases=3 R1=0.124 X1=0.069 R0=0.441 X0=0.077 C1=0 C0=0 Units=km Normamps=355
-New LineCode.4c_.6 nphases=3 R1=0.05 X1=0.162 R0=0.198 X0=0.719 C1=0 C0=0 Units=km 
+New LineCode.4c_.6 nphases=3 R1=0.05 X1=0.162 R0=0.198 X0=0.719 C1=0 C0=0 Units=km Normamps=677

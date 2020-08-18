@@ -20,10 +20,11 @@ import networkx as nx
 from matplotlib import pyplot as plt
 
 #def run_pf():
-#dirs=["network_5/","network_10/","network_17/","network_18"]
-dirs=["condensed/network_5/"]#,"condensed/network_10/","condensed/network_17/","condensed/network_18/"]
+#dirs=["network_1/","network_5/","network_10/","network_17/","network_18"]
+dirs=["condensed/network_1/","condensed/network_5/","condensed/network_10/","condensed/network_17/","condensed/network_18/"]
 
-#dirs=['network_18/']
+#dirs=["condensed/network_18/"]
+
 for i in dirs:
     print(i)
     start = timeit.default_timer()
@@ -40,6 +41,7 @@ for i in dirs:
     
     ####### Compile the OpenDSS file using the Master.txt directory#########
     
+    ##run_command('Redirect ./'+i+'masterNetwork'+i[18:-1]+'_pruned.dss')
     run_command('Redirect ./'+i+'Master.dss')
     #
     ### Set up DSS Commands ####
@@ -116,10 +118,10 @@ for i in dirs:
     Loads['Name']=lnames
     
     while i_Load>0:
-       Loads['kW'][i_Load]= DSSLoads.kW()
-       Loads['kVAr'][i_Load]= DSSLoads.kvar()
-       Loads['PF'][i_Load]= DSSLoads.PF()
-       i_Load = DSSLoads.Next()
+        Loads['kW'][i_Load]= DSSLoads.kW()
+        Loads['kVAr'][i_Load]= DSSLoads.kvar()
+        Loads['PF'][i_Load]= DSSLoads.PF()
+        i_Load = DSSLoads.Next()
        
     stop = timeit.default_timer()
     
@@ -130,24 +132,24 @@ for i in dirs:
     Voltages.to_csv(i+'DSSDirect_Voltages_con.csv')
 
 
-def error_and_plot():
-    dirs=["network_5/","network_10/","network_17/","network_18/"]
-    for i in dirs:
-        Voltages_con=pd.read_csv('condensed/'+i+'/DSSDirect_Voltages_con.csv')
-        Voltages=pd.read_csv(i+'DSSDirect_Voltages.csv')
-        Voltages_combined=Voltages_con.merge(Voltages, left_on='Name', right_on='Name')
-        
-        
-        plt.figure(i)
-        plt.scatter(Voltages_combined['Name'],Voltages_combined['VA_x'], color='orange', s=2, label='Condensed')
-        plt.scatter(Voltages_combined['Name'],Voltages_combined['VA_y'], color='blue', s=0.2, label='Original')
-        ticks=np.arange(0,len(Voltages_combined['Name']),step=100)
-        plt.xticks(ticks,Voltages_combined['Name'][ticks])
-        plt.legend()
-        
-        ErrorA=((Voltages_combined['VA_x']-Voltages_combined['VA_y'])/Voltages_combined['VA_x']*100).mean()
-        ErrorB=((Voltages_combined['VB_x']-Voltages_combined['VB_y'])/Voltages_combined['VB_x']*100).mean()
-        ErrorC=((Voltages_combined['VC_x']-Voltages_combined['VC_y'])/Voltages_combined['VC_x']*100).mean()
-        
-        OverallError=(ErrorA+ErrorB+ErrorC)/3
-        print(i,OverallError)
+# #def error_and_plot():
+dirs=["network_1/","network_5/","network_10/","network_17/","network_18/"]
+for i in dirs:
+    Voltages_con=pd.read_csv('condensed/'+i+'/DSSDirect_Voltages_con.csv')
+    Voltages=pd.read_csv(i+'DSSDirect_Voltages.csv')
+    Voltages_combined=Voltages_con.merge(Voltages, left_on='Name', right_on='Name')
+    
+    
+    # plt.figure(i)
+    # plt.scatter(Voltages_combined['Name'],Voltages_combined['VA_x'], color='orange', s=2, label='Condensed')
+    # plt.scatter(Voltages_combined['Name'],Voltages_combined['VA_y'], color='blue', s=0.2, label='Original')
+    # ticks=np.arange(0,len(Voltages_combined['Name']),step=100)
+    # plt.xticks(ticks,Voltages_combined['Name'][ticks])
+    # plt.legend()
+    
+    ErrorA=((Voltages_combined['VA_x']-Voltages_combined['VA_y'])/Voltages_combined['VA_x']*100).mean()
+    ErrorB=((Voltages_combined['VB_x']-Voltages_combined['VB_y'])/Voltages_combined['VB_x']*100).mean()
+    ErrorC=((Voltages_combined['VC_x']-Voltages_combined['VC_y'])/Voltages_combined['VC_x']*100).mean()
+    
+    OverallError=(ErrorA+ErrorB+ErrorC)/3
+    print(i,OverallError)

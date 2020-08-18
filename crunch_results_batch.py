@@ -103,15 +103,16 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors)
     G.add_edges_from(Edge.values())
     n = 1
 
-    # --------- Add colors to nodes
-    Coords["Color"]='red'
-    for f in range(1, len(pinchClist)+1):
-        Coords["Color"][Coords["Node"].astype(str).str[0] == str(f)] = colors[f-1]
-    Coords["Color"].iloc[0] = "blue"
-    Lines["Color"] = "white"
-    Lines["width"] = 1
-    Coords["size"] = 1
+
     for p in range(1, 4):
+                # --------- Add colors to nodes
+        Coords["Color"]='red'
+        for f in range(1, len(pinchClist)+1):
+            Coords["Color"][Coords["Node"].astype(str).str[0] == str(f)] = colors[f-1]
+        Coords["Color"].iloc[0] = "blue"
+        Lines["Color"] = "white"
+        Lines["width"] = 1
+        Coords["size"] = 1
         # -------- Add colors to Current congested lines
         if len(Chigh_count[p]) > 0:
             Chigh_keys = [x + 1 for x in list(Chigh_count[p].keys())]
@@ -235,16 +236,16 @@ def Headroom_calc(
         for p in range(1, 4):
             for i in network_summary:
                 Flow[z][p][i] = network_summary[i][p]["C_Flow"][z]
-                Rate[z][p][i] = network_summary[i][p]["C_Rate"][z]
+                Rate[z][p][i] = min(network_summary[i][p]["C_Rate"][z],network_summary[i][p]["V_Rate"][z])
                 Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i]
                 Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i]
-                if (Rate[z][p][i] - 10) <= Flow[z][p][i] <= (Rate[z][p][i] + 10):
-                    Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i] - 5
+                # if (Rate[z][p][i] - 10) <= Flow[z][p][i] <= (Rate[z][p][i] + 10):
+                #     Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i] - 5
 
-                if (-Rate[z][p][i] - 3) <= Flow[z][p][i] <= (-Rate[z][p][i] + 3):
-                    Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i] - 1.5
-                if Flow[z][p][i] < (-Rate[z][p][i] - 3):
-                    Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
+                # if (-Rate[z][p][i] - 3) <= Flow[z][p][i] <= (-Rate[z][p][i] + 3):
+                #     Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i] - 1.5
+                # if Flow[z][p][i] < (-Rate[z][p][i] - 3):
+                #     Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
 
     return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
 
@@ -516,11 +517,11 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
 #                # label="Feeder "+str(f),
 #            )
         plt.plot(np.full(len(Vmax), 1.1), color="red", linestyle="--", linewidth=0.5)
-        plt.title("Phase " + str(p))
+        plt.title(N+"Phase " + str(p))
         plt.ylabel("Max Voltage (p.u.)")
 
         plt.xlim([0, len(Cmax)])
-        plt.ylim([0.9, 1.15])
+        plt.ylim([0.95, 1.15])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
@@ -544,11 +545,11 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
                 label="Feeder " + str(f),
             )
         plt.plot(np.full(len(Vmax), 0.94), color="red", linestyle="--", linewidth=0.5)
-        plt.title("Phase " + str(p))
+        plt.title(N+"Phase " + str(p))
         plt.ylabel("Min Voltage (p.u.)")
 
         plt.xlim([0, len(Cmax)])
-        plt.ylim([0.8, 1.15])
+        plt.ylim([0.9, 1])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
@@ -583,7 +584,7 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
                 linestyle="--",
                 linewidth=0.5,
             )
-        plt.title("Phase " + str(p))
+        plt.title(N+"Phase " + str(p))
         plt.ylabel("Current (Amps)")
 
         plt.xlim([0, len(Cmax)])

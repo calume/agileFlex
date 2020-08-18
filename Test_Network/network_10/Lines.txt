@@ -380,7 +380,7 @@ New Line.LINE1379 Bus1=1374 Bus2=1380 phases=3 Linecode=4c_.5 Length=1.9047 Unit
 New Line.LINE1380 Bus1=1374 Bus2=1381 phases=3 Linecode=4c_.5 Length=1.9047 Units=m
 New Line.LINE1381 Bus1=1378 Bus2=1382 phases=3 Linecode=4c_300_SAC Length=2.1405 Units=m
 New Line.LINE21 Bus1=11 Bus2=22 phases=3 Linecode=3c_300_SAC_XC Length=0.75199 Units=m
-New Line.LINE22 Bus1=21 Bus2=23 phases=3 Linecode=25_SAC_XC Length=14.093 Units=m
+New Line.LINE22 Bus1=11 Bus2=23 phases=3 Linecode=25_SAC_XC Length=14.093 Units=m
 New Line.LINE23 Bus1=22 Bus2=24 phases=3 Linecode=3c_300_SAC_XC Length=0.23516 Units=m
 New Line.LINE24 Bus1=24 Bus2=25 phases=3 Linecode=3c_300_SAC_XC Length=0.17616 Units=m
 New Line.LINE25 Bus1=25 Bus2=26 phases=3 Linecode=3c_300_SAC_XC Length=0.38944 Units=m

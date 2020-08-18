@@ -86,7 +86,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSGens.Vmaxpu(50)
             DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
-            DSSGens.Model(1)
+            DSSGens.Model(3)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############
@@ -148,7 +148,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
 ###------- network summary is generated including overvoltage and current locations
 
 
-def network_outputs(Network_Path,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRatekVA, pinchClist):
+def network_outputs(N,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRatekVA, pinchClist,All_VC):
 
     network_summary = {}   
     for i in range(1, 4):
@@ -164,14 +164,17 @@ def network_outputs(Network_Path,CurArray, RateArray, VoltArray, PowArray, Trans
         network_summary[i]["Chigh_lines"] = Chigh_lines
         network_summary[i]["C_Flow"] = {}
         network_summary[i]["C_Rate"] = {}
+        network_summary[i]["V_Rate"] = {}
 
         ##------- To indicate direction of power flow. When Importing supply voltage will be higher
         # ---------Negative power flow represents export.
 
         for n in range(1, len(pinchClist)+1):
             network_summary[i]["C_Rate"][n] = 0.9*(RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5))
-            if Network_Path=='Test_Network/network_26' and n==7 and (i==2 or i==3):
-                network_summary[i]["C_Rate"][n] = 0.35*(RateArray[pinchClist[n - 1]] * Vseries[1] * 0.426 / (3 ** 0.5))
+            if (str(i)+str(n)) in All_VC[N]:
+                network_summary[i]["V_Rate"][n] = All_VC[N][str(i)+str(n)]
+            else:
+                network_summary[i]["V_Rate"][n] = network_summary[i]["C_Rate"][n]
             network_summary[i]["C_Flow"][n] = Pseries[pinchClist[n - 1]]
             
         network_summary[i]["Vhigh_nodes"] = Vhigh_nodes

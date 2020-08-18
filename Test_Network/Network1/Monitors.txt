@@ -1,3 +1,0 @@
-New Monitor.TransPQ Transformer.TR1 2 Mode=33
-!New Monitor.LINE1_PQ_vs_Time Line.LINE1 2 Mode=1
-!New Monitor.LINE1_VI_vs_Time Line.LINE1 2 Mode=0
