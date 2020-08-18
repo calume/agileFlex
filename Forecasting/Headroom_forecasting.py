@@ -20,10 +20,7 @@ import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error
 
-Network='Network1/'
-#Case='100HP'
-Case='50PV50HP'
-    
+   
 def hdrm_forecast(Network,Case):
     smkeys = [
         "WinterWknd",
@@ -111,7 +108,7 @@ def hdrm_forecast(Network,Case):
     
     
     ###----------Winter Data------------------#####
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+".pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"14.pickle", "rb")
     CustSumm= pickle.load(pick_in)
     
     pick_in = open("../Data/"+str(Network+Case)+"Winter15_10mins_HdRm.pickle", "rb")

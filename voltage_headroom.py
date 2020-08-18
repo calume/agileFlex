@@ -17,7 +17,7 @@ from matplotlib import pyplot as plt
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_17/']#,'network_5/','network_10/','network_17/','network_18/']
 Y=14
 Cases=['25PV50HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP','25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
@@ -48,9 +48,9 @@ for N in networks:
     C=np.arange(0,100,step=10)
         
     #only include with Data
-    plt.figure()
+    #plt.figure()
     for i in trues:#V_data['Pflow'].columns:
-        #plt.figure()
+        plt.figure()
         plt.scatter(AllPflow[i],AllVmin[i],s=0.2)
         VC_Fits.loc[i]['m'],VC_Fits.loc[i]['c']=np.polyfit(AllPflow[i].astype(float).values,AllVmin[i].astype(float).values,1)
         plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
@@ -68,6 +68,6 @@ for N in networks:
     
     All_VC_Limits[N]=VC_Limit
 
-pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
-pickle.dump(All_VC_Limits, pickle_out)
-pickle_out.close()   
+# pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
+# pickle.dump(All_VC_Limits, pickle_out)
+# pickle_out.close()   

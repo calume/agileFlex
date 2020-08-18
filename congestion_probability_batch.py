@@ -36,20 +36,6 @@ from itertools import cycle, islice
 #from voltage_headroom import voltage_headroom
 
 
-#### Load in Test data Set ##########
-
-pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
-SM_DataFrame = pickle.load(pick_in)
-
-pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
-HP_DataFrame = pickle.load(pick_in)
-
-#pick_in = open("../Data/EV_Dispatch_OneDay.pickle", "rb")
-#EV_DataFrame = pickle.load(pick_in)
-
-pick_in = open("../Data/PV_BySiteName.pickle", "rb")
-PV_DataFrame = pickle.load(pick_in)
-
 ### --- All VC Limits is Current limits set by Low Voltage
 
 pick_in = open("../Data/All_VC_Limits.pickle", "rb")
@@ -57,21 +43,28 @@ All_VC = pickle.load(pick_in)
 
 ####----------Set Test Network ------------
 start=datetime.now()
-EV_Validation=0
 
-Twominutely=1
-
-networks=['network_18/']#,'network_5/','network_10/','network_17/','network_18/']
+networks=['network_18/','network_5/','network_10/','network_17/','network_18/']
 
 #networks=['network_17/','network_18/']
 
-Cases=['25PV75HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP','25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['25PV50HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP','25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
     for C in Cases:
         FullSummmary[N][C]={}
         for Y in [14]:#,15]:
+            #### Load in Test data Set ##########
+
+            pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
+            SM_DataFrame = pickle.load(pick_in)
+            
+            pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
+            HP_DataFrame = pickle.load(pick_in)
+            
+            pick_in = open("../Data/PV_BySiteName.pickle", "rb")
+            PV_DataFrame = pickle.load(pick_in)
             print(N,C,Y)
             FullSummmary[N][C][Y]={}
             Network_Path = "Test_Network/condensed/"+N
@@ -82,7 +75,7 @@ for N in networks:
                 for i in SM_DataFrame.keys():
                    SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
             
-            def Create_Customer_Summary(sims,EV_Validation):
+            def Create_Customer_Summary(sims):
                 ####--------- Create Customer Summary ----------
                 
                 Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
@@ -150,40 +143,33 @@ for N in networks:
             
             #start_date = date(2014, 6, 1)
             #end_date = date(2014, 9, 3)
-            start_date = date(2000+Y, 1, 20)
-            end_date = date(2000+Y, 1, 21)
-            delta_halfhours = timedelta(hours=0.5)
-            delta_twominutes = timedelta(minutes=2)
-            sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
-            sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
+            start_date = date(2000+Y-1, 12, 14)
+            end_date = date(2000+Y, 2, 27)
+            sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_halfhours
-            if Twominutely==1:
-                sims=sims_tenminutes
+            sims=sims_tenminutes
+        
+            pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
+            HP_DataFrame = pickle.load(pick_in)
+            HP_DataFrame = HP_DataFrame.loc[sims]
             
-                pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
-                HP_DataFrame = pickle.load(pick_in)
-                HP_DataFrame = HP_DataFrame.loc[sims]
+            for i in SM_DataFrame.keys():
+                SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
+                SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
+                for k in SM_DataFrame[i].columns:
+                   SM_DataFrame[i][k]=SM_DataFrame[i][k].interpolate(method='pad')
+            
+            for i in PV_DataFrame.keys():
+                if Y==14:
+                    PV_DataFrame[i]=PV_DataFrame[i].reindex(sims_halfhours.tolist())
+                if Y==15:
+                    PV_DataFrame[i]=PV_DataFrame[i].reindex((sims_halfhours-timedelta(days=365)).tolist())
+                PV_DataFrame[i]=PV_DataFrame[i].resample('10T').mean()
+                for k in PV_DataFrame[i].columns:
+                    PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
                 
-                for i in SM_DataFrame.keys():
-                    SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
-                    SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
-                    for k in SM_DataFrame[i].columns:
-                       SM_DataFrame[i][k]=SM_DataFrame[i][k].interpolate(method='pad')
-                
-                for i in PV_DataFrame.keys():
-                    if Y==14:
-                        PV_DataFrame[i]=PV_DataFrame[i].reindex(sims_halfhours.tolist())
-                    if Y==15:
-                        PV_DataFrame[i]=PV_DataFrame[i].reindex((sims_halfhours-timedelta(days=365)).tolist())
-                    PV_DataFrame[i]=PV_DataFrame[i].resample('10T').mean()
-                    for k in PV_DataFrame[i].columns:
-                        PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
-                
-            Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(
-                sims, EV_Validation
-            )  
+            Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(sims)  
             
             #####------ For when the customer summary table is fixed we laod it in from the pickle file
             #pickin = open("../Data/Customer_Summary15.pickle", "rb")

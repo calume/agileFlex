@@ -14,6 +14,7 @@ import datetime
 from runfile import main
 from shutil import copyfile
 from openpyxl import load_workbook
+import random
 
 def plotDay(prices, gen, genmin,zone,nEVs):
     ########-----------Plot Results----------#############
@@ -21,7 +22,7 @@ def plotDay(prices, gen, genmin,zone,nEVs):
     prices=prices['cost(pounds/kwh)']
     gen=gen['Grid'].rename('PG_Max')
     genmin=genmin['Grid'].rename('PG_Min')
-    
+    results=pd.read_excel('results/results.xlsx', sheet_name='EVs')
     summary=pd.DataFrame(results.groupby(['Time period']).sum()['Charging(kW)'])
     discharge=pd.DataFrame(results.groupby(['Time period']).sum()['Discharging(kW)'])
     summary=summary.join(prices,how='outer')
@@ -58,10 +59,10 @@ def plotDay(prices, gen, genmin,zone,nEVs):
     plt.show()
 
 Case='25PV25HP'
-Network='Network1/'
+Network='network_1/'
+daytype='wknd'
+temp=5.09
 factor=1
-daytype='wkd'
-temp=3
 
 #def daily_EVSchedule(Network,Case, factor, daytype, temp):
 start_date = date(2013, 12, 1)
@@ -73,10 +74,10 @@ dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
 #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
 #SummerHdRm = pickle.load(pick_in)
 
-pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+".pickle", "rb")
+pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"14.pickle", "rb")
 Customer_summary = pickle.load(pick_in)
 
-pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm.pickle", "rb")
+pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
 WinterHdRm = pickle.load(pick_in)
 
 pick_in = open("../Data/EVTDs_1500EVs_"+str(daytype)+".pickle", "rb")
@@ -133,20 +134,19 @@ for i in list(WinterHdRm.keys()):
         gen=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genseries')
         genmin=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genmin')
         prices=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='timeseriesGen')
-        #EVs=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='EVs')
-        #EVTD=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='EVsTravelDiary')
-        
+       
         gen['Grid']=hdrm.values
         gen['Grid'][gen['Grid']<0]=0
         
         genmin['Grid']=hdrm.values
         genmin['Grid'][genmin['Grid']>0]=0
 
-        EVs=EVSample.sample(n=20)
+        EVs=EVSample.sample(n=nEVs)
         EVTD=pd.DataFrame()
         for s in EVs['name']:
-            NewEVTDs[s]['name']=s
-            EVTD=EVTD.append(NewEVTDs[s][NewEVTDs[s]['Day']==NewEVTDs[s]['Day'].sample().values[0]])        
+            if len(NewEVTDs[s]['name']) >0:
+                NewEVTDs[s]['name']=s
+                EVTD=EVTD.append(NewEVTDs[s][NewEVTDs[s]['Day']==NewEVTDs[s]['Day'].sample().values[0]])        
         EVTD=EVTD.drop(columns=['Day'])
         EVTD['t_in']=round(EVTD['t_in'].astype(float),0)
         EVTD['t_out']=round(EVTD['t_out'].astype(float),0)
@@ -213,4 +213,4 @@ for i in list(WinterHdRm.keys()):
 #pickle.dump(AllEVs, pickle_out)
 #pickle_out.close()
 
-#return EVCapacitySummary
+#return EVCapacitySummary, AllEVs
