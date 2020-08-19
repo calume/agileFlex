@@ -26,22 +26,22 @@ for z in EVSample['name']:
     EVTD_OneDay=pd.DataFrame()
     
     ############Just do Weekdays
-    EVTD_subset=EVTD_subset[EVTD_subset['t0']<7200]
+    EVTD_subset=EVTD_subset[(EVTD_subset['t0']-720)>=0]
     
-    EVTD_OneDay['t_in']=EVTD_subset['t0']%1440
-    EVTD_OneDay['t_out']=EVTD_subset['t2']%1440
+    EVTD_OneDay['t_in']=(EVTD_subset['t0']-720)%1440
+    EVTD_OneDay['t_out']=(EVTD_subset['t2']-720)%1440
     d=1
     c=0
     EVTD_OneDay['Day']=d
     for i in EVTD_OneDay.index:
         if EVTD_OneDay['t_out'][i]<EVTD_OneDay['t_in'][i]:
-            EVTD_OneDay['t_out'][i]=EVTD_OneDay['t_out'][i]+1440
+            EVTD_OneDay['t_in'][i]=EVTD_OneDay['t_in'][i]-1440
         if c>0 and EVTD_OneDay['t_in'][i] < EVTD_OneDay['t_out'][i-1]:
             d=d+1
         EVTD_OneDay['Day'][i]=d
         c=c+1
 
-    EVTD_OneDay['t_in'],  EVTD_OneDay['t_out'] = EVTD_OneDay['t_in']/10-72,  EVTD_OneDay['t_out']/10-72
+    EVTD_OneDay['t_in'],  EVTD_OneDay['t_out'] = EVTD_OneDay['t_in']/10,  EVTD_OneDay['t_out']/10
     
     EVTD_OneDay['EStart']=EVTD_subset['SoCStart']*EVSample['battery(kWh)'].iloc[n]
     EVTD_OneDay['EEnd']=EVTD_subset['SoCEnd']*EVSample['battery(kWh)'].iloc[n]

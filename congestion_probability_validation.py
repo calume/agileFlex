@@ -154,7 +154,7 @@ sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
 sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
 
 sims=sims_tenminutes
-pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
+pick_in = open("../Data/HP_DataFrame_10mins_week.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 HP_DataFrame = HP_DataFrame.loc[sims]
 

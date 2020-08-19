@@ -108,7 +108,7 @@ def hdrm_forecast(Network,Case):
     
     
     ###----------Winter Data------------------#####
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"14.pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"15.pickle", "rb")
     CustSumm= pickle.load(pick_in)
     
     pick_in = open("../Data/"+str(Network+Case)+"Winter15_10mins_HdRm.pickle", "rb")
