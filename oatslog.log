@@ -1,16 +1,87 @@
-Tue, 18 Aug 2020 13:17:46 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:20:28 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:20:39 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:29:40 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:30:38 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:30:39 INFO     NumExpr defaulting to 4 threads.
-Tue, 18 Aug 2020 13:31:27 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:31:32 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:32:59 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:37:54 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:38:45 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:38:47 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:40:56 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:41:20 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:41:56 INFO     EV Scheduling log file
-Tue, 18 Aug 2020 13:42:35 INFO     EV Scheduling log file
+Wed, 19 Aug 2020 09:53:58 INFO     EV Scheduling log file
+Wed, 19 Aug 2020 09:53:58 INFO     Program started
+Wed, 19 Aug 2020 09:53:58 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:53:58 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Wed, 19 Aug 2020 09:53:58 INFO     Model selected: EVScheduleV2G
+Wed, 19 Aug 2020 09:53:58 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:53:58 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:53:59 ERROR    Constructing component 'SoCStart' from data={486: 1, 39: 48.34932958327786, 387: 1, 38: 18.02187240821319, 369: 1, 37: 33.8442743651353, 90: 1, 42: 10.75835047824408, 709: 1, 287: 1, 36: 21.69580559446738, 291: 1, 35: 30.79376999054121, 463: 1, 45: 30.5531742, 425: 1, 552: 1, 33: 44.5463126456624, 628: 1, 320: 1} failed:
+    RuntimeError: Failed to set value for param=SoCStart, index=486, value=1.
+	source error message="Index '486' is not valid for indexed component 'SoCStart'"
+Wed, 19 Aug 2020 09:57:57 INFO     OATS log file
+Wed, 19 Aug 2020 09:57:57 INFO     Program started
+Wed, 19 Aug 2020 09:57:57 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:57:57 INFO     Testcase selected: tests/case6ww.xlsx
+Wed, 19 Aug 2020 09:57:57 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:57:57 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:57:57 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:57:57 INFO     Done!
+Wed, 19 Aug 2020 09:58:00 INFO     OATS log file
+Wed, 19 Aug 2020 09:58:00 INFO     Program started
+Wed, 19 Aug 2020 09:58:00 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:58:00 INFO     Testcase selected: tests/case6ww.xlsx
+Wed, 19 Aug 2020 09:58:00 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:58:00 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:58:00 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:58:00 INFO     Done!
+Wed, 19 Aug 2020 09:58:26 INFO     OATS log file
+Wed, 19 Aug 2020 09:58:26 INFO     Program started
+Wed, 19 Aug 2020 09:58:26 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:58:26 INFO     Testcase selected: tests/case6468rte.xlsx
+Wed, 19 Aug 2020 09:58:26 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:58:26 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:58:29 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:58:59 INFO     OATS log file
+Wed, 19 Aug 2020 09:58:59 INFO     Program started
+Wed, 19 Aug 2020 09:58:59 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:58:59 INFO     Testcase selected: tests/case30.xlsx
+Wed, 19 Aug 2020 09:58:59 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:58:59 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:58:59 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:58:59 INFO     Done!
+Wed, 19 Aug 2020 09:59:03 INFO     OATS log file
+Wed, 19 Aug 2020 09:59:03 INFO     Program started
+Wed, 19 Aug 2020 09:59:03 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:59:03 INFO     Testcase selected: tests/case118.xlsx
+Wed, 19 Aug 2020 09:59:03 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:59:03 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:59:03 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 09:59:05 INFO     Done!
+Wed, 19 Aug 2020 09:59:17 INFO     OATS log file
+Wed, 19 Aug 2020 09:59:17 INFO     Program started
+Wed, 19 Aug 2020 09:59:17 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 09:59:17 INFO     Testcase selected: tests/case3012wp.xlsx
+Wed, 19 Aug 2020 09:59:17 INFO     Model selected: DCOPF
+Wed, 19 Aug 2020 09:59:17 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 09:59:18 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 10:00:13 INFO     Done!
+Wed, 19 Aug 2020 10:00:42 INFO     EV Scheduling log file
+Wed, 19 Aug 2020 10:00:42 INFO     Program started
+Wed, 19 Aug 2020 10:00:42 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 10:00:42 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Wed, 19 Aug 2020 10:00:42 INFO     Model selected: EVScheduleV2G
+Wed, 19 Aug 2020 10:00:42 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 10:00:43 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 10:00:43 ERROR    Constructing component 'SoCStart' from data={486: 1, 39: 48.34932958327786, 387: 1, 38: 18.02187240821319, 369: 1, 37: 33.8442743651353, 90: 1, 42: 10.75835047824408, 709: 1, 287: 1, 36: 21.69580559446738, 291: 1, 35: 30.79376999054121, 463: 1, 45: 30.5531742, 425: 1, 552: 1, 33: 44.5463126456624, 628: 1, 320: 1} failed:
+    RuntimeError: Failed to set value for param=SoCStart, index=486, value=1.
+	source error message="Index '486' is not valid for indexed component 'SoCStart'"
+Wed, 19 Aug 2020 10:02:45 INFO     EV Scheduling log file
+Wed, 19 Aug 2020 10:02:45 INFO     Program started
+Wed, 19 Aug 2020 10:02:45 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 10:02:45 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Wed, 19 Aug 2020 10:02:45 INFO     Model selected: EVScheduleV2G
+Wed, 19 Aug 2020 10:02:45 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 10:02:45 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 10:02:45 ERROR    Constructing component 'SoCStart' from data={486: 1, 39: 48.34932958327786, 387: 1, 38: 18.02187240821319, 369: 1, 37: 33.8442743651353, 90: 1, 42: 10.75835047824408, 709: 1, 287: 1, 36: 21.69580559446738, 291: 1, 35: 30.79376999054121, 463: 1, 45: 30.5531742, 425: 1, 552: 1, 33: 44.5463126456624, 628: 1, 320: 1} failed:
+    RuntimeError: Failed to set value for param=SoCStart, index=486, value=1.
+	source error message="Index '486' is not valid for indexed component 'SoCStart'"
+Wed, 19 Aug 2020 10:03:04 INFO     EV Scheduling log file
+Wed, 19 Aug 2020 10:03:04 INFO     Program started
+Wed, 19 Aug 2020 10:03:04 INFO     Solver selected: cplex
+Wed, 19 Aug 2020 10:03:04 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Wed, 19 Aug 2020 10:03:04 INFO     Model selected: EVScheduleV2G
+Wed, 19 Aug 2020 10:03:04 INFO     Given model file found and selected from the models library
+Wed, 19 Aug 2020 10:03:04 INFO     Given testcase file found and selected from the testcase library
+Wed, 19 Aug 2020 10:03:04 ERROR    Constructing component 'SoCStart' from data={486: 1, 39: 48.34932958327786, 387: 1, 38: 18.02187240821319, 369: 1, 37: 33.8442743651353, 90: 1, 42: 10.75835047824408, 709: 1, 287: 1, 36: 21.69580559446738, 291: 1, 35: 30.79376999054121, 463: 1, 45: 30.5531742, 425: 1, 552: 1, 33: 44.5463126456624, 628: 1, 320: 1} failed:
+    RuntimeError: Failed to set value for param=SoCStart, index=486, value=1.
+	source error message="Index '486' is not valid for indexed component 'SoCStart'"

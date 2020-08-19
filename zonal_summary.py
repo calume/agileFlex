@@ -74,7 +74,7 @@ dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
 #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
 #SummerHdRm = pickle.load(pick_in)
 
-pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"14.pickle", "rb")
+pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"15.pickle", "rb")
 Customer_summary = pickle.load(pick_in)
 
 pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
@@ -144,7 +144,7 @@ for i in list(WinterHdRm.keys()):
         EVs=EVSample.sample(n=nEVs)
         EVTD=pd.DataFrame()
         for s in EVs['name']:
-            if len(NewEVTDs[s]['name']) >0:
+            if len(NewEVTDs[s]) >0:
                 NewEVTDs[s]['name']=s
                 EVTD=EVTD.append(NewEVTDs[s][NewEVTDs[s]['Day']==NewEVTDs[s]['Day'].sample().values[0]])        
         EVTD=EVTD.drop(columns=['Day'])

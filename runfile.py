@@ -45,7 +45,7 @@ def main():
     status=runcase(testcase,model,opt)
     logging.info("Done!")
     return status
-#main()
+main()
 #
 #gen=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genseries')
 #genmin=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genmin')
