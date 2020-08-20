@@ -22,8 +22,8 @@ import pickle
 from Test_Network.network_plot import customer_summary
 from runDSS import runDSS, network_outputs, create_gens
 import matplotlib.pyplot as plt
-from Forecasting.Headroom_forecasting import hdrm_forecast
-from zonal_summary import daily_EVSchedule
+from Forecasting.Headroom_forecasting import return_temp
+from zonal_summary import daily_EVSchedule,plotDay
 from itertools import cycle, islice
 from crunch_results import (
     counts,
@@ -40,7 +40,7 @@ from crunch_results import (
 ####----------Set Test Network ------------
 start=datetime.now()
 
-Case='25PV25HP'
+Case='25PV50HP'
 Network='network_1/'
 
 ########### Create Forecast File if not already Done ##########
@@ -147,10 +147,7 @@ def Create_Customer_Summary(sims):
 #end_date = date(2014, 9, 3)
 start_date = date(2013, 12, 1)
 end_date = date(2013, 12, 3)
-delta_halfhours = timedelta(hours=0.5)
-delta_twominutes = timedelta(minutes=2)
-sims_halfhours = pd.date_range(start_date, end_date, freq=delta_halfhours)
-sims_twominutes = pd.date_range(start_date, end_date, freq=delta_twominutes)
+sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
 sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
 
 sims=sims_tenminutes
@@ -158,15 +155,15 @@ pick_in = open("../Data/HP_DataFrame_10mins_week.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 HP_DataFrame = HP_DataFrame.loc[sims]
 
-wkd_temps,wknd_temps = hdrm_forecast(Network,Case)
+all_temps,dummy = return_temp('../')
 
-if sims.date[0] in wkd_temps.index:
+if (sims.weekday[0] >= 0) & (sims.weekday[0] <= 4):
     daytype='wkd'
-    temp=wkd_temps[sims.date[0]]
 
-if sims.date[0] in wknd_temps.index:
+if (sims.weekday[0] >= 5) & (sims.weekday[0] <= 6):
     daytype='wknd'
-    temp=wknd_temps[sims.date[0]]
+
+temp=all_temps[sims[0]-timedelta(hours=12)]
 
 EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,Case, 1, daytype, temp)
 
