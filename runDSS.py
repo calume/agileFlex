@@ -86,7 +86,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSGens.Vmaxpu(50)
             DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
-            DSSGens.Model(1)
+            DSSGens.Model(3)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############

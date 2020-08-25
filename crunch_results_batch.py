@@ -75,7 +75,7 @@ def counts(network_summary, Coords, pinchClist):
 
 
 ###------ Thes spatial plots display locations of Violations---########
-def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors):
+def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors,k):
     Coords = pd.read_csv(str(Network_Path) + "/XY_Position.csv")
     Lines = pd.read_csv(
         str(Network_Path) + "/Lines.txt",
@@ -130,7 +130,7 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors)
             Coords["Color"].iloc[Vlow_keys] = "black"
             Coords["size"].iloc[Vlow_keys] = list(Vlow_count[p].values())
             ##### Plot Currents for each Phase ####
-        plt.figure()
+        plt.figure('network plot, phase'+str(p)+k)
         # plt.figure(311+p)
         plt.title("Current + High/Low Voltage, Phase  " + str(p))
         nx.draw(
@@ -178,55 +178,55 @@ def Headroom_calc(
             custph[p][f] = custs[custs["feeder"].astype(int) == f]
             cs.append(str(p)+str(f))
     
-#     InputsbyFP = {}
-#     InputsbyFP["SM"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
-#     InputsbyFP["HP"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
-#     InputsbyFP["PV"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
-#     InputsbyFP["demand"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
-#     InputsbyFP["demand_delta"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
-#     InputsbyFP["pv_delta"] = pd.DataFrame(
-#         index=network_summary.keys(),
-#         columns=cs,
-#     )
+    InputsbyFP = {}
+    InputsbyFP["SM"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
+    InputsbyFP["HP"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
+    InputsbyFP["PV"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
+    InputsbyFP["demand"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
+    InputsbyFP["demand_delta"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
+    InputsbyFP["pv_delta"] = pd.DataFrame(
+        index=network_summary.keys(),
+        columns=cs,
+    )
 
-#     for i in network_summary:
-#         Headrm[0][i] = network_summary[i]["Trans_kVA"]
-# ###        Headrm[len(pinchClist)+1][i] = network_summary[i]["Trans_kW"]
-#         for p in range(1, 4):
-#             for f in range(1, len(pinchClist)+1):
-#                 InputsbyFP["SM"][str(p) + str(f)][i] = np.nan_to_num(smartmeter[i])[
-#                     custph[p][f].index
-#                 ].sum()
-#                 InputsbyFP["HP"][str(p) + str(f)][i] = np.nan_to_num(heatpump[i])[
-#                     custph[p][f].index
-#                 ].sum()
-#                 InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
-#                     custph[p][f].index
-#                 ].sum()
-#                 InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
-#                     custph[p][f].index
-#                 ].sum()
-#                 InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
-#                     demand_delta[i]
-#                 )[custph[p][f].index].sum()
-#                 InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
-#                     custph[p][f].index
-#                 ].sum()
+    for i in network_summary:
+        Headrm[0][i] = network_summary[i]["Trans_kVA"]
+###        Headrm[len(pinchClist)+1][i] = network_summary[i]["Trans_kW"]
+        for p in range(1, 4):
+            for f in range(1, len(pinchClist)+1):
+                InputsbyFP["SM"][str(p) + str(f)][i] = np.nan_to_num(smartmeter[i])[
+                    custph[p][f].index
+                ].sum()
+                InputsbyFP["HP"][str(p) + str(f)][i] = np.nan_to_num(heatpump[i])[
+                    custph[p][f].index
+                ].sum()
+                InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
+                    custph[p][f].index
+                ].sum()
+                InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
+                    custph[p][f].index
+                ].sum()
+                InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
+                    demand_delta[i]
+                )[custph[p][f].index].sum()
+                InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
+                    custph[p][f].index
+                ].sum()
 
     for z in range(1, len(pinchClist)+1):
         Headrm[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
@@ -247,13 +247,13 @@ def Headroom_calc(
                 # if Flow[z][p][i] < (-Rate[z][p][i] - 3):
                 #     Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
 
-    return Headrm, Footrm, Flow, Rate, Customer_Summary, custph#, InputsbyFP
+    return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
 
 
 ###---------- The secondary headroom, adjustments and per phase headrooms are shown
-def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genres,colors):
+def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genres,colors,k):
     # times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
-    plt.figure(0)
+    plt.figure('Trans Headroom')
     plt.plot(
         Headrm[0].values,
         color=labels["col"],
@@ -292,7 +292,7 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genr
         Headrm[0].index.strftime("%d/%m %H:%M")[range(0, len(Headrm[0]), 24)],
     )
 
-    plt.figure()
+    plt.figure('Headroom'+k)
     plt.title("Headroom (at head supply branch) per phase and feeder")
 
     for p in range(1, 4):
@@ -345,11 +345,11 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genr
 
 
 #######---------- Demand and PV adjustments are shown along with Heat pump and Smartmeter demand
-def plot_flex(InputsbyFP,pinchClist,colors):
+def plot_flex(InputsbyFP,pinchClist,colors,k):
 
     # ------- PLot of demand and generation per feeder and phase
     
-    plt.figure()
+    plt.figure('demand delta '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
@@ -388,7 +388,7 @@ def plot_flex(InputsbyFP,pinchClist,colors):
 
     # ----------- Plot of demands---------------#
 
-    plt.figure()
+    plt.figure('demands '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
@@ -424,7 +424,7 @@ def plot_flex(InputsbyFP,pinchClist,colors):
     
     # ----------- Plot of PV---------------#
 
-    plt.figure()
+    plt.figure('PV '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
@@ -496,9 +496,9 @@ def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                 #Vpinch[str(p) + str(f)][i] = VoltArray[i][pinchVlist[f]][p - 1]
     return Vmax, Vmin, Cmax
 
-def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
+def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N,k):
     # ------- PLot of maximum voltages per phase and feeder
-    plt.figure(N+'Vmax')
+    plt.figure(N+'Vmax '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
@@ -533,7 +533,7 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
     plt.tight_layout()
 
     # ------- PLot of minimum voltages per phase and feeder
-    plt.figure(N+'Vmin')
+    plt.figure(N+'Vmin '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
@@ -561,7 +561,7 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
     plt.tight_layout()
 
     # ------- PLot of Current in supply branch per phase and feeder
-    plt.figure(N+'Cmax')
+    plt.figure(N+'Cmax '+k)
     for p in range(1, 4):
         plt.subplot(310 + p)
         for f in range(1, len(pinchClist)+1):
