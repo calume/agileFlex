@@ -601,3 +601,4 @@ def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N):
 
 
 
+

@@ -22,8 +22,8 @@ import pickle
 from Test_Network.network_plot import customer_summary
 from runDSS import runDSS, network_outputs, create_gens
 import matplotlib.pyplot as plt
-from Forecasting.Headroom_forecasting import return_temp
-from zonal_summary import daily_EVSchedule,plotDay
+#from Forecasting.Headroom_forecasting import return_temp
+#from zonal_summary import daily_EVSchedule,plotDay
 from itertools import cycle, islice
 from crunch_results import (
     counts,
@@ -32,8 +32,6 @@ from crunch_results import (
     plot_headroom,
     plot_flex,
     plot_current_voltage,
-    
-    
 )
 
 
@@ -55,117 +53,66 @@ Network_Path = "Test_Network/"+str(Network)
 ####  Note: These Data Files can be found in the AGILE dropbox folder:
 ###-- 'AGILE Project Documents\Data\Network_Inputs_SM_PV_HP'
 
+pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+All_VC = pickle.load(pick_in)
+
 pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
 SM_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 
-
 pick_in = open("../Data/PV_BySiteName.pickle", "rb")
 PV_DataFrame = pickle.load(pick_in)
 
-       
+pick_in = open("../Data/"+str(Network)+"EV_Dispatch_OneDay"+str(Case)+".pickle", "rb")
+EV_DataFrame = pickle.load(pick_in)      
+
 #########----- Plus 1 year to SM timestamps to line up with PV and HP
-#for i in SM_DataFrame.keys():
+# for i in SM_DataFrame.keys():
 #   SM_DataFrame[i].index = SM_DataFrame[i].index + timedelta(days=364)
 
-def Create_Customer_Summary(sims):
-    ####--------- Create Customer Summary ----------
-    
-    Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path)
-    Customer_Summary = Customer_Summary.drop(columns="Color")
-    
-    # ---------- Assign Smart Meter and Heat Pump IDs--------------#
-    #### Smart Meter
-    # --- only include SMs with data
-    Customer_Summary["smartmeter_ID"] = 0
-    SMlist={}
-    for i in SM_DataFrame.keys():
-        acorn_index = Customer_Summary["Acorn_Group"][
-            Customer_Summary["Acorn_Group"] == i
-        ].index
-    
-        datacount = SM_DataFrame[i].reindex(sims)
-        SM_reduced = datacount.count() > (len(datacount) * 0.95)
-        print("SMs left " + str(i) + str(sum(SM_reduced)))
-        SM_reduced = SM_reduced[SM_reduced]
-        SMlist[i]=list(islice(cycle(SM_reduced.index),len(acorn_index)))
-        for z in range(0,len(acorn_index)):
-            Customer_Summary["smartmeter_ID"].loc[acorn_index[z]] = SMlist[i][z]
-    
-    ### Heat Pump
-    Customer_Summary["heatpump_ID"] = 0
-    # --- only include HPs with data for the timesteps modelled
-    HP_reduced = HP_DataFrame.reindex(sims.tolist()).count()> (0.9*len(sims))
-    
-    HP_reduced = HP_reduced[HP_reduced]
-    print("HPs left " + str(len(HP_reduced)))
-    heatpump_index = Customer_Summary["Heat_Pump_Flag"][
-        Customer_Summary["Heat_Pump_Flag"] > 0
-    ].index
-    HPlist=list(islice(cycle(HP_reduced.index),len(heatpump_index)))
-    for z in range(0,len(heatpump_index)):
-        Customer_Summary["heatpump_ID"][heatpump_index[z]] = HPlist[z]
-    
-    Customer_Summary['zone']=0
-    for i in Customer_Summary.index:
-        Customer_Summary['zone'].loc[i]=str(Customer_Summary['Phase'][i])+str(Customer_Summary['Feeder'][i])
-    
-    ### PV are assigned randomly
-    Customer_Summary["pv_ID"] = 0
-    pv_index = Customer_Summary["PV_kW"][Customer_Summary["PV_kW"] > 0].index
-    pv_sites = list(islice(cycle(PV_DataFrame.keys()),len(Customer_Summary["pv_ID"])))
-    for z in pv_index:
-        Customer_Summary["pv_ID"][z] = pv_sites[z]
-    
-    ## Also remove data <0.005  (overnight)
-    for i in pv_sites:
-        PV_DataFrame[i][PV_DataFrame[i]["P_kW"] < 0.005] = 0
-        ## Assign EVs ######
-    
-    ######------ For when the customer summary table is fixed we laod it in from the pickle file
-    pickin = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+".pickle", "rb")
-    Customer_Summary = pickle.load(pickin)
-    for u in EV_DataFrame.keys():
-        sub=Customer_Summary[Customer_Summary['Phase']==u[0]]
-        sub=sub[sub['Feeder']==u[1]].index[0:len(EV_DataFrame[u].columns)]
-        Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
-    ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
-    ###------randomly assigned each run. We then load from the pickle file rather than generating it
-    
-    #    #pickle_out = open("../Data/Customer_Summary15.pickle", "wb")
-    #    #pickle.dump(Customer_Summary, pickle_out)
-    #    #pickle_out.close()
-    return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
 
+########--------- Code to load dates with highest HP demand for testing-------------##########
+
+# HP_DataFrame.columns=HP_DataFrame.columns.astype(int)
+# HPs=Customer_Summary['heatpump_ID'][Customer_Summary['heatpump_ID']>0]
+# HP_DataFrame[HPs].sum(axis=1).resample('1D').sum().idxmax()
+# HP_DataFrame[HPs].sum(axis=1).resample('1D').max().idxmax()
 
 ######--------- Run power flow Timeseries--------------------------#
 ####### test dates: 2013-6-1 to 2014-6-1, full when SM dates are changed by plus 1 year
 
+# Highest total HP demand - 2014-01-12 
+# Highest peak HP demand - 2014-03-24
+
+#Lowest Daily Sum Headroom on Worst case(Feeder4 phase1) - 2014-01-31
+#Lowest Daily Min Headroom on Worst case(Feeder4 phase1) - 2013-12-05
+
 #start_date = date(2014, 6, 1)
 #end_date = date(2014, 9, 3)
-start_date = date(2013, 12, 1)
-end_date = date(2013, 12, 3)
+Y=14
+start_date = date(2013, 12, 17)
+end_date = date(2013, 12, 18)
 sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
-sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
+sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[:-1]#[72:216]
 
 sims=sims_tenminutes
-pick_in = open("../Data/HP_DataFrame_10mins_week.pickle", "rb")
+pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
 HP_DataFrame = pickle.load(pick_in)
 HP_DataFrame = HP_DataFrame.loc[sims]
 
-all_temps,dummy = return_temp('../')
+#all_temps,dummy = return_temp('../')
 
-if (sims.weekday[0] >= 0) & (sims.weekday[0] <= 4):
-    daytype='wkd'
+# if (sims.weekday[0] >= 0) & (sims.weekday[0] <= 4):
+#     daytype='wkd'
 
-if (sims.weekday[0] >= 5) & (sims.weekday[0] <= 6):
-    daytype='wknd'
+# if (sims.weekday[0] >= 5) & (sims.weekday[0] <= 6):
+#     daytype='wknd'
 
-temp=all_temps[sims[0]-timedelta(hours=12)]
+# temp=all_temps[sims[0]-timedelta(hours=12)]
 
-EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,Case, 1, daytype, temp)
+#EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,Case, 1)
 
 for i in EV_DataFrame.keys():
     EV_DataFrame[i].index=(sims_tenminutes.tolist())
@@ -181,8 +128,15 @@ for i in PV_DataFrame.keys():
     for k in PV_DataFrame[i].columns:
         PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
 
-Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(sims)  
+Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, Case)
 
+######------ For when the customer summary table is fixed we laod it in from the pickle file
+pickin = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+str(Y)+".pickle", "rb")
+Customer_Summary = pickle.load(pickin)
+for u in EV_DataFrame.keys():
+    sub=Customer_Summary[Customer_Summary['Phase']==u[0]]
+    sub=sub[sub['Feeder']==u[1]].index[0:len(EV_DataFrame[u].columns)]
+    Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
 
 #####------------ Initialise Input--------------------
 smartmeter = {}
@@ -214,10 +168,11 @@ genres=pd.Series(index=sims.tolist(), dtype=float)
 genresnew=pd.Series(index=sims.tolist(), dtype=float)
 colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
 bad_halfhours=[]
-bad_halfhours_n=[]     
-pinchClist=[]
-for i in Lines['Line'].str[9:10].unique():
-    pinchClist.append(Lines[Lines['Line'].str[9:10] == i].index[0])
+bad_halfhours_n=[] 
+    
+pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
+if Network=='network_10/':
+    pinchClist.remove(34)
 
 for i in sims.tolist():
     print(i)
@@ -269,7 +224,7 @@ for i in sims.tolist():
             
     ###--- These are converted into headrooms and summarised in network_summary
     network_summary[i] = network_outputs(
-        Network_Path,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist
+        Network,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist,All_VC
     )
     
     if converged==False:   
@@ -295,6 +250,7 @@ Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc
     pv_delta,
     pinchClist
 )
+
 Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
 Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
 Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
@@ -304,10 +260,10 @@ plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,co
 
 end=datetime.now()
 print('=========== RESULTS FOR '+str(Network)+' Case '+str(Case)+'==============')
-print('Tomorrow is a '+str(daytype)+ ' with forecast temperature '+str(temp)+'deg C')
+#print('Tomorrow is a '+str(daytype)+ ' with forecast temperature '+str(temp)+'deg C')
 time=end-start
 print('Days Optimisation took '+str(time))
-print('Number of EVs able to charge is '+str(EVCapacitySummary['EV Capacity'].sum())+' out of '+str(EVCapacitySummary['Customers'].sum())+' Customers')
+#print('Number of EVs able to charge is '+str(EVCapacitySummary['EV Capacity'].sum())+' out of '+str(EVCapacitySummary['Customers'].sum())+' Customers')
 
 #pickle_out = open("../Data/100HPDec1st2013_2mins_Hdrm.pickle", "wb")
 #pickle.dump(Headrm, pickle_out)

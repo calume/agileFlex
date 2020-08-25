@@ -243,16 +243,9 @@ def Headroom_calc(
         for p in range(1, 4):
             for i in network_summary:
                 Flow[z][p][i] = network_summary[i][p]["C_Flow"][z]
-                Rate[z][p][i] = network_summary[i][p]["C_Rate"][z]
+                Rate[z][p][i] = min(network_summary[i][p]["C_Rate"][z],network_summary[i][p]["V_Rate"][z])
                 Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i]
                 Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i]
-                if (Rate[z][p][i] - 10) <= Flow[z][p][i] <= (Rate[z][p][i] + 10):
-                    Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i] - 5
-
-                if (-Rate[z][p][i] - 3) <= Flow[z][p][i] <= (-Rate[z][p][i] + 3):
-                    Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i] - 1.5
-                if Flow[z][p][i] < (-Rate[z][p][i] - 3):
-                    Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
 
     return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
 

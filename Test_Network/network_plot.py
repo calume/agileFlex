@@ -29,7 +29,7 @@ from tabulate import tabulate
 from numpy.random import choice
 
 # ------------------------Define Network Agents----------------------------
-def customer_summary(Network_Path):
+def customer_summary(Network_Path,Case):
     # ---------------Load Network Data-----------------------------
 
     Coords = pd.read_csv(str(Network_Path) + "/XY_Position.csv")
@@ -48,9 +48,14 @@ def customer_summary(Network_Path):
 
     # The PV distribution of PV capacities has been calculated from the distribution of installed PV capacities with Feed in tariffs.
 
-    pvcaplist = [1, 1.5, 2, 2.5, 3, 3.5, 4]
-    weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
+    # pvcaplist = [1, 1.5, 2, 2.5, 3, 3.5, 4]
+    # weights = [0.01, 0.08, 0.13, 0.15, 0.14, 0.12, 0.37]
+    # pvlist=choice(pvcaplist, 1000, weights)
+    
+    pick_in = open("Test_Network/pvcaplist.pickle", "rb")
+    pvcaplist = pickle.load(pick_in)
 
+    
     LoadsByAcorn = {}
     LoadsByAcorn["Affluent"] = list(range(1,int(len(Loads)/3)))
     LoadsByAcorn["Comfortable"] = list(range(1, int(len(Loads)/3)))
@@ -74,29 +79,74 @@ def customer_summary(Network_Path):
             "Color",
         ],
     )
+
+    
     Customer_Summary["ID"] = Loads.index + 1
     Customer_Summary["Node"] = Loads["Bus1"].str[5:-2].astype(int)
-    Customer_Summary["Acorn_Group"][::4] = "Adversity"
-    Customer_Summary["Acorn_Group"][2::4] = "Comfortable"
-    Customer_Summary["Acorn_Group"][3::4] = "Comfortable"
-    Customer_Summary["Acorn_Group"][1::4] = "Affluent"
-    #Customer_Summary["Acorn_Group"] = "Affluent"     # Worst case of everyone with all LCTs
     Customer_Summary["Phase"] = Loads["Bus1"].str[-1]
     Customer_Summary["Feeder"] = Loads["Load"].str[9]
-    Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
-    Customer_Summary["EV_ID"][
-        Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 0
-    Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = choice(
-        pvcaplist, int(sum(Customer_Summary["Acorn_Group"] == "Affluent")), weights
-    )  # Every house has PV
-    Customer_Summary["Heat_Pump_Flag"][
-        Customer_Summary["Acorn_Group"] == "Affluent"
-    ] = 1
-    Customer_Summary["Heat_Pump_Flag"][
-        Customer_Summary["Acorn_Group"] == "Comfortable"
-    ] = 0
+    Customer_Summary['zone']=0
+    for i in Customer_Summary.index:
+        Customer_Summary['zone'].loc[i]=str(Customer_Summary['Phase'][i])+str(Customer_Summary['Feeder'][i])
 
+    Customer_Summary["Agent"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
+    Customer_Summary["EV_ID"][Customer_Summary["Acorn_Group"] == "Affluent"] = 0
+    for j in Customer_Summary['zone'].unique():
+        if Case[4:]=='25HP':
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Adversity"
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[2::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Comfortable" 
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[3::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Comfortable"             
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[1::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Affluent"   
+    
+        if Case[4:]=='50HP':
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Adversity" 
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[2::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Comfortable"             
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[1::2]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Affluent"   
+
+        if Case[4:]=='75HP':
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[::8]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Adversity" 
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[4::8]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Comfortable"             
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[1::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Affluent"  
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[2::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Affluent"  
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[3::4]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Affluent"  
+        
+        if Case[5:]=='100HP' or Case[4:]=='100HP':
+            Customer_Summary["Acorn_Group"] = "Affluent"
+    
+    Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = pvcaplist[0:sum(Customer_Summary["Acorn_Group"] == "Affluent")]
+    Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
+
+    for j in Customer_Summary['zone'].unique():
+        if Case[:4]=='00PV':
+            Customer_Summary["PV_kW"]=0
+        if Case=='25PV50HP' or Case=='50PV100HP':
+            affs_in=Customer_Summary[Customer_Summary['zone']==j]
+            Customer_Summary["PV_kW"].loc[affs_in.index]=0
+            affs_in=Customer_Summary[Customer_Summary['zone']==j]
+            affs=affs_in["PV_kW"][affs_in["Acorn_Group"] == "Affluent"]
+            affs[::2] = pvcaplist[0:len(affs[::2])]
+            Customer_Summary["PV_kW"].loc[affs.index]=affs
+            
+        if Case=='25PV75HP':
+            affs_in=Customer_Summary[Customer_Summary['zone']==j]
+            Customer_Summary["PV_kW"].loc[affs_in.index]=0
+            affs_in=Customer_Summary[Customer_Summary['zone']==j]
+            affs=affs_in["PV_kW"][affs_in["Acorn_Group"] == "Affluent"]
+            affs[::3] = pvcaplist[0:len(affs[::3])]
+            Customer_Summary["PV_kW"].loc[affs.index]=affs        
+                    
     acorns = ["Affluent", "Comfortable", "Adversity"]
     colors = ["green", "#17becf", "black"]
 
