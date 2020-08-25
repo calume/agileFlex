@@ -105,6 +105,6 @@ for N in networks:
 """ Say 2% drop acceptable, that is 383.2V which is 0.921 p.u."""
 """ Minimum for UK appliances is 216.2 V P-N, which is 374.47 V P-P and 0.9 p.u (for 416 V base)"""
 
-pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
-pickle.dump(All_VC_Limits, pickle_out)
-pickle_out.close()   
+# pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
+# pickle.dump(All_VC_Limits, pickle_out)
+# pickle_out.close()   

@@ -178,55 +178,55 @@ def Headroom_calc(
             custph[p][f] = custs[custs["feeder"].astype(int) == f]
             cs.append(str(p)+str(f))
     
-    InputsbyFP = {}
-    InputsbyFP["SM"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["HP"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["PV"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["demand"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["demand_delta"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["pv_delta"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
+    # InputsbyFP = {}
+    # InputsbyFP["SM"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
+    # InputsbyFP["HP"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
+    # InputsbyFP["PV"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
+    # InputsbyFP["demand"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
+    # InputsbyFP["demand_delta"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
+    # InputsbyFP["pv_delta"] = pd.DataFrame(
+    #     index=network_summary.keys(),
+    #     columns=cs,
+    # )
 
     for i in network_summary:
         Headrm[0][i] = network_summary[i]["Trans_kVA"]
 ###        Headrm[len(pinchClist)+1][i] = network_summary[i]["Trans_kW"]
-        for p in range(1, 4):
-            for f in range(1, len(pinchClist)+1):
-                InputsbyFP["SM"][str(p) + str(f)][i] = np.nan_to_num(smartmeter[i])[
-                    custph[p][f].index
-                ].sum()
-                InputsbyFP["HP"][str(p) + str(f)][i] = np.nan_to_num(heatpump[i])[
-                    custph[p][f].index
-                ].sum()
-                InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
-                    custph[p][f].index
-                ].sum()
-                InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
-                    custph[p][f].index
-                ].sum()
-                InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
-                    demand_delta[i]
-                )[custph[p][f].index].sum()
-                InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
-                    custph[p][f].index
-                ].sum()
+        # for p in range(1, 4):
+        #     for f in range(1, len(pinchClist)+1):
+        #         InputsbyFP["SM"][str(p) + str(f)][i] = np.nan_to_num(smartmeter[i])[
+        #             custph[p][f].index
+        #         ].sum()
+        #         InputsbyFP["HP"][str(p) + str(f)][i] = np.nan_to_num(heatpump[i])[
+        #             custph[p][f].index
+        #         ].sum()
+        #         InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
+        #             custph[p][f].index
+        #         ].sum()
+        #         InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
+        #             custph[p][f].index
+        #         ].sum()
+        #         InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
+        #             demand_delta[i]
+        #         )[custph[p][f].index].sum()
+        #         InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
+        #             custph[p][f].index
+        #         ].sum()
 
     for z in range(1, len(pinchClist)+1):
         Headrm[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
@@ -247,7 +247,7 @@ def Headroom_calc(
                 # if Flow[z][p][i] < (-Rate[z][p][i] - 3):
                 #     Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
 
-    return Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP
+    return Headrm, Footrm, Flow, Rate, Customer_Summary, custph
 
 
 ###---------- The secondary headroom, adjustments and per phase headrooms are shown

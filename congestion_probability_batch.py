@@ -274,7 +274,7 @@ for N in networks:
                 CurArray_new[i], VoltArray_new[i], PowArray_new[i], Trans_kVA_new[i] = CurArray[i], VoltArray[i], PowArray[i], Trans_kVA[i]
             
             #####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
-            Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(
+            Headrm, Footrm, Flow, Rate, Customer_Summary, custph = Headroom_calc(
                 network_summary,
                 Customer_Summary,
                 smartmeter,
@@ -364,8 +364,7 @@ for N in networks:
                 Flow_new,
                 Rate,
                 Customer_Summary,
-                custph,
-                InputsbyFP_new,
+                custph
             ) = Headroom_calc(
                 network_summary_new,
                 Customer_Summary,
