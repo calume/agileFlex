@@ -45,9 +45,7 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_5/','network_10/']#,'network_17/','network_18/']
-
-#networks=['network_17/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
 
 Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
@@ -298,9 +296,9 @@ for N in networks:
             Voltage_data['Vmin']=Vmin
             Voltage_data['Flow']=Flow
             
-            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
-            pickle.dump(Voltage_data, pickle_out)
-            pickle_out.close()            
+            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
+            # pickle.dump(Voltage_data, pickle_out)
+            # pickle_out.close()            
 
             pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
             pickle.dump(Headrm, pickle_out)
