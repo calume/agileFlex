@@ -1,13 +1,1014 @@
-Mon, 24 Aug 2020 15:06:35 INFO     EV Scheduling log file
-Mon, 24 Aug 2020 15:06:35 INFO     Program started
-Mon, 24 Aug 2020 15:06:35 INFO     Solver selected: cplex
-Mon, 24 Aug 2020 15:06:35 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
-Mon, 24 Aug 2020 15:06:35 INFO     Model selected: EVScheduleV2G
-Mon, 24 Aug 2020 15:06:35 INFO     Given model file found and selected from the models library
-Mon, 24 Aug 2020 15:06:35 INFO     Given testcase file found and selected from the testcase library
-Mon, 24 Aug 2020 15:06:40 INFO     Done!
-Mon, 24 Aug 2020 15:08:20 WARNING  No handles with labels found to put in legend.
-Mon, 24 Aug 2020 15:21:06 WARNING  No handles with labels found to put in legend.
-Mon, 24 Aug 2020 15:24:12 WARNING  No handles with labels found to put in legend.
-Mon, 24 Aug 2020 15:37:00 WARNING  No handles with labels found to put in legend.
-Mon, 24 Aug 2020 16:20:35 WARNING  No handles with labels found to put in legend.
+Thu, 27 Aug 2020 15:42:28 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:42:28 INFO     Program started
+Thu, 27 Aug 2020 15:42:28 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:42:28 INFO     Testcase selected: /timeseries/EVDay01_mix_test.xlsx
+Thu, 27 Aug 2020 15:42:28 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:42:28 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:42:28 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:42:33 INFO     Done!
+Thu, 27 Aug 2020 15:42:34 INFO     Program started
+Thu, 27 Aug 2020 15:42:34 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:42:34 INFO     Testcase selected: /timeseries/EVDay01_mix_test.xlsx
+Thu, 27 Aug 2020 15:42:34 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:42:34 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:42:34 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:42:39 INFO     Done!
+Thu, 27 Aug 2020 15:44:23 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:44:23 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:44:24 INFO     Program started
+Thu, 27 Aug 2020 15:44:24 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:44:24 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:44:24 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:44:24 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:44:24 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:44:25 INFO     Done!
+Thu, 27 Aug 2020 15:45:08 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:45:08 INFO     Program started
+Thu, 27 Aug 2020 15:45:08 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:45:08 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:45:08 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:45:08 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:45:08 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:45:10 INFO     Done!
+Thu, 27 Aug 2020 15:50:30 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:50:30 INFO     Program started
+Thu, 27 Aug 2020 15:50:30 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:30 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:30 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:30 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:30 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:30 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:31 INFO     Program started
+Thu, 27 Aug 2020 15:50:31 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:31 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:31 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:31 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:31 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:31 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:32 INFO     Program started
+Thu, 27 Aug 2020 15:50:32 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:32 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:32 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:32 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:32 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:32 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:32 INFO     Program started
+Thu, 27 Aug 2020 15:50:32 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:32 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:32 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:32 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:32 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:33 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:33 INFO     Program started
+Thu, 27 Aug 2020 15:50:33 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:33 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:33 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:33 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:33 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:34 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:34 INFO     Program started
+Thu, 27 Aug 2020 15:50:34 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:34 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:34 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:34 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:34 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:34 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:35 INFO     Program started
+Thu, 27 Aug 2020 15:50:35 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:35 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:35 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:35 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:35 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:35 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:36 INFO     Program started
+Thu, 27 Aug 2020 15:50:36 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:36 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:36 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:36 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:36 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:36 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:36 INFO     Program started
+Thu, 27 Aug 2020 15:50:36 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:36 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:36 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:36 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:37 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:38 INFO     Done!
+Thu, 27 Aug 2020 15:50:41 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:50:41 INFO     Program started
+Thu, 27 Aug 2020 15:50:41 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:41 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:41 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:41 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:42 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:42 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:42 INFO     Program started
+Thu, 27 Aug 2020 15:50:42 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:42 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:42 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:42 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:42 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:43 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:43 INFO     Program started
+Thu, 27 Aug 2020 15:50:43 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:43 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:43 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:43 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:43 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:43 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:43 INFO     Program started
+Thu, 27 Aug 2020 15:50:43 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:43 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:43 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:43 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:44 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:44 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:44 INFO     Program started
+Thu, 27 Aug 2020 15:50:44 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:44 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:44 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:44 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:44 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:45 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:45 INFO     Program started
+Thu, 27 Aug 2020 15:50:45 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:45 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:45 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:45 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:45 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:45 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:46 INFO     Program started
+Thu, 27 Aug 2020 15:50:46 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:46 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:46 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:46 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:46 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:46 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:46 INFO     Program started
+Thu, 27 Aug 2020 15:50:46 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:46 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:46 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:46 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:46 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:47 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 15:50:47 INFO     Program started
+Thu, 27 Aug 2020 15:50:47 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:50:47 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:50:47 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:50:47 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:50:47 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:50:48 INFO     Done!
+Thu, 27 Aug 2020 15:52:04 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:52:05 INFO     Program started
+Thu, 27 Aug 2020 15:52:05 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:52:05 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:52:05 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:52:05 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:52:05 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:52:06 INFO     Done!
+Thu, 27 Aug 2020 15:52:56 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:52:57 INFO     Program started
+Thu, 27 Aug 2020 15:52:57 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:52:57 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:52:57 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:52:57 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:52:57 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:52:58 INFO     Done!
+Thu, 27 Aug 2020 15:53:25 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:53:26 INFO     Program started
+Thu, 27 Aug 2020 15:53:26 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:53:26 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:53:26 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:53:26 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:53:26 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:53:27 INFO     Done!
+Thu, 27 Aug 2020 15:54:36 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:54:36 INFO     Program started
+Thu, 27 Aug 2020 15:54:36 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:54:36 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:54:36 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:54:36 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:54:37 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:54:38 INFO     Done!
+Thu, 27 Aug 2020 15:56:10 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 15:56:10 INFO     Program started
+Thu, 27 Aug 2020 15:56:10 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 15:56:10 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 15:56:10 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 15:56:10 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 15:56:10 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 15:56:12 INFO     Done!
+Thu, 27 Aug 2020 16:08:56 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:08:57 INFO     Program started
+Thu, 27 Aug 2020 16:08:57 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:57 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:57 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:57 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:57 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:57 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:57 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:57 INFO     Program started
+Thu, 27 Aug 2020 16:08:57 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:57 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:57 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:57 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:57 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:57 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:57 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:58 INFO     Program started
+Thu, 27 Aug 2020 16:08:58 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:58 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:58 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:58 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:58 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:58 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:58 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:58 INFO     Program started
+Thu, 27 Aug 2020 16:08:58 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:58 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:58 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:58 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:58 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:58 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:58 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:59 INFO     Program started
+Thu, 27 Aug 2020 16:08:59 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:59 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:59 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:59 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:59 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:59 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:59 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:59 INFO     Program started
+Thu, 27 Aug 2020 16:08:59 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:08:59 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:08:59 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:08:59 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:08:59 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:08:59 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:08:59 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:09:00 INFO     Program started
+Thu, 27 Aug 2020 16:09:00 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:09:00 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:09:00 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:09:00 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:09:00 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:09:00 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:09:00 ERROR    Constructing component 'KCL_const' from data=None failed:
+    NameError: name 'g' is not defined
+Thu, 27 Aug 2020 16:10:18 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:10:19 INFO     Program started
+Thu, 27 Aug 2020 16:10:19 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:19 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:19 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:19 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:19 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:19 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:19 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:19 INFO     Program started
+Thu, 27 Aug 2020 16:10:19 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:19 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:19 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:19 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:19 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:19 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:19 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:20 INFO     Program started
+Thu, 27 Aug 2020 16:10:20 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:20 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:20 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:20 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:20 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:20 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:20 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:20 INFO     Program started
+Thu, 27 Aug 2020 16:10:20 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:20 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:20 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:20 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:20 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:20 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:20 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:21 INFO     Program started
+Thu, 27 Aug 2020 16:10:21 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:21 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:21 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:21 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:21 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:21 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:21 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:21 INFO     Program started
+Thu, 27 Aug 2020 16:10:21 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:21 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:21 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:21 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:21 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:21 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:21 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:21 INFO     Program started
+Thu, 27 Aug 2020 16:10:21 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:21 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:21 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:21 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:21 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:22 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:22 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:22 INFO     Program started
+Thu, 27 Aug 2020 16:10:22 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:22 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:22 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:22 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:22 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:22 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:22 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:47 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:10:47 INFO     Program started
+Thu, 27 Aug 2020 16:10:47 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:47 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:47 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:47 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:47 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:47 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:47 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:47 INFO     Program started
+Thu, 27 Aug 2020 16:10:47 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:47 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:47 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:47 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:47 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:48 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:48 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:48 INFO     Program started
+Thu, 27 Aug 2020 16:10:48 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:48 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:48 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:48 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:48 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:48 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:48 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:49 INFO     Program started
+Thu, 27 Aug 2020 16:10:49 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:49 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:49 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:49 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:49 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:49 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:49 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:49 INFO     Program started
+Thu, 27 Aug 2020 16:10:49 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:49 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:49 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:49 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:49 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:49 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:49 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:49 INFO     Program started
+Thu, 27 Aug 2020 16:10:49 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:49 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:49 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:49 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:50 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:50 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:50 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:50 INFO     Program started
+Thu, 27 Aug 2020 16:10:50 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:50 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:50 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:50 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:50 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:50 ERROR    Constructing component 'OBJ' from data=None failed:
+    KeyboardInterrupt: 
+Thu, 27 Aug 2020 16:10:50 INFO     Program started
+Thu, 27 Aug 2020 16:10:50 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:50 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:50 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:50 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:51 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:51 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:51 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:51 INFO     Program started
+Thu, 27 Aug 2020 16:10:51 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:51 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:51 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:51 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:51 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:51 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:51 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:51 INFO     Program started
+Thu, 27 Aug 2020 16:10:51 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:51 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:51 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:51 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:52 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:52 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:52 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:52 INFO     Program started
+Thu, 27 Aug 2020 16:10:52 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:52 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:52 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:52 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:52 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:52 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:52 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:52 INFO     Program started
+Thu, 27 Aug 2020 16:10:52 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:10:52 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:10:52 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:10:52 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:10:52 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:10:53 ERROR    Rule failed when generating expression for constraint KCL_const with index (1, 0):
+TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:10:53 ERROR    Constructing component 'KCL_const' from data=None failed:
+    TypeError: KCL_def() missing 1 required positional argument: 't'
+Thu, 27 Aug 2020 16:11:15 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:11:15 INFO     Program started
+Thu, 27 Aug 2020 16:11:15 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:11:15 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:11:15 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:11:15 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:11:16 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:11:17 INFO     Done!
+Thu, 27 Aug 2020 16:11:31 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:11:31 INFO     Program started
+Thu, 27 Aug 2020 16:11:31 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:11:31 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:11:31 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:11:31 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:11:31 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:11:33 INFO     Done!
+Thu, 27 Aug 2020 16:11:39 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:11:39 INFO     Program started
+Thu, 27 Aug 2020 16:11:39 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:11:39 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:11:39 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:11:39 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:11:39 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:11:40 INFO     Done!
+Thu, 27 Aug 2020 16:12:19 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:12:20 INFO     Program started
+Thu, 27 Aug 2020 16:12:20 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:12:20 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:12:20 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:12:20 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:12:20 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:12:21 INFO     Done!
+Thu, 27 Aug 2020 16:12:42 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:12:42 INFO     Program started
+Thu, 27 Aug 2020 16:12:42 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:12:42 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:12:42 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:12:42 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:12:42 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:12:44 INFO     Done!
+Thu, 27 Aug 2020 16:14:13 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:14:13 INFO     Program started
+Thu, 27 Aug 2020 16:14:13 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:14:13 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:14:13 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:14:13 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:14:14 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:14:15 INFO     Done!
+Thu, 27 Aug 2020 16:17:49 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:17:49 INFO     Program started
+Thu, 27 Aug 2020 16:17:49 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:17:49 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:17:49 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:17:49 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:17:49 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:17:50 INFO     Done!
+Thu, 27 Aug 2020 16:19:56 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:19:57 INFO     Program started
+Thu, 27 Aug 2020 16:19:57 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:19:57 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:19:57 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:19:57 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:19:57 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:19:58 INFO     Done!
+Thu, 27 Aug 2020 16:20:13 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:20:13 INFO     Program started
+Thu, 27 Aug 2020 16:20:13 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:20:13 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:20:13 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:20:13 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:20:14 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:20:15 INFO     Done!
+Thu, 27 Aug 2020 16:21:00 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:21:00 INFO     Program started
+Thu, 27 Aug 2020 16:21:00 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:00 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:00 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:00 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:01 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:02 INFO     Done!
+Thu, 27 Aug 2020 16:21:03 INFO     Program started
+Thu, 27 Aug 2020 16:21:03 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:03 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:03 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:03 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:03 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:05 INFO     Done!
+Thu, 27 Aug 2020 16:21:05 INFO     Program started
+Thu, 27 Aug 2020 16:21:05 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:05 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:05 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:05 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:05 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:06 INFO     Done!
+Thu, 27 Aug 2020 16:21:07 INFO     Program started
+Thu, 27 Aug 2020 16:21:07 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:07 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:07 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:07 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:07 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:10 INFO     Done!
+Thu, 27 Aug 2020 16:21:11 INFO     Program started
+Thu, 27 Aug 2020 16:21:11 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:11 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:11 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:11 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:11 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:13 INFO     Done!
+Thu, 27 Aug 2020 16:21:14 INFO     Program started
+Thu, 27 Aug 2020 16:21:14 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:14 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:14 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:14 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:14 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:17 INFO     Done!
+Thu, 27 Aug 2020 16:21:18 INFO     Program started
+Thu, 27 Aug 2020 16:21:18 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:18 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:18 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:18 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:18 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:21 INFO     Done!
+Thu, 27 Aug 2020 16:21:22 INFO     Program started
+Thu, 27 Aug 2020 16:21:22 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:22 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:22 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:22 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:22 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:26 INFO     Done!
+Thu, 27 Aug 2020 16:21:26 INFO     Program started
+Thu, 27 Aug 2020 16:21:26 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:26 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:26 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:26 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:26 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:28 INFO     Done!
+Thu, 27 Aug 2020 16:21:28 INFO     Program started
+Thu, 27 Aug 2020 16:21:28 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:28 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:28 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:28 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:28 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:30 INFO     Done!
+Thu, 27 Aug 2020 16:21:31 INFO     Program started
+Thu, 27 Aug 2020 16:21:31 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:31 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:31 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:31 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:31 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:31 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:32 INFO     Program started
+Thu, 27 Aug 2020 16:21:32 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:32 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:32 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:32 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:32 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:32 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:32 INFO     Program started
+Thu, 27 Aug 2020 16:21:32 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:32 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:32 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:32 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:32 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:33 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:33 INFO     Program started
+Thu, 27 Aug 2020 16:21:33 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:33 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:33 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:33 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:33 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:34 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:34 INFO     Program started
+Thu, 27 Aug 2020 16:21:34 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:34 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:34 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:34 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:34 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:34 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:35 INFO     Program started
+Thu, 27 Aug 2020 16:21:35 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:35 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:35 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:35 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:35 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:36 INFO     Done!
+Thu, 27 Aug 2020 16:21:37 INFO     Program started
+Thu, 27 Aug 2020 16:21:37 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:37 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:37 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:37 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:37 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:40 INFO     Done!
+Thu, 27 Aug 2020 16:21:40 INFO     Program started
+Thu, 27 Aug 2020 16:21:40 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:40 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:40 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:40 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:40 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:41 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:21:41 INFO     Program started
+Thu, 27 Aug 2020 16:21:41 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:41 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:41 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:41 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:41 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:43 INFO     Done!
+Thu, 27 Aug 2020 16:21:44 INFO     Program started
+Thu, 27 Aug 2020 16:21:44 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:44 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:44 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:44 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:44 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:46 INFO     Done!
+Thu, 27 Aug 2020 16:21:46 INFO     Program started
+Thu, 27 Aug 2020 16:21:46 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:46 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:46 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:46 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:47 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:49 INFO     Done!
+Thu, 27 Aug 2020 16:21:50 INFO     Program started
+Thu, 27 Aug 2020 16:21:50 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:50 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:50 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:50 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:50 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:53 INFO     Done!
+Thu, 27 Aug 2020 16:21:54 INFO     Program started
+Thu, 27 Aug 2020 16:21:54 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:54 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:54 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:54 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:54 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:55 INFO     Done!
+Thu, 27 Aug 2020 16:21:56 INFO     Program started
+Thu, 27 Aug 2020 16:21:56 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:21:56 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:21:56 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:21:56 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:21:56 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:21:59 INFO     Done!
+Thu, 27 Aug 2020 16:22:00 INFO     Program started
+Thu, 27 Aug 2020 16:22:00 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:00 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:00 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:00 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:00 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:02 INFO     Done!
+Thu, 27 Aug 2020 16:22:02 INFO     Program started
+Thu, 27 Aug 2020 16:22:02 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:02 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:02 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:02 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:03 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:06 INFO     Done!
+Thu, 27 Aug 2020 16:22:06 INFO     Program started
+Thu, 27 Aug 2020 16:22:06 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:06 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:06 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:06 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:07 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:10 INFO     Done!
+Thu, 27 Aug 2020 16:22:11 INFO     Program started
+Thu, 27 Aug 2020 16:22:11 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:11 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:11 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:11 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:11 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:12 INFO     Done!
+Thu, 27 Aug 2020 16:22:13 INFO     Program started
+Thu, 27 Aug 2020 16:22:13 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:13 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:13 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:13 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:13 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:15 INFO     Done!
+Thu, 27 Aug 2020 16:22:16 INFO     Program started
+Thu, 27 Aug 2020 16:22:16 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:22:16 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:22:16 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:22:16 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:22:16 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:22:19 INFO     Done!
+Thu, 27 Aug 2020 16:39:29 WARNING  No handles with labels found to put in legend.
+Thu, 27 Aug 2020 16:48:11 INFO     EV Scheduling log file
+Thu, 27 Aug 2020 16:48:11 INFO     Program started
+Thu, 27 Aug 2020 16:48:11 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:11 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:11 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:11 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:11 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:13 INFO     Done!
+Thu, 27 Aug 2020 16:48:13 INFO     Program started
+Thu, 27 Aug 2020 16:48:13 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:13 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:13 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:13 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:13 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:15 INFO     Done!
+Thu, 27 Aug 2020 16:48:15 INFO     Program started
+Thu, 27 Aug 2020 16:48:15 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:15 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:15 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:15 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:15 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:16 INFO     Done!
+Thu, 27 Aug 2020 16:48:17 INFO     Program started
+Thu, 27 Aug 2020 16:48:17 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:17 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:17 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:17 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:17 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:20 INFO     Done!
+Thu, 27 Aug 2020 16:48:21 INFO     Program started
+Thu, 27 Aug 2020 16:48:21 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:21 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:21 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:21 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:21 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:21 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:48:22 INFO     Program started
+Thu, 27 Aug 2020 16:48:22 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:22 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:22 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:22 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:22 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:22 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:48:23 INFO     Program started
+Thu, 27 Aug 2020 16:48:23 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:23 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:23 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:23 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:23 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:23 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:48:24 INFO     Program started
+Thu, 27 Aug 2020 16:48:24 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:24 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:24 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:24 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:24 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:26 INFO     Done!
+Thu, 27 Aug 2020 16:48:26 INFO     Program started
+Thu, 27 Aug 2020 16:48:26 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:26 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:26 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:26 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:27 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:29 INFO     Done!
+Thu, 27 Aug 2020 16:48:30 INFO     Program started
+Thu, 27 Aug 2020 16:48:30 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:30 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:30 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:30 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:30 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:33 INFO     Done!
+Thu, 27 Aug 2020 16:48:33 INFO     Program started
+Thu, 27 Aug 2020 16:48:33 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:33 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:33 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:33 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:33 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:37 INFO     Done!
+Thu, 27 Aug 2020 16:48:38 INFO     Program started
+Thu, 27 Aug 2020 16:48:38 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:38 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:38 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:38 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:38 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:39 INFO     Done!
+Thu, 27 Aug 2020 16:48:40 INFO     Program started
+Thu, 27 Aug 2020 16:48:40 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:40 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:40 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:40 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:40 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:42 INFO     Done!
+Thu, 27 Aug 2020 16:48:42 INFO     Program started
+Thu, 27 Aug 2020 16:48:42 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:42 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:42 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:42 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:42 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:44 INFO     Done!
+Thu, 27 Aug 2020 16:48:44 INFO     Program started
+Thu, 27 Aug 2020 16:48:44 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:44 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:44 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:44 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:44 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:47 INFO     Done!
+Thu, 27 Aug 2020 16:48:48 INFO     Program started
+Thu, 27 Aug 2020 16:48:48 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:48 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:48 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:48 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:48 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:48 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:48:48 INFO     Program started
+Thu, 27 Aug 2020 16:48:48 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:48 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:48 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:48 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:49 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:49 ERROR    evaluating object as numeric value: CostTP[0]
+    (object: <class 'pyomo.core.base.var._GeneralVarData'>)
+No value for uninitialized NumericValue object CostTP[0]
+Thu, 27 Aug 2020 16:48:50 INFO     Program started
+Thu, 27 Aug 2020 16:48:50 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:50 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:50 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:50 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:50 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:52 INFO     Done!
+Thu, 27 Aug 2020 16:48:52 INFO     Program started
+Thu, 27 Aug 2020 16:48:52 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:52 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:52 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:52 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:53 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:54 INFO     Done!
+Thu, 27 Aug 2020 16:48:55 INFO     Program started
+Thu, 27 Aug 2020 16:48:55 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:55 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:55 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:55 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:55 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:48:57 INFO     Done!
+Thu, 27 Aug 2020 16:48:58 INFO     Program started
+Thu, 27 Aug 2020 16:48:58 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:48:58 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:48:58 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:48:58 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:48:58 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:01 INFO     Done!
+Thu, 27 Aug 2020 16:49:02 INFO     Program started
+Thu, 27 Aug 2020 16:49:02 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:02 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:02 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:02 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:02 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:03 INFO     Done!
+Thu, 27 Aug 2020 16:49:04 INFO     Program started
+Thu, 27 Aug 2020 16:49:04 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:04 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:04 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:04 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:04 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:07 INFO     Done!
+Thu, 27 Aug 2020 16:49:07 INFO     Program started
+Thu, 27 Aug 2020 16:49:07 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:07 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:07 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:07 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:07 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:08 INFO     Done!
+Thu, 27 Aug 2020 16:49:09 INFO     Program started
+Thu, 27 Aug 2020 16:49:09 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:09 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:09 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:09 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:09 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:12 INFO     Done!
+Thu, 27 Aug 2020 16:49:12 INFO     Program started
+Thu, 27 Aug 2020 16:49:12 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:12 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:12 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:12 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:12 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:16 INFO     Done!
+Thu, 27 Aug 2020 16:49:16 INFO     Program started
+Thu, 27 Aug 2020 16:49:16 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:16 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:16 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:16 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:16 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:18 INFO     Done!
+Thu, 27 Aug 2020 16:49:18 INFO     Program started
+Thu, 27 Aug 2020 16:49:18 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:18 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:18 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:18 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:18 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:21 INFO     Done!
+Thu, 27 Aug 2020 16:49:21 INFO     Program started
+Thu, 27 Aug 2020 16:49:21 INFO     Solver selected: cplex
+Thu, 27 Aug 2020 16:49:21 INFO     Testcase selected: /timeseries/EVDay01_mix.xlsx
+Thu, 27 Aug 2020 16:49:21 INFO     Model selected: EVScheduleV2G
+Thu, 27 Aug 2020 16:49:21 INFO     Given model file found and selected from the models library
+Thu, 27 Aug 2020 16:49:22 INFO     Given testcase file found and selected from the testcase library
+Thu, 27 Aug 2020 16:49:25 INFO     Done!
+Thu, 27 Aug 2020 16:50:12 WARNING  No handles with labels found to put in legend.

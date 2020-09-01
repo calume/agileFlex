@@ -133,23 +133,23 @@ model.precontingency_cost_const = Constraint(model.T,rule=precontingency_cost)
 def KCL_def(model, b,t):
     return sum(model.pG[g,t] for g in model.G if (b,g) in model.Gbs) +\
     sum(model.pEVDischarge[c,w,t]-model.pEVCharge[c,w,t] for (c,w) in model.EVWindow if (b,c) in model.EVbs if (c,w,t) in model.FlexTimes) == \
-    sum(model.pD[d,t] for d in model.D if (b,d) in model.Dbs)+\
-    sum(model.pL[l,t] for l in model.L if model.A[l,1]==b)- \
-    sum(model.pL[l,t] for l in model.L if model.A[l,2]==b)+\
-    sum(model.pLT[l,t] for l in model.TRANSF if model.AT[l,1]==b)- \
-    sum(model.pLT[l,t] for l in model.TRANSF if model.AT[l,2]==b)+\
-    sum(model.GB[s] for s in model.SHUNT if (b,s) in model.SHUNTbs)
+    sum(model.pD[d,t] for d in model.D if (b,d) in model.Dbs)
+    # sum(model.pL[l,t] for l in model.L if model.A[l,1]==b)- \
+    # sum(model.pL[l,t] for l in model.L if model.A[l,2]==b)+\
+    # sum(model.pLT[l,t] for l in model.TRANSF if model.AT[l,1]==b)- \
+    # sum(model.pLT[l,t] for l in model.TRANSF if model.AT[l,2]==b)+\
+    # sum(model.GB[s] for s in model.SHUNT if (b,s) in model.SHUNTbs)
 # the next line creates one KCL constraint for each bus
 model.KCL_const = Constraint(model.B, model.T, rule=KCL_def)
 
-# --- Kirchoff's voltage law on each line and transformer---
-def KVL_line_def(model,l,t):
-    return model.pL[l,t] == (-model.BL[l])*model.deltaL[l,t]
-def KVL_trans_def(model,l,t):
-    return model.pLT[l,t] == (-model.BLT[l])*model.deltaLT[l,t]
-#the next two lines creates KVL constraints for each line and transformer, respectively.
-model.KVL_line_const     = Constraint(model.L, model.T, rule=KVL_line_def)
-model.KVL_trans_const    = Constraint(model.TRANSF, model.T, rule=KVL_trans_def)
+# # --- Kirchoff's voltage law on each line and transformer---
+# def KVL_line_def(model,l,t):
+#     return model.pL[l,t] == (-model.BL[l])*model.deltaL[l,t]
+# def KVL_trans_def(model,l,t):
+#     return model.pLT[l,t] == (-model.BLT[l])*model.deltaLT[l,t]
+# #the next two lines creates KVL constraints for each line and transformer, respectively.
+# model.KVL_line_const     = Constraint(model.L, model.T, rule=KVL_line_def)
+# model.KVL_trans_const    = Constraint(model.TRANSF, model.T, rule=KVL_trans_def)
 
 # --- demand model ---
 def demand_model(model,d,t):
@@ -172,7 +172,7 @@ def EV_SoCBoundary1(model,c,w,t):
 model.EVmodelSoCStart = Constraint(model.EVBoundaryStart,rule=EV_SoCBoundary1)
 
 def EV_SoCBoundary2(model,c,w,t):
-    return model.SoC[c,w,t] == model.SoCEnd[c,w,t]*0.95
+    return model.SoC[c,w,t] == model.SoCEnd[c,w,t]*0.99
 model.EVmodelSoCEnd = Constraint(model.EVBoundaryEnd,rule=EV_SoCBoundary2)
 
 def EV_ChargeCapUB1(model,c,w,t):
@@ -200,40 +200,40 @@ def Real_Power_Min(model,g,t):
 model.PGmaxC = Constraint(model.G, model.T, rule=Real_Power_Max)
 model.PGminC = Constraint(model.G, model.T, rule=Real_Power_Min)
 
-# --- line power limits ---
-def line_lim1_def(model,l,t):
-    return model.pL[l,t] <= model.SLmax[l]
-def line_lim2_def(model,l,t):
-    return model.pL[l,t] >= -model.SLmax[l]
-#the next two lines creates line flow constraints for each line.
-model.line_lim1 = Constraint(model.L, model.T, rule=line_lim1_def)
-model.line_lim2 = Constraint(model.L, model.T, rule=line_lim2_def)
+# # --- line power limits ---
+# def line_lim1_def(model,l,t):
+#     return model.pL[l,t] <= model.SLmax[l]
+# def line_lim2_def(model,l,t):
+#     return model.pL[l,t] >= -model.SLmax[l]
+# #the next two lines creates line flow constraints for each line.
+# model.line_lim1 = Constraint(model.L, model.T, rule=line_lim1_def)
+# model.line_lim2 = Constraint(model.L, model.T, rule=line_lim2_def)
 
-# --- power flow limits on transformer lines---
-def transf_lim1_def(model,l,t):
-    return model.pLT[l,t] <= model.SLmaxT[l]
-def transf_lim2_def(model,l,t):
-    return model.pLT[l,t] >= -model.SLmaxT[l]
-#the next two lines creates line flow constraints for each transformer.
-model.transf_lim1 = Constraint(model.TRANSF, model.T, rule=transf_lim1_def)
-model.transf_lim2 = Constraint(model.TRANSF, model.T, rule=transf_lim2_def)
+# # --- power flow limits on transformer lines---
+# def transf_lim1_def(model,l,t):
+#     return model.pLT[l,t] <= model.SLmaxT[l]
+# def transf_lim2_def(model,l,t):
+#     return model.pLT[l,t] >= -model.SLmaxT[l]
+# #the next two lines creates line flow constraints for each transformer.
+# model.transf_lim1 = Constraint(model.TRANSF, model.T, rule=transf_lim1_def)
+# model.transf_lim2 = Constraint(model.TRANSF, model.T, rule=transf_lim2_def)
 
-# --- phase angle constraints ---
-def phase_angle_diff1(model,l,t):
-    return model.deltaL[l,t] == model.delta[model.A[l,1],t] - \
-    model.delta[model.A[l,2],t]
-model.phase_diff1 = Constraint(model.L, model.T, rule=phase_angle_diff1)
+# # --- phase angle constraints ---
+# def phase_angle_diff1(model,l,t):
+#     return model.deltaL[l,t] == model.delta[model.A[l,1],t] - \
+#     model.delta[model.A[l,2],t]
+# model.phase_diff1 = Constraint(model.L, model.T, rule=phase_angle_diff1)
 
-# --- phase angle constraints ---
-def phase_angle_diff2(model,l,t):
-    return model.deltaLT[l,t] == model.delta[model.AT[l,1],t] - \
-    model.delta[model.AT[l,2],t]
-model.phase_diff2 = Constraint(model.TRANSF, model.T, rule=phase_angle_diff2)
+# # --- phase angle constraints ---
+# def phase_angle_diff2(model,l,t):
+#     return model.deltaLT[l,t] == model.delta[model.AT[l,1],t] - \
+#     model.delta[model.AT[l,2],t]
+# model.phase_diff2 = Constraint(model.TRANSF, model.T, rule=phase_angle_diff2)
 
-# --- reference bus constraint ---
-def ref_bus_def(model,b,t):
-    return model.delta[b,t]==0
-model.refbus = Constraint(model.b0, model.T, rule=ref_bus_def)
+# # --- reference bus constraint ---
+# def ref_bus_def(model,b,t):
+#     return model.delta[b,t]==0
+# model.refbus = Constraint(model.b0, model.T, rule=ref_bus_def)
 
 
 # #======Constraints fixing last time period charging======

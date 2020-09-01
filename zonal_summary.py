@@ -10,13 +10,12 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta, date, time
-import datetime
 from runfile import main
 from shutil import copyfile
 from openpyxl import load_workbook
 import random
 
-def plotDay(prices, gen, genmin,zone,nEVs,nCusts):
+def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts):
     ########-----------Plot Results----------#############
     prices.index=prices['timeperiod']
     prices=prices['cost(pounds/kwh)']
@@ -28,6 +27,7 @@ def plotDay(prices, gen, genmin,zone,nEVs,nCusts):
     summary=summary.join(prices,how='outer')
     summary=summary.join(gen,how='outer')
     summary=summary.join(genmin,how='outer')
+    summary=summary.join(v2g,how='outer')
     summary=summary.join(discharge,how='outer')
     
     times = ['12:00','16:00','20:00','24:00','04:00','08:00','12:00']
@@ -36,21 +36,22 @@ def plotDay(prices, gen, genmin,zone,nEVs,nCusts):
     color = 'tab:red'
     ax1.set_xlabel('time')
     ax1.set_ylabel('Headroom / EV Charge/Discharge (kW)', color=color)
-    lns1=ax1.plot(summary.index, summary['Charging(kW)']-summary['Discharging(kW)'], color=color, label="Total EV Charge")
+    lns1=ax1.plot(summary.index, summary['Charging(kW)']-summary['Discharging(kW)'], color=color, label="Net EV Charge")
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xlim(0,144)
     
-    lns2=ax1.plot(summary.index, summary['PG_Min'], color='black', linestyle=":", label="V2G Request")
-    lns3=ax1.plot(summary.index, summary['PG_Max'], color='green', linestyle="--", label="Headroom")
+    lns2=ax1.plot(summary.index, summary['PG_Min'], color='red', linestyle="--", label="Footroom")
+    lns3=ax1.plot(summary.index, summary['v2g'], color='black', linestyle=":", label="V2G Request")
+    lns4=ax1.plot(summary.index, summary['PG_Max'], color='green', linestyle="--", label="Headroom")
     
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
     
     color = 'tab:blue'
     ax2.set_ylabel('Price (£/kWh)', color=color)  # we already handled the x-label with ax1
-    lns4=ax2.plot(summary.index, summary['cost(pounds/kwh)'], color=color, label="Grid+V2G Price")
+    lns5=ax2.plot(summary.index, summary['cost(pounds/kwh)'], color=color, label="Grid+V2G Price")
     ax2.tick_params(axis='y', labelcolor=color)
     
-    lns = lns1+lns2+lns3+lns4
+    lns = lns1+lns2+lns3+lns4+lns5
     labs = [l.get_label() for l in lns]
     ax2.legend(lns, labs, loc=0)
     ax2.set_xlim(0,144)
@@ -59,10 +60,10 @@ def plotDay(prices, gen, genmin,zone,nEVs,nCusts):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
     
-
+start=datetime.now()
 #def daily_EVSchedule(Network,Case, factor):
-Network='network_1/'
-Case='25PV50HP'
+Network='network_5/'
+Case='00PV25HP'
 factor=1
 daytype='All'#'wkd'
 start_date = date(2013, 12, 1)
@@ -74,11 +75,14 @@ dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
 #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
 #SummerHdRm = pickle.load(pick_in)
 
-pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"15.pickle", "rb")
+pick_in = open("../Data/"+str(Network)+"Customer_Summary"+str(Case)+"14.pickle", "rb")
 Customer_summary = pickle.load(pick_in)
 
 pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
 WinterHdRm = pickle.load(pick_in)
+
+pick_in = open("../Data/"+str(Network+Case)+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+WinterFtRm = pickle.load(pick_in)
 
 pick_in = open("../Data/nEVs_NoShifting.pickle", "rb")
 nEVs_All = pickle.load(pick_in)
@@ -88,12 +92,12 @@ EVs = pd.read_csv('testcases/timeseries/Routine_10000EV.csv')
 
 ########------ Customers by Phase/Feeder ---------###
 custsbyzone=[]
-for c in WinterHdRm.keys():
+for c in list(WinterHdRm.keys()):
     CbyP=Customer_summary[Customer_summary['Phase']==c[0]]
     custsbyzone.append(len(CbyP[CbyP['Feeder']==c[1]]))
 
 priceIn=pd.read_csv('Prices.csv')
-priceIn['Total']=priceIn['DUoS']/100
+priceIn['Total']=priceIn['DUoS']/100+0.032
 priceIn=priceIn['Total']
 priceIn.index=dt1
 priceIn=priceIn.resample('10T').mean()
@@ -116,12 +120,17 @@ k=0
 # if 8 < temp <= 11:
 #     TR=2
 
-for i in list(WinterHdRm.keys())[0:1]:#[:-2]:
+for i in WinterHdRm.keys():
     
     #a=WinterHdRm[i]['P5-'+str(TR)]*factor
-    a=WinterHdRm[i]['P5']*factor
+    a=WinterHdRm[i]['P5']*0.7
     a.index=dt2
     hdrm=a[74:].append(a[:74])
+    
+    b=WinterFtRm[i]['P5']*0.8
+    b.index=dt2
+    ftrm=b[74:].append(b[:74])
+        
     status[k]={}
     status[k][0]='Fail'
     l=1
@@ -137,19 +146,22 @@ for i in list(WinterHdRm.keys())[0:1]:#[:-2]:
         prices=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='timeseriesGen')
        
         gen['Grid']=hdrm.values
+        v2g=gen['Grid'].rename('v2g')
+        v2g[v2g>0]=0
+        prices['cost(pounds/kwh)']=priceIn.values
+        prices['cost(pounds/kwh)'][gen['Grid']<0]=prices['cost(pounds/kwh)'][gen['Grid']<0]+0.125
+        
         gen['Grid'][gen['Grid']<0]=0
         
-        genmin['Grid']=hdrm.values
-        genmin['Grid'][genmin['Grid']>0]=0
+        genmin['Grid']=-ftrm.values
+        #genmin['Grid'][genmin['Grid']>0]=0
 
         EVSample=EVs.sample(n=nEVs)
         EVTDSample=pd.DataFrame()
         for s in EVSample['name']:
             EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
 
-        prices['cost(pounds/kwh)']=priceIn.values
-        
-        prices['cost(pounds/kwh)'][genmin['Grid']<0]=prices['cost(pounds/kwh)'][genmin['Grid']<0]+0.125
+
         
         
         book = load_workbook('testcases/timeseries/EVDay01_mix.xlsx')
@@ -189,7 +201,7 @@ for i in list(WinterHdRm.keys())[0:1]:#[:-2]:
     k=k+1
 
 
-    plotDay(prices, gen, genmin,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]))
+    plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]))
         
     
     #########----------- Write Outputs for Validation --------############
@@ -204,11 +216,16 @@ for i in list(WinterHdRm.keys())[0:1]:#[:-2]:
     AllEVs[i]=pd.DataFrame(index=dt2,dtype=float)
     
     for z in IDs:
-        AllEVs[i].join(dems[z], how='outer')
+        AllEVs[i]=AllEVs[i].join(dems[z], how='outer')
     
 pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay"+str(Case)+".pickle", "wb")
 pickle.dump(AllEVs, pickle_out)
 pickle_out.close()
+
+end=datetime.now()
+
+t_time=end-start
+print('Days Optimisation took '+str(t_time))
 
 #return EVCapacitySummary, AllEVs
 

@@ -35,17 +35,18 @@ from crunch_results import (
 )
 
 
+
 ####----------Set Test Network ------------
 start=datetime.now()
 
-Case='25PV50HP'
-Network='network_1/'
+Case='00PV25HP'
+Network='network_5/'
 
 ########### Create Forecast File if not already Done ##########
 
 #wkd_temps,wknd_temps=hdrm_forecast(Network,Case)
 
-Network_Path = "Test_Network/"+str(Network)
+Network_Path = "Test_Network/condensed/"+str(Network)
 ##create_gens(Network_Path)
 
 #### Load in Test data Set ##########
@@ -76,7 +77,9 @@ EV_DataFrame = pickle.load(pick_in)
 ########--------- Code to load dates with highest HP demand for testing-------------##########
 
 # HP_DataFrame.columns=HP_DataFrame.columns.astype(int)
+#zone=Customer_Summary[Customer_Summary['zone']=='14']
 # HPs=Customer_Summary['heatpump_ID'][Customer_Summary['heatpump_ID']>0]
+#HPs=zone['heatpump_ID'][zone['heatpump_ID']>0]
 # HP_DataFrame[HPs].sum(axis=1).resample('1D').sum().idxmax()
 # HP_DataFrame[HPs].sum(axis=1).resample('1D').max().idxmax()
 
@@ -92,10 +95,10 @@ EV_DataFrame = pickle.load(pick_in)
 #start_date = date(2014, 6, 1)
 #end_date = date(2014, 9, 3)
 Y=14
-start_date = date(2013, 12, 17)
-end_date = date(2013, 12, 18)
+start_date = date(2013, 12, 2)
+end_date = date(2013, 12, 4)
 sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
-sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[:-1]#[72:216]
+sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
 
 sims=sims_tenminutes
 pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
@@ -115,6 +118,7 @@ HP_DataFrame = HP_DataFrame.loc[sims]
 #EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,Case, 1)
 
 for i in EV_DataFrame.keys():
+    EV_DataFrame[i]=EV_DataFrame[i].resample('10T').sum()
     EV_DataFrame[i].index=(sims_tenminutes.tolist())
 for i in SM_DataFrame.keys():
     SM_DataFrame[i]=SM_DataFrame[i].reindex(sims_halfhours.tolist())
@@ -262,7 +266,7 @@ end=datetime.now()
 print('=========== RESULTS FOR '+str(Network)+' Case '+str(Case)+'==============')
 #print('Tomorrow is a '+str(daytype)+ ' with forecast temperature '+str(temp)+'deg C')
 time=end-start
-print('Days Optimisation took '+str(time))
+print('Days Validation took '+str(time))
 #print('Number of EVs able to charge is '+str(EVCapacitySummary['EV Capacity'].sum())+' out of '+str(EVCapacitySummary['Customers'].sum())+' Customers')
 
 #pickle_out = open("../Data/100HPDec1st2013_2mins_Hdrm.pickle", "wb")

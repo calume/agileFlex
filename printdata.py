@@ -76,20 +76,20 @@ class printdata(object):
             #---EV flexibility windows---
             df_flex = pd.DataFrame(columns={'EV','Window','Start','End','SoCStart','SoCEnd'})
             ind = 0
-            f.write('set EVFlexWindow:= \n')
+            # f.write('set EVFlexWindow:= \n')
             for i in self.data["EV"].index.tolist():
                 window = 1
                 lst = self.data["EVsTravelDiary"]["name"][self.data["EV"]['name'][i]==self.data["EVsTravelDiary"]["name"]].index.tolist()
                 for ev in lst:
-                    f.write(str(str(self.data["EVsTravelDiary"]['name'][ev])+" "+str(window)+" "+str(1)+"\n"))
-                    f.write(str(str(self.data["EVsTravelDiary"]['name'][ev])+" "+str(window)+" "+str(2)+"\n"))
+                    # f.write(str(str(self.data["EVsTravelDiary"]['name'][ev])+" "+str(window)+" "+str(1)+"\n"))
+                    # f.write(str(str(self.data["EVsTravelDiary"]['name'][ev])+" "+str(window)+" "+str(2)+"\n"))
                     df_flex.loc[ind] = pd.Series({'EV':self.data["EVsTravelDiary"]['name'][ev],'Window':window,\
-                    'Start':self.data["EVsTravelDiary"]['t_in'][i],'End':self.data["EVsTravelDiary"]['t_out'][i],\
-                    'SoCStart':self.data["EVsTravelDiary"]['EStart'][i],'SoCEnd':self.data["EVsTravelDiary"]['EEnd'][i]})
+                    'Start':self.data["EVsTravelDiary"]['t_in'][ev],'End':self.data["EVsTravelDiary"]['t_out'][ev],\
+                    'SoCStart':self.data["EVsTravelDiary"]['EStart'][ev],'SoCEnd':self.data["EVsTravelDiary"]['EEnd'][ev]})
 
                     ind += 1
                     window += 1
-            f.write(';\n')
+            # f.write(';\n')
 
             f.write('set FlexTimes:= \n')
             for i in df_flex.index.tolist():

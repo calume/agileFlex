@@ -547,7 +547,7 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         plt.ylabel("Min Voltage (p.u.)")
 
         plt.xlim([0, len(Cmax)])
-        plt.ylim([0.8, 1.15])
+        plt.ylim([0.9, 1.05])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
