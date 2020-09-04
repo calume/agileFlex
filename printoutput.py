@@ -24,14 +24,15 @@ class printoutput(object):
         print ("========================")
     def solutionstatus(self):
         self.instance.solutions.load_from(self.results)
-        print ("------Solver Message------")
-        print (self.results.solver)
-        print ("--------------------------")
+        #print ("------Solver Message------")
+        #print (self.results.solver)
+        #print ("--------------------------")
         if (self.results.solver.status == SolverStatus.ok) \
         and (self.results.solver.termination_condition == TerminationCondition.optimal):
-            print ("Optimization Converged!")
+            #print ("Success")
             status='Success'
         elif self.results.solver.termination_condition == TerminationCondition.infeasible:
+            #print("Fail")
             status='Fail'
             #sys.quit()
             #sys.exit("Problem is infeasible!\nOats terminated. No output is written on the results file.")
@@ -42,18 +43,18 @@ class printoutput(object):
             #sys.quit()
             #print (sys.exit("Problem is infeasible!\nOats terminated. No output is written on the results file."))
     def printsummary(self):
-        if 'LF' not in self.mod:
-            print ("Cost of the objective function:", str(float(self.instance.OBJ())))
+        # if 'LF' not in self.mod:
+        #     print ("Cost of the objective function:", str(float(self.instance.OBJ())))
         print ("***********")
-        print ("\n Summary")
-        print ("***********")
-        tab_summary = []
-        tab_summary.append(['Time period','Conventional generation (kW)', 'Demand (kW)','Objective function value'])
-        for t in self.instance.T:
-            tab_summary.append([t,sum(self.instance.pG[g,t].value for g in self.instance.G)*self.instance.baseMVA,\
-            sum(self.instance.PD[d,t] for d in self.instance.D)*self.instance.baseMVA, self.instance.CostTP[t].value])
-        print (tabulate(tab_summary, headers="firstrow", tablefmt="grid"))
-        print ("==============================================")
+        # print ("\n Summary")
+        # print ("***********")
+        # tab_summary = []
+        # tab_summary.append(['Time period','Conventional generation (kW)', 'Demand (kW)','Objective function value'])
+        # for t in self.instance.T:
+        #     tab_summary.append([t,sum(self.instance.pG[g,t].value for g in self.instance.G)*self.instance.baseMVA,\
+        #     sum(self.instance.PD[d,t] for d in self.instance.D)*self.instance.baseMVA, self.instance.CostTP[t].value])
+        # print (tabulate(tab_summary, headers="firstrow", tablefmt="grid"))
+        # print ("==============================================")
 
         # ev_summary = []
         # ev_summary.append(['Time period','Window','EV', 'Charging','SoC'])
@@ -62,23 +63,23 @@ class printoutput(object):
         #     ev_summary.append([t,w,ev,self.instance.pEV[ev,w,t].value,self.instance.SoC[ev,w,t].value])
         # print tabulate(ev_summary, headers="firstrow", tablefmt="grid")
         # print "=============================================="
-    def printoutputxls(self):
+    def printoutputxls(self,Network):
         #===initialise pandas dataframes
         cols_summary    = ['Time period','Conventional generation (kW)', 'Demand (kW)','Objective function value']
         cols_bus        = ['Time period','name', 'angle(degs)']
-        cols_demand     = ['Time period','name', 'busname', 'PD(kW)','alpha']
+        #cols_demand     = ['Time period','name', 'busname', 'PD(kW)','alpha']
 
-        cols_branch     = ['Time period','name', 'from_busname', 'to_busname', 'pL(kW)','SLmax(kW)']
-        cols_transf     = ['Time period','name', 'from_busname', 'to_busname', 'pLT(kW)','SLmax(kW)']
+        #cols_branch     = ['Time period','name', 'from_busname', 'to_busname', 'pL(kW)','SLmax(kW)']
+        #cols_transf     = ['Time period','name', 'from_busname', 'to_busname', 'pLT(kW)','SLmax(kW)']
         cols_generation = ['Time period','name', 'busname', 'PGLB(kW)', 'pG(kW)','PGUB(kW)']
         cols_EVs        = ['Time period','name','Window','Charging(kW)','Discharging(kW)','SoC(kWh)']
 
         summary         = pd.DataFrame(columns=cols_summary)
         bus             = pd.DataFrame(columns=cols_bus)
-        demand          = pd.DataFrame(columns=cols_demand)
+        #demand          = pd.DataFrame(columns=cols_demand)
         generation      = pd.DataFrame(columns=cols_generation)
-        branch          = pd.DataFrame(columns=cols_branch)
-        transformer     = pd.DataFrame(columns=cols_transf)
+        #branch          = pd.DataFrame(columns=cols_branch)
+        #transformer     = pd.DataFrame(columns=cols_transf)
         EV             = pd.DataFrame(columns=cols_EVs)
 
         #-----write Data Frames
@@ -143,12 +144,12 @@ class printoutput(object):
 #        EV  = EV.sort_values(['name','Time period'])
 #       generation = generation.sort_values(['name'])
 #        demand = demand.sort_values(['name'])
-        writer = pd.ExcelWriter('results/results.xlsx', engine ='xlsxwriter')
+        writer = pd.ExcelWriter('results/results'+Network+'.xlsx', engine ='xlsxwriter')
         summary.to_excel(writer, sheet_name = 'summary',index=False)
-        bus.to_excel(writer, sheet_name = 'bus',index=False)
-        demand.to_excel(writer, sheet_name = 'demand',index=False)
-        generation.to_csv('results/generator.csv')
-        branch.to_excel(writer, sheet_name = 'branch',index=False)
-        transformer.to_excel(writer, sheet_name = 'transformer',index=False)
+        #bus.to_excel(writer, sheet_name = 'bus',index=False)
+        #demand.to_excel(writer, sheet_name = 'demand',index=False)
+        #generation.to_csv('results/generator.csv')
+        #branch.to_excel(writer, sheet_name = 'branch',index=False)
+        #transformer.to_excel(writer, sheet_name = 'transformer',index=False)
         EV.to_excel(writer, sheet_name = 'EVs',index=False)
         writer.save()

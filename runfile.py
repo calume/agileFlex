@@ -14,6 +14,7 @@ from runcase import runcase
 import logging
 import pandas as pd
 from matplotlib import pyplot as plt
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -23,7 +24,7 @@ logging.basicConfig(level=logging.INFO,
 logging.info("EV Scheduling log file")
 
 #----------------------------------------------------------------------
-def main():
+def main(network):
     logging.info("Program started")
     #options
     opt=({'neos':False,\
@@ -32,7 +33,7 @@ def main():
     #give a path to the testcase file under the 'testcase' folder
     #testcase = 'SP53224_1bus.xlsx'
     #testcase = 'BaseEVDay_WG.xlsx'
-    testcase = '/timeseries/EVDay01_mix.xlsx'
+    testcase = '/timeseries/EVDay01_mix'+network+'.xlsx'
     # testcase = 'case24_ieee_rts.xlsx'
     #testcase = 'case2.xlsx'
     # =====Model=====
@@ -42,11 +43,15 @@ def main():
     logging.info("Solver selected: "+opt['solver'])
     logging.info("Testcase selected: "+testcase)
     logging.info("Model selected: "+model)
-    status=runcase(testcase,model,opt)
+    status=runcase(testcase,model,network,opt)
     logging.info("Done!")
     return status
+#main('k_5')
+# start=datetime.now()
+# #main()
+# end=datetime.now()
+#print(end-start)
 
-# main()
 # gen=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genseries')
 # genmin=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='genmin')
 # prices=pd.read_excel('testcases/timeseries/EVDay01_mix.xlsx', sheet_name='timeseriesGen')

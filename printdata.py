@@ -145,17 +145,17 @@ class printdata(object):
         f.write('set LE:=\n 1 \n 2;\n')
         f = open(self.datfile, 'a')
         f.write('set Window:=\n 1 \n 2\n 3\n 4\n 5\n 6;\n')
-        #set of transmission lines
-        f.write('set L:=\n')
-        for i in self.data["branch"].index.tolist():
-            f.write(str(self.data["branch"]["name"][i])+"\n")
-        f.write(';\n')
-        #set of transformers
-        if len(self.data["transformer"]["name"])!=0:
-            f.write('set TRANSF:= \n')
-            for i in self.data["transformer"].index.tolist():
-                f.write(str(self.data["transformer"]["name"][i])+"\n")
-            f.write(';\n')
+        # #set of transmission lines
+        # f.write('set L:=\n')
+        # for i in self.data["branch"].index.tolist():
+        #     f.write(str(self.data["branch"]["name"][i])+"\n")
+        # f.write(';\n')
+        # #set of transformers
+        # if len(self.data["transformer"]["name"])!=0:
+        #     f.write('set TRANSF:= \n')
+        #     for i in self.data["transformer"].index.tolist():
+        #         f.write(str(self.data["transformer"]["name"][i])+"\n")
+        #     f.write(';\n')
         #---set of generator-bus mapping (gen_bus, gen_ind)---
         f.write('set Gbs:=\n')
         for i in self.data["generator"].index.tolist():
@@ -173,48 +173,48 @@ class printdata(object):
             f.write(str(i)+""+"\n")
         f.write(';\n')
         #---param defining system topolgy---
-        if len(self.data["branch"]["name"])!=0:
-            f.write('param A:=\n')
-            for i in self.data["branch"].index.tolist():
-                f.write(str(self.data["branch"]["name"][i])+" "+"1"+" "+str(self.data["branch"]["from_busname"][i])+"\n")
-            for i in self.data["branch"].index.tolist():
-                f.write(str(self.data["branch"]["name"][i])+" "+"2"+" "+str(self.data["branch"]["to_busname"][i])+"\n")
-            f.write(';\n')
-        #---Transformers---
-        if len(self.data["transformer"]["name"])!=0:
-            f.write('param AT:= \n')
-            for i in self.data["transformer"].index.tolist():
-                f.write(str(self.data["transformer"]["name"][i])+" "+"1"+" "+str(self.data["transformer"]["from_busname"][i])+"\n")
-            for i in self.data["transformer"].index.tolist():
-                f.write(str(self.data["transformer"]["name"][i])+" "+"2"+" "+str(self.data["transformer"]["to_busname"][i])+"\n")
-            f.write(';\n')
+        # if len(self.data["branch"]["name"])!=0:
+        #     f.write('param A:=\n')
+        #     for i in self.data["branch"].index.tolist():
+        #         f.write(str(self.data["branch"]["name"][i])+" "+"1"+" "+str(self.data["branch"]["from_busname"][i])+"\n")
+        #     for i in self.data["branch"].index.tolist():
+        #         f.write(str(self.data["branch"]["name"][i])+" "+"2"+" "+str(self.data["branch"]["to_busname"][i])+"\n")
+        #     f.write(';\n')
+        # #---Transformers---
+        # if len(self.data["transformer"]["name"])!=0:
+        #     f.write('param AT:= \n')
+        #     for i in self.data["transformer"].index.tolist():
+        #         f.write(str(self.data["transformer"]["name"][i])+" "+"1"+" "+str(self.data["transformer"]["from_busname"][i])+"\n")
+        #     for i in self.data["transformer"].index.tolist():
+        #         f.write(str(self.data["transformer"]["name"][i])+" "+"2"+" "+str(self.data["transformer"]["to_busname"][i])+"\n")
+        #     f.write(';\n')
         f.close()
     def printEV(self):
         f = open(self.datfile, 'a')
-        if len(self.data["branch"]["name"])!=0:
-            #---Tranmission line chracteristics for DC load flow---
-            f.write('param BL:=\n')
-            for i in self.data["branch"].index.tolist():
-                f.write(str(self.data["branch"]["name"][i])+" "+str(-1/float(self.data["branch"]["x"][i]))+"\n")
-            f.write(';\n')
-        #---Transformer chracteristics---
-        if len(self.data["transformer"]["name"])!=0:
-            f.write('param BLT:=\n')
-            for i in self.data["transformer"].index.tolist():
-                f.write(str(self.data["transformer"]["name"][i])+" "+str(-float(1/self.data["transformer"]["x"][i]))+"\n")
-            f.write(';\n')
-        if len(self.data["branch"]["name"])!=0:
-            #---Tranmission line bounds---
-            f.write('param SLmax:=\n')
-            for i in self.data["branch"].index.tolist():
-                f.write(str(self.data["branch"]["name"][i])+" "+str(float(self.data["branch"]["ContinuousRating"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
-            f.write(';\n')
-        #---Transformer chracteristics---
-        if len(self.data["transformer"]["name"])!=0:
-            f.write('param SLmaxT:=\n')
-            for i in self.data["transformer"].index.tolist():
-                f.write(str(self.data["transformer"]["name"][i])+" "+str(float(self.data["transformer"]["ContinuousRating"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
-            f.write(';\n')
+        # if len(self.data["branch"]["name"])!=0:
+        #     #---Tranmission line chracteristics for DC load flow---
+        #     f.write('param BL:=\n')
+        #     for i in self.data["branch"].index.tolist():
+        #         f.write(str(self.data["branch"]["name"][i])+" "+str(-1/float(self.data["branch"]["x"][i]))+"\n")
+        #     f.write(';\n')
+        # #---Transformer chracteristics---
+        # if len(self.data["transformer"]["name"])!=0:
+        #     f.write('param BLT:=\n')
+        #     for i in self.data["transformer"].index.tolist():
+        #         f.write(str(self.data["transformer"]["name"][i])+" "+str(-float(1/self.data["transformer"]["x"][i]))+"\n")
+        #     f.write(';\n')
+        # if len(self.data["branch"]["name"])!=0:
+        #     #---Tranmission line bounds---
+        #     f.write('param SLmax:=\n')
+        #     for i in self.data["branch"].index.tolist():
+        #         f.write(str(self.data["branch"]["name"][i])+" "+str(float(self.data["branch"]["ContinuousRating"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
+        #     f.write(';\n')
+        # #---Transformer chracteristics---
+        # if len(self.data["transformer"]["name"])!=0:
+        #     f.write('param SLmaxT:=\n')
+        #     for i in self.data["transformer"].index.tolist():
+        #         f.write(str(self.data["transformer"]["name"][i])+" "+str(float(self.data["transformer"]["ContinuousRating"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
+        #     f.write(';\n')
 
 
         #===parameters===
@@ -249,14 +249,14 @@ class printdata(object):
            #f.write(str(self.data["generator"]["name"][i])+" "+str(float(self.data["generator"]["PGUB"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
         f.write(';\n')
         #---ramp rates---
-        f.write('param RampUp:=\n')
-        for i in self.data["generator"].index.tolist():
-            f.write(str(self.data["generator"]["name"][i])+" "+str(float(deltaT*self.data["generator"]["RampUp(MW/hr)"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
-        f.write(';\n')
-        f.write('param RampDown:=\n')
-        for i in self.data["generator"].index.tolist():
-            f.write(str(self.data["generator"]["name"][i])+" "+str(float(deltaT*self.data["generator"]["RampDown(MW/hr)"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
-        f.write(';\n')
+        # f.write('param RampUp:=\n')
+        # for i in self.data["generator"].index.tolist():
+        #     f.write(str(self.data["generator"]["name"][i])+" "+str(float(deltaT*self.data["generator"]["RampUp(MW/hr)"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
+        # f.write(';\n')
+        # f.write('param RampDown:=\n')
+        # for i in self.data["generator"].index.tolist():
+        #     f.write(str(self.data["generator"]["name"][i])+" "+str(float(deltaT*self.data["generator"]["RampDown(MW/hr)"][i])/self.data["baseMVA"]["baseMVA"][0])+"\n")
+        # f.write(';\n')
 
         #---cost data---
         f.write('param cost:=\n')

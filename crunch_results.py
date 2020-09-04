@@ -437,7 +437,7 @@ def plot_flex(InputsbyFP,pinchClist,colors):
             )
 
         plt.title("EV: Phase " + str(p))
-        plt.ylabel("Output (kW)")
+        plt.ylabel("Charge/Discharge (kW)")
 
         plt.xlim([0, len(InputsbyFP["PV"])])
         # plt.ylim([0, 5])

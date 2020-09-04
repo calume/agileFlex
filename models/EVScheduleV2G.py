@@ -60,8 +60,8 @@ model.VOLL    = Param(model.D, within=Reals)
 # generators
 model.PGmax    = Param(model.G, model.T, within=Reals)# max real power of generator, p.u.
 model.PGmin    = Param(model.G, model.T, within=Reals)# min real power of generator, p.u.
-model.RampUp   = Param(model.G, within=NonNegativeReals) # ramp up of generator g, p.u.
-model.RampDown = Param(model.G, within=NonNegativeReals) # ramp down of generator g, p.u.
+# model.RampUp   = Param(model.G, within=NonNegativeReals) # ramp up of generator g, p.u.
+# model.RampDown = Param(model.G, within=NonNegativeReals) # ramp down of generator g, p.u.
 
 # storage
 model.PVUB          = Param(model.EV, within=NonNegativeReals)# max real power charging capacity
@@ -70,10 +70,10 @@ model.EVUB          = Param(model.EV, within=NonNegativeReals)# max energy capac
 model.RateCharge    = Param(model.EV, within=NonNegativeReals)# rate of charging of storage
 
 # lines and transformer chracteristics and ratings
-model.SLmax  = Param(model.L, within=NonNegativeReals) # max real power limit on flow in a line, p.u.
-model.SLmaxT = Param(model.TRANSF, within=NonNegativeReals) # max real power limit on flow in line l, p.u.
-model.BL     = Param(model.L, within=Reals)  # susceptance of a line, p.u.
-model.BLT    = Param(model.TRANSF, within=Reals)  # susceptance of line l, p.u.
+# model.SLmax  = Param(model.L, within=NonNegativeReals) # max real power limit on flow in a line, p.u.
+# model.SLmaxT = Param(model.TRANSF, within=NonNegativeReals) # max real power limit on flow in line l, p.u.
+# model.BL     = Param(model.L, within=Reals)  # susceptance of a line, p.u.
+# model.BLT    = Param(model.TRANSF, within=Reals)  # susceptance of line l, p.u.
 
 #emergency ratings
 model.SLmax_E  = Param(model.L, within=NonNegativeReals) # max emergency real power limit on flow in a line, p.u.

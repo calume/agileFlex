@@ -20,28 +20,32 @@ from scipy.interpolate import interpn
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/']#,'network_5/','network_10/','network_17/','network_18/']
 Y=14
-Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+#Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
+pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+All_VC = pickle.load(pick_in)
+
 for N in networks:
     AllVmin=pd.DataFrame()
     AllPflow=pd.DataFrame()
-    for C in Cases:
-        pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
-        V_data = pickle.load(pick_in)
-        cs=[]
-        for p in range(1, 4):
-            for f in range(1, len(V_data['Flow'].keys())+1):
-                cs.append(str(p)+str(f))         
-        Pflow = pd.DataFrame(index=V_data['Vmin'].index,columns=cs)  
-        for p in range(1,4):
-            for f in range(1, len(V_data['Flow'].keys())+1):
-                Pflow[str(p)+str(f)]=V_data['Flow'][f][p]
+    #for C in Cases:
+    #pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
+    pick_in = open("../Data/"+N+"validation/Winter"+str(Y)+"_V_Data.pickle", "rb")
+    V_data = pickle.load(pick_in)
+    cs=[]
+    for p in range(1, 4):
+        for f in range(1, len(V_data['Flow'].keys())+1):
+            cs.append(str(p)+str(f))         
+    Pflow = pd.DataFrame(index=V_data['Vmin'].index,columns=cs)  
+    for p in range(1,4):
+        for f in range(1, len(V_data['Flow'].keys())+1):
+            Pflow[str(p)+str(f)]=V_data['Flow'][f][p]
 
-        AllVmin=AllVmin.append(V_data['Vmin'])
-        AllPflow=AllPflow.append(Pflow)
+    AllVmin=AllVmin.append(V_data['Vmin'])
+    AllPflow=AllPflow.append(Pflow)
         
     trues=round(AllPflow.sum(),3)>0
     trues=trues[trues].index
@@ -78,12 +82,12 @@ for N in networks:
         unders=y[x<VC_Limit[i]]
         if sum(unders[unders<V_lim_u])>0:
             VC_Limit[i]=x[y<=V_lim_u].min()
-      
+        VC_Limit[i]=All_VC[N][i]
         # if (len(y[y<V_lim_u])/len(y)*100) <5:
         #     VC_Limit[i]=(V_lim_u-VC_Fits.loc[i]['c'])/VC_Fits.loc[i]['m']
         unders_n=y[x<VC_Limit[i]]
         prob=len(unders_n[unders_n<V_lim_u])/len(unders_n)*100
-        print(str(i)+', % Probability of <0.94 p.u at Flow<VCmin '+str(prob))
+        #print(str(i)+', % Probability of <0.94 p.u at Flow<VCmin '+str(prob))
         ## q=0.35
         ## prob_lim=0.5
         ## if N=='network_17/' and i=='27':

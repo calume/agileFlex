@@ -25,9 +25,9 @@ import logging
 
 #====================================
 
-def runcase(testcase,mod,opt=None):
-    print ('Selected model is: ', mod)
-    print ('Selected testcase is: ', testcase)
+def runcase(testcase,mod,network,opt=None):
+    # print ('Selected model is: ', mod)
+    # print ('Selected testcase is: ', testcase)
     try:
         model = selectmodel(mod) #load model
         logging.info("Given model file found and selected from the models library")
@@ -59,22 +59,22 @@ def runcase(testcase,mod,opt=None):
         ############Solve###################
         instance = model.create_instance(datfile)
         instance.dual = Suffix(direction=Suffix.IMPORT)
-        results = opt.solve(instance,tee=True)
+        results = opt.solve(instance,tee=False)
         instance.solutions.load_from(results)
         # ##################################
         #
         #
         # ############Output###################
         o = printoutput(results, instance,mod)
-        o.greet()
+        #o.greet()
         status=o.solutionstatus()
         if 'UC' in mod:
             o.printUC()
         elif 'Storage' in mod:
             o.printStorage()
         else:
-            o.printsummary()
-            o.printoutputxls()
+            #o.printsummary()
+            o.printoutputxls(network)
 
     else:
         instance = model.create_instance(datfile)

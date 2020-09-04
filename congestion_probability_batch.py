@@ -46,8 +46,8 @@ All_VC = pickle.load(pick_in)
 start=datetime.now()
 
 networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
-
-Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+#All_C_Limits={}
+Cases=['00PV25HP']#,'25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -152,7 +152,7 @@ for N in networks:
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_tenminutes
+            sims=sims_tenminutes[:1]
         
             pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
@@ -300,13 +300,13 @@ for N in networks:
             # pickle.dump(Voltage_data, pickle_out)
             # pickle_out.close()            
 
-            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
-            pickle.dump(Headrm, pickle_out)
-            pickle_out.close()            
+            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
+            # pickle.dump(Headrm, pickle_out)
+            # pickle_out.close()            
 
-            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
-            pickle.dump(Footrm, pickle_out)
-            pickle_out.close()
+            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
+            # pickle.dump(Footrm, pickle_out)
+            # pickle_out.close()
             
             #----------- Calculation of adjusted demand for Thermal Violations------------------#
 
@@ -405,8 +405,17 @@ for N in networks:
         
         end=datetime.now()
         time=end-start
-        
-        
+        # aa=list(Customer_Summary['zone'].unique())
+        # aa.sort()
+        # All_C_Limits[N]=pd.Series(index=aa)
+        # for k in range(1,4): 
+        #     for l in network_summary[i][k]['C_Rate'].keys():
+        #         All_C_Limits[N][str(k)+str(l)]=network_summary[i][k]['C_Rate'][l]
+
+# pickle_out = open("../Data/All_C_Limits.pickle", "wb")
+# pickle.dump(All_C_Limits, pickle_out)
+# pickle_out.close()
+
 # pickle_out = open("../Data/Full_Batch_Summary.pickle", "wb")
 # pickle.dump(FullSummmary, pickle_out)
 # pickle_out.close()

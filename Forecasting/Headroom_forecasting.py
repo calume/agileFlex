@@ -19,6 +19,7 @@ from datetime import datetime, timedelta, date, time
 import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error
+from scipy.optimize import curve_fit
 import Tcl
 
 def return_temp(path):
@@ -165,15 +166,55 @@ def percentiles(Case,Network):
     DailyDeltaPercentiles = {}
     DailyByBin = {}
     
-    # ########-------------- Daily Headroom irrespective of weekday/weekend -------###############
-    # for c in Headrm_DF.columns:
+    ########-------------- Daily Headroom irrespective of weekday/weekend -------###############
+    for c in Headrm_DF.columns:
+        print(c)
+        DailyDeltaPercentiles[c]={}
+        dailyrange = range(0, len(winter_dates), tsamp)
+        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
+        for d in DailyDelta[c].index:
+            mask = (Headrm_DF[c].index >= d) & (Headrm_DF[c].index < (d + timedelta(days=1)))
+            DailyDelta[c].loc[d] = Headrm_DF[c].loc[mask].values
+        
+    #     DailyDeltaPercentiles[c]["P1"] = pd.Series(index=range(0, tsamp), dtype=float)
+    #     DailyDeltaPercentiles[c]["P5"] = pd.Series(index=range(0, tsamp), dtype=float)
+    #     DailyDeltaPercentiles[c]["Median"] = pd.Series(index=range(0, tsamp), dtype=float)
+    #     for p in range(0, tsamp):
+    #         DailyDeltaPercentiles[c]["P1"][p] = DailyDelta[c][p].quantile(0.01)
+    #         DailyDeltaPercentiles[c]["P5"][p] = DailyDelta[c][p].quantile(0.05)
+    #         DailyDeltaPercentiles[c]["Median"][p] = DailyDelta[c][p].quantile(0.5)  
+    
+    #         datesBinned = {}
+    #         DailyByBin[c] = {}
+            
+    #     for z in tempLabels:
+    #         datesBinned[z] = TempBins[0][TempBins[0] == z].index
+    #         DailyByBin[c][z] = pd.DataFrame(index=datesBinned[z], columns=range(0, tsamp), dtype=float)
+    #         DailyByBin[c]["P1-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
+    #         DailyByBin[c]["P5-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
+    #         DailyByBin[c]["Median-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
+    #         for i in datesBinned[z]:
+    #             DailyByBin[c][z].loc[i] = DailyDelta[c].loc[i].values
+    #         for p in range(0, tsamp):
+    #             DailyByBin[c]["P1-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.01)
+    #             DailyByBin[c]["P5-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.05)
+    #             DailyByBin[c]["Median-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.5)
+    
+    # pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_All.pickle", "wb")
+    # pickle.dump(DailyDeltaPercentiles, pickle_out)
+    # pickle_out.close()
+    
+    pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_Raw.pickle", "wb")
+    pickle.dump(DailyDelta, pickle_out)
+    pickle_out.close()
+    # for c in Footrm_DF.columns:
     #     print(c)
     #     DailyDeltaPercentiles[c]={}
     #     dailyrange = range(0, len(winter_dates), tsamp)
     #     DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
     #     for d in DailyDelta[c].index:
-    #         mask = (Headrm_DF[c].index >= d) & (Headrm_DF[c].index < (d + timedelta(days=1)))
-    #         DailyDelta[c].loc[d] = Headrm_DF[c].loc[mask].values
+    #         mask = (Footrm_DF[c].index >= d) & (Footrm_DF[c].index < (d + timedelta(days=1)))
+    #         DailyDelta[c].loc[d] = Footrm_DF[c].loc[mask].values
         
     #     DailyDeltaPercentiles[c]["P1"] = pd.Series(index=range(0, tsamp), dtype=float)
     #     DailyDeltaPercentiles[c]["P5"] = pd.Series(index=range(0, tsamp), dtype=float)
@@ -185,46 +226,11 @@ def percentiles(Case,Network):
     
     #        datesBinned = {}
     #        DailyByBin[c] = {}
-            
-    #     # for z in tempLabels:
-    #     #     datesBinned[z] = TempBins[0][TempBins[0] == z].index
-    #     #     DailyByBin[c][z] = pd.DataFrame(index=datesBinned[z], columns=range(0, tsamp), dtype=float)
-    #     #     DailyByBin[c]["P1-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
-    #     #     DailyByBin[c]["P5-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
-    #     #     DailyByBin[c]["Median-" + str(z)] = pd.Series(index=range(0, tsamp), dtype=float)
-    #     #     for i in datesBinned[z]:
-    #     #         DailyByBin[c][z].loc[i] = DailyDelta[c].loc[i].values
-    #     #     for p in range(0, tsamp):
-    #     #         DailyByBin[c]["P1-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.01)
-    #     #         DailyByBin[c]["P5-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.05)
-    #     #         DailyByBin[c]["Median-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.5)
-    
-    # pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_All.pickle", "wb")
+    # pickle_out = open("../../Data/"+str(Network+Case)+"_WinterFtrm_All.pickle", "wb")
     # pickle.dump(DailyDeltaPercentiles, pickle_out)
-    # pickle_out.close()
-  
-    for c in Footrm_DF.columns:
-        print(c)
-        DailyDeltaPercentiles[c]={}
-        dailyrange = range(0, len(winter_dates), tsamp)
-        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
-        for d in DailyDelta[c].index:
-            mask = (Footrm_DF[c].index >= d) & (Footrm_DF[c].index < (d + timedelta(days=1)))
-            DailyDelta[c].loc[d] = Footrm_DF[c].loc[mask].values
-        
-        DailyDeltaPercentiles[c]["P1"] = pd.Series(index=range(0, tsamp), dtype=float)
-        DailyDeltaPercentiles[c]["P5"] = pd.Series(index=range(0, tsamp), dtype=float)
-        DailyDeltaPercentiles[c]["Median"] = pd.Series(index=range(0, tsamp), dtype=float)
-        for p in range(0, tsamp):
-           DailyDeltaPercentiles[c]["P1"][p] = DailyDelta[c][p].quantile(0.01)
-           DailyDeltaPercentiles[c]["P5"][p] = DailyDelta[c][p].quantile(0.05)
-           DailyDeltaPercentiles[c]["Median"][p] = DailyDelta[c][p].quantile(0.5)  
-    
-           datesBinned = {}
-           DailyByBin[c] = {}
-    pickle_out = open("../../Data/"+str(Network+Case)+"_WinterFtrm_All.pickle", "wb")
-    pickle.dump(DailyDeltaPercentiles, pickle_out)
-    pickle_out.close()  
+    # pickle_out.close()  
+
+
             
         # for z in tempLabels:
         #     datesBinned[z] = TempBins[0][TempBins[0] == z].index
@@ -293,7 +299,7 @@ def percentiles(Case,Network):
     return DailyDelta
 
 
-def headroom_plots(Network,Case,n):
+def headroom_plots(Network,Case,n,lbls,kva):
     # pick_in = open("../../Data/"+str(Network+Case)+"_WinterHdrm_Raw.pickle", "rb")
     # DailyDelta= pickle.load(pick_in)
    
@@ -304,9 +310,11 @@ def headroom_plots(Network,Case,n):
     DailyDeltaPercentiles= pickle.load(pick_in)
     n_zones=len(DailyDeltaPercentiles)
     tsamp=144
+    Y=14
     times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
     cols = ["#9467bd", "#bcbd22","#ff7f0e","#d62728"]    
-    
+    pick_in = open("../../Data/"+Network+"Customer_Summary"+Case+str(Y)+".pickle", "rb")
+    Customer_Summary= pickle.load(pick_in)    
     # #######------------ Plot By temperature Bins-----------------############
 
     # tempLabels = range(1, 5)
@@ -388,22 +396,24 @@ def headroom_plots(Network,Case,n):
     
     ########## Plot P-5 For all Cases On one Graph ###############
     r = 0
-    plt.figure(N+'Winter headroom, All Cases')             
+    plt.figure(N+'Winter headroom, All Cases')           
     for c in DailyDeltaPercentiles.keys():
+        ncs=len(Customer_Summary[Customer_Summary['zone']==c])
         r = r + 1
-        plt.subplot(3, int(n_zones/3), r)
+        ax=plt.subplot(3, int(n_zones/3), r)
+        plt.title('Zone '+str(c)+', Customers - '+str(ncs)+'\n kVA/HPs = '+str(kva[N]['00PV25HP'][c]))
         if r <= int(n_zones)/3:
-            plt.title("Feeder - " + str(r))
+            plt.title("Feeder " + str(r)+'\n Zone '+str(c)+' Customers - '+str(ncs)+'\n kVA/HPs = '+str(kva[N]['00PV25HP'][c]))
         if (r-1) % (int(n_zones)/3) == 0:
             plt.ylabel("Phase " + str(c[0]))
-        plt.plot(np.full(tsamp, 0), color="red", linestyle="--", linewidth=0.5)
+        ax.plot(np.full(tsamp, 0), color="red", linestyle="--", linewidth=0.5)
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(range(0,tsamp+24,int(tsamp/6)),times)
-        plt.plot(DailyDeltaPercentiles[c]['P5'].values, linewidth=1, color=cols[q], label=C)
+        plt.plot(DailyDeltaPercentiles[c]['P5'].values, linewidth=1, color=cols[n], label=lbls[n])
         #plt.plot(DailyDeltaPercentiles['Median'].values, linestyle="--", linewidth=1, color=cols[g], label='Median - '+str(names[g]))
-        plt.ylim(-40, 40)
-        #plt.ylim(0, 80)
+        #plt.ylim(-40, 40)
+        plt.ylim(-40, 30)
         plt.xlim(0, tsamp)
         
     figManager = plt.get_current_fig_manager()
@@ -419,7 +429,8 @@ def HP_vs_Headroom(networks, Cases):
     DailyPercentiles={}
     Y=14
     HdrmSum={}
-    HPSum={}        
+    HPSum={}  
+    HdrmAnyBelow={}   
     for N in networks:
         Customer_Summary[N]={}
         DailyPercentiles[N]={}
@@ -427,6 +438,7 @@ def HP_vs_Headroom(networks, Cases):
         DailyDelta= pickle.load(pick_in)
         HdrmSum[N]=pd.DataFrame(index=list(DailyDelta.keys()), columns=Cases)
         HPSum[N]=pd.DataFrame(index=list(DailyDelta.keys()), columns=Cases)
+        HdrmAnyBelow[N]=pd.DataFrame(index=list(DailyDelta.keys()), columns=Cases)
         for C in Cases:        
             
             pick_in = open("../../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
@@ -439,14 +451,15 @@ def HP_vs_Headroom(networks, Cases):
             for i in DailyPercentiles[N][C].keys():
                 #HdrmSum[N][C][i]=(DailyPercentiles[N][C][i]['P5'][:60].sum()+DailyPercentiles[N][C][i]['P5'][96:].sum())/6  ##-- Day PV effect removed
                 HdrmSum[N][C][i]=DailyPercentiles[N][C][i]['P5'].sum()/6
+                HdrmAnyBelow[N][C][i]=DailyPercentiles[N][C][i]['P5'][DailyPercentiles[N][C][i]['P5']<0].sum()/6
                 HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum()
         r = 0    
         
-        # plt.figure('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
+        #plt.figure('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
         
         # for i in HPSum[N].index:  
         #     r = r + 1
-        #     ax1=plt.subplot(3, int(len(list(DailyDelta.keys())/3),r)
+        #     ax1=plt.subplot(3, int(len(DailyPercentiles[N][C].keys())/3),r)
         #     ax1.plot(HPSum[N].loc[i],HdrmSum[N].loc[i])
         #     ax1.set_xlim(HPSum[N].loc[i].min(),HPSum[N].loc[i].max())
         #     ax2=ax1.twiny()
@@ -459,28 +472,34 @@ def HP_vs_Headroom(networks, Cases):
         #         plt.title("Feeder - " + str(r))
         #     if (r-1) % int(HPSum[N].index.str[1].max()) == 0:
         #         ax1.set_ylabel("Phase " + str(i[0]))
-        #plt.title('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
-    return HPSum, HdrmSum, DailyPercentiles, Customer_Summary
+        # plt.title('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
+    return HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary
 
+pick_in = open("../../Data/All_VC_Limits.pickle", "rb")
+All_VC = pickle.load(pick_in)
 
-networks=['network_5/']#,'network_5/','network_10/','network_17/','network_18/']
+pick_in = open("../../Data/All_C_Limits.pickle", "rb")
+All_C = pickle.load(pick_in)
+
+networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 #Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP','25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP'] ###Cases=['25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+lbls=['25% HP, 0% PV', '50% HP, 25% PV', '75% HP, 25% PV', '100% HP, 50% PV']  
 
-
-# """
-# Batch Run of percentiles
-# """
-q=0
 for N in networks:
+    
+    for i in All_VC[N].index:
+        All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
+    
+    q=0
     for C in Cases:
         print(N, C)
         ##DailyDelta=percentiles(C,N)
-        DailyDeltaPercentiles=headroom_plots(N,C,q)
+        ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
         q=q+1
 
-#
-HPSum, HdrmSum, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
+
+HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
 
 
 EVAvg=12 #kWh charge / day
@@ -488,25 +507,126 @@ EVAvg=12 #kWh charge / day
 nEVs={}
 #nEVs_shift={}
 EVs={}
-for N in networks:   
-    EVs[N]=[]
+KVA_HP={}
+KVA_LIM=pd.Series(index=networks,dtype=float)
+Allsums=pd.DataFrame(index=Cases+['Total Customers'],dtype=int)
+cols = ["#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
+mk=['o','^','*','P']
+count=1
+for N in networks:
+    plt.figure(N)
     nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
-    
-    EVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
-    
-    for i in EVs[N].columns:
+    nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
+    for c in nEVs[N].columns:
+        for j in nEVs[N][c].index:
+            nEVs[N][c].loc[j]=min(nEVs[N][c].loc[j],HPSum[N]['50PV100HP'].loc[j])
+    EVs[N]=nEVs[N].copy()
+    KVA_HP[N]=nEVs[N].copy()
+    for i in nEVs[N].columns:
         EVs[N][i]=EVs[N][i]/HPSum[N]['50PV100HP']
         EVs[N][i]=EVs[N][i].astype(float).round(decimals=2)
     EVs[N][EVs[N]>1]=1
-    for i in EVs[N].columns:
-        nEVs[N][i]=(EVs[N][i]*HPSum[N]['50PV100HP']).astype(float).round(0)
     
-    print(N)
-    print(nEVs[N].sum())
+    nEVs[N]['00PV00HP']=0
+    o=0
+    for i in nEVs[N].columns[:-1]:
+        KVA_HP[N][i]=round((All_VC[N]/HPSum[N][i]).astype(float),2)
+        #nEVs[N][i]=HdrmSum[N][i][HdrmSum[N][i]>0].fillna(0).astype(float)/EVAvg
+        if count==len(networks):
+            plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none',label=i)
+        else:
+            plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none')
+        o=o+1
+    C=np.arange(0.3,10,step=0.1)
+    x=np.nan_to_num(KVA_HP[N].astype(float).values.flatten())
+    y=np.nan_to_num(HdrmSum[N].astype(float).values.flatten())    
+    def func (x,a,b,c):
+        return a *np.log(b*x)+c
+    try:
+        kva_lim=x[y<5].max()
+        kva_plim=np.quantile(x[y<5],0.95)
+        KVA_LIM[N]=kva_lim
+        m1,m,c=np.polyfit(x,y,2)
+        #popt, pcov = curve_fit(func, x, y)
+        #plt.plot(C, func(C, *popt))
+        plt.plot(C,(m1*C**2+m*C+c), linewidth=0.5)
+        plt.plot(np.zeros(16),linestyle=':', linewidth='0.5')
+        plt.plot([kva_lim,kva_lim],[y.min(),y.max()],linestyle='--', linewidth='0.5')
+        #plt.plot([kva_plim,kva_plim],[y.min(),y.max()],linestyle=':', linewidth='1.5') 
+    except:
+        print('Cant Fit')
 
+    plt.xlabel('Minimum kVA Limit per Heatpump')
+    plt.ylabel('Total Daily Headroom (kVAh)')
+    ab=nEVs[N].sum().astype(int)
+    ab.name=N
+    Allsums=Allsums.join(ab.astype(int))
+    Allsums[N]['Total Customers']=HPSum[N]['50PV100HP'].sum()
+    count=count+1
+plt.legend()
+plt.xlim(0,10)
+plt.ylim(-1000,1000)
+
+assign={}
+v2gZones={}
+AllHdRms=pd.DataFrame(index=Cases+['Total Zones'])
+v2gs=pd.DataFrame(index=Cases+['Total Zones'])
+for N in networks:
+    aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<0].count()
+    aa.name=N
+    AllHdRms=AllHdRms.join(aa)    
+    AllHdRms[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])
+    
+    aa=(HdrmSum[N][HdrmAnyBelow[N]<0]>EVAvg).sum()
+    aa.name=N
+    v2gs=v2gs.join(aa)    
+    v2gs[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])    
+    
+    for i in All_VC[N].index:
+        All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
+    
+    q=0
+    for C in Cases:
+        #print(N, C)
+        ##DailyDelta=percentiles(C,N)
+        #DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
+        q=q+1
+
+    assign[N]=pd.Series(index=HdrmSum[N].index)
+    v2gZones[N]=[]
+    for i in HdrmSum[N].index:
+        if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
+            assign[N][i]='00PV00HP'
+        if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
+            assign[N][i]='50PV100HP'
+        if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
+            assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
+        if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]>EVAvg)>0:
+            aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
+            assign[N][i]=aa[aa>EVAvg].index[-1]
+            v2gZones[N].append(i)
+
+print('')
+print('---------------Number of EVs----------------------')
+print(Allsums.astype(int))
+print('--------------------------------------------------')
+print('')
+print('---------------kVA per Heatpump Limit-------------')
+print(KVA_LIM)
+print('--------------------------------------------------')
+print('')
+print('--------------------Number of Zones Needing Upgrade To meet HP Demand----------------------------')
+print(AllHdRms.astype(int))
+print('-------------------------------------------------------------------------------------------------')
+print('')
+print('--------------------Number of Zones with Headroom for V2G to support HPs-------------------------')
+print(v2gs.astype(int))
+print('-------------------------------------------------------------------------------------------------')        
 pickle_out = open("../../Data/nEVs_NoShifting.pickle", "wb")
 pickle.dump(nEVs, pickle_out)
 pickle_out.close()
+
+
 #     ##==============---------- Calculate Max HPs and Max Possible EVs------------================
 
 # EVTDs =  pd.read_csv('../testcases/timeseries/Routine_10000EVTD.csv')
@@ -526,3 +646,24 @@ pickle_out.close()
 # plt.hist(alls)
 # plt.xlabel('Mean EV Daily Charge (kWh)')
 # plt.ylabel('Frequency')
+
+
+# #########-------------Create Mixed HP Penetration Customer Summaries--------############
+# for N in networks:
+#     Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
+#     for i in HdrmSum[N].index:
+#         if assign[N][i] != '00PV00HP':
+#             ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+#             Customer_Summary[N]['Final'].loc[ind]=Customer_Summary[N][assign[N][i]].loc[ind]
+#         else:
+#             ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+#             Customer_Summary[N]['Final']['heatpump_ID'].loc[ind]=0
+#             Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
+#             Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
+#             Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
+#         pickle_out = open("../../Data/"+N+"Customer_Summary_Final.pickle", "wb")
+#         pickle.dump(Customer_Summary[N], pickle_out)
+#         pickle_out.close()
+# pickle_out = open("../../Data/Assign_Final.pickle", "wb")
+# pickle.dump(assign, pickle_out)
+# pickle_out.close()
