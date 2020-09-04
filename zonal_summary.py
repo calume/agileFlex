@@ -71,6 +71,10 @@ networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
 pick_in = open("../Data/nEVs_NoShifting.pickle", "rb")
 nEVs_All = pickle.load(pick_in)
+
+# pick_in = open("../Data/nEVs_Realised.pickle", "rb")
+# nEVs_All = pickle.load(pick_in)
+
 for Network in networks:
     factor=1
     daytype='All'#'wkd'
@@ -133,6 +137,7 @@ for Network in networks:
         Case=assign[Network][i]
         EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][Case][i]
         nEVs=int(nEVs_All[Network][Case][i])
+        #nEVs=int(nEVs_All[Network]['Realised'][i])
         j=1
         if Case != '00PV00HP':
             pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
