@@ -34,6 +34,7 @@ from crunch_results_batch import (
     
 )
 from itertools import cycle, islice
+from openpyxl import load_workbook
 #from voltage_headroom import voltage_headroom
 
 
@@ -45,9 +46,9 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
+networks=['network_1/']#,'network_5/','network_10/','network_18/','network_17/',]
 #All_C_Limits={}
-Cases=['00PV25HP']#,'25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['50PV100HP']#,'25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -61,6 +62,8 @@ for N in networks:
             
             pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
+            pick_in = open("../Data/JDEVResampled.pickle", "rb")
+            EV_DataFrame = pickle.load(pick_in)
             
             pick_in = open("../Data/PV_BySiteName.pickle", "rb")
             PV_DataFrame = pickle.load(pick_in)
@@ -137,7 +140,7 @@ for N in networks:
             ########--------- Code to load dates with highest HP demand for testing-------------##########
 
             # HP_DataFrame.columns=HP_DataFrame.columns.astype(int)
-            # zone=Customer_Summary[Customer_Summary['zone']=='14']
+            # zone=Customer_Summary[Customer_Summary['zone']=='24']
             #HPs=Customer_Summary['heatpump_ID'][Customer_Summary['heatpump_ID']>0]
             #HPs=zone['heatpump_ID'][zone['heatpump_ID']>0]
             # HP_DataFrame[HPs].sum(axis=1).resample('1D').sum().idxmax()
@@ -147,12 +150,12 @@ for N in networks:
             
             #start_date = date(2014, 6, 1)
             #end_date = date(2014, 9, 3)
-            start_date = date(2000+Y-1, 12, 1)
-            end_date = date(2000+Y, 2, 27)
+            start_date = date(2000+Y, 1, 31)
+            end_date = date(2000+Y, 2, 1)
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_tenminutes[:1]
+            sims=sims_tenminutes
         
             pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
@@ -163,6 +166,11 @@ for N in networks:
                 SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
                 for k in SM_DataFrame[i].columns:
                    SM_DataFrame[i][k]=SM_DataFrame[i][k].interpolate(method='pad')
+            EV_DataFrame=EV_DataFrame.append(EV_DataFrame.iloc[-1:])
+            EV_DataFrame.index=sims_tenminutes
+
+            for k in EV_DataFrame.columns:
+               EV_DataFrame[k]=EV_DataFrame[k].interpolate(method='pad')            
             
             for i in PV_DataFrame.keys():
                 if Y==14:
@@ -184,6 +192,7 @@ for N in networks:
             smartmeter = {}
             heatpump = {}
             pv = {}
+            ev={}
             demand = {}  # Sum of smartmeter, heatpump and EV
             demand_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
             pv_delta = {}  # adjustment for sensitivity, set to 0 when no sensitivity
@@ -218,6 +227,7 @@ for N in networks:
                 # -------------- Sample for each day weekday/weekend and season -----------#
                 ##-- Needed for SM data, and will be used for sampling --#
                 smartmeter[i] = np.zeros(len(Customer_Summary))
+                ev[i] = np.zeros(len(Customer_Summary))
                 heatpump[i] = np.zeros(len(Customer_Summary))
                 pv[i] = np.zeros(len(Customer_Summary))
                 demand[i] = np.zeros(len(Customer_Summary))
@@ -227,7 +237,9 @@ for N in networks:
                 ##-- are PFControl turned on
                 PFControl[i] = 0
                 # -----for each customer set timestep demand and PV output----#
+                
                 for z in range(0, len(Customer_Summary)):
+                    ev[i][z]=EV_DataFrame.loc[i][EV_DataFrame.columns[z]]
                     smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][Customer_Summary["smartmeter_ID"][z]][i]
                     if Customer_Summary["heatpump_ID"][z] != 0:
                         heatpump[i][z] = HP_DataFrame[str(Customer_Summary["heatpump_ID"][z])][i]
@@ -235,8 +247,8 @@ for N in networks:
                         ipv=i
                         if Y==15:
                             ipv=i-timedelta(days=365)
-                        pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][ipv]) 
-                    demand[i][z] = smartmeter[i][z] + heatpump[i][z]
+                        #pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][ipv]) 
+                    demand[i][z] = smartmeter[i][z] + heatpump[i][z] +ev[i][z]
             
                 ###------ Demand includes Smartmeter and heatpump
                 demand[i] = np.nan_to_num(demand[i])
@@ -287,7 +299,7 @@ for N in networks:
             Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
             #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
             Vmax,Vmin,Cmax=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
-            #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
+            plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
             #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors,'FirstPass')
             labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
             
@@ -310,101 +322,101 @@ for N in networks:
             
             #----------- Calculation of adjusted demand for Thermal Violations------------------#
 
-            for i in network_summary:
-                print('Adjusts',N,C,Y,i)
-                for p in range(1, 4):
-                    for f in range(1, len(pinchClist)+1):
-                        if Headrm[f][p][i] < 0 and Flow[f][p][i] > 0 and len(custph[p][f])>0:
-                            Dem_ratio= (Flow[f][p][i]+Headrm[f][p][i])/Flow[f][p][i]
-                            demand_delta[i][custph[p][f].index] = -demand[i][custph[p][f].index]*(1-Dem_ratio)
+        #     for i in network_summary:
+        #         print('Adjusts',N,C,Y,i)
+        #         for p in range(1, 4):
+        #             for f in range(1, len(pinchClist)+1):
+        #                 if Headrm[f][p][i] < 0 and Flow[f][p][i] > 0 and len(custph[p][f])>0:
+        #                     Dem_ratio= (Flow[f][p][i]+Headrm[f][p][i])/Flow[f][p][i]
+        #                     demand_delta[i][custph[p][f].index] = -demand[i][custph[p][f].index]*(1-Dem_ratio)
             
-                        if Footrm[f][p][i] < 0 and Flow[f][p][i] < 0 and len(custph[p][f])>0:
-                            demand_delta[i][custph[p][f].index] = Footrm[f][p][i] / len(custph[p][f])
-                            PFControl[i] = 1
+        #                 if Footrm[f][p][i] < 0 and Flow[f][p][i] < 0 and len(custph[p][f])>0:
+        #                     demand_delta[i][custph[p][f].index] = Footrm[f][p][i] / len(custph[p][f])
+        #                     PFControl[i] = 1
             
-                        ####----- Check Secondary Substation-------###
+        #                 ####----- Check Secondary Substation-------###
                         
-                        # if Headrm[0][i] > labels["TranskVA"] and len(custph[p][f])>0:
-                        #     demand_delta[i][custph[p][f].index]=min(demand_delta[i][custph[p][f].index],-(Headrm[0][i]-labels["TranskVA"])/len(demand_delta[i]))
+        #                 # if Headrm[0][i] > labels["TranskVA"] and len(custph[p][f])>0:
+        #                 #     demand_delta[i][custph[p][f].index]=min(demand_delta[i][custph[p][f].index],-(Headrm[0][i]-labels["TranskVA"])/len(demand_delta[i]))
                         
-                        # if Headrm[0][i] < -labels["TranskVA"] and len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])>0:
-                        #     demand_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index]=min(demand_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],-((-Headrm[0][i]-labels["TranskVA"])/sum((Customer_Summary['PV_kW']>0))))
+        #                 # if Headrm[0][i] < -labels["TranskVA"] and len(pv_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index])>0:
+        #                 #     demand_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index]=min(demand_delta[i][custph[p][f][custph[p][f]["PV_kW"] > 0].index][0],-((-Headrm[0][i]-labels["TranskVA"])/sum((Customer_Summary['PV_kW']>0))))
                             
-                if (demand_delta[i].sum() + pv_delta[i].sum()) != 0:
-                    (
-                        CurArray_new[i],
-                        VoltArray_new[i],
-                        PowArray_new[i],
-                        Losses[i],
-                        Trans_kVA_new[i],
-                        RateArray,
-                        TransRatekVA,
-                        genresnew[i],
-                        converged,
-                    ) = runDSS(
-                        Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
-                    )
+        #         if (demand_delta[i].sum() + pv_delta[i].sum()) != 0:
+        #             (
+        #                 CurArray_new[i],
+        #                 VoltArray_new[i],
+        #                 PowArray_new[i],
+        #                 Losses[i],
+        #                 Trans_kVA_new[i],
+        #                 RateArray,
+        #                 TransRatekVA,
+        #                 genresnew[i],
+        #                 converged,
+        #             ) = runDSS(
+        #                 Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i]
+        #             )
             
-                    network_summary_new[i] = network_outputs(
-                        N,
-                        CurArray_new[i],
-                        RateArray,
-                        VoltArray_new[i],
-                        PowArray_new[i],
-                        Trans_kVA_new[i],
-                        TransRatekVA,
-                        pinchClist,
-                        All_VC
-                    )
-                if converged==False:
-                    j=i-timedelta(hours=0.5)
-                    bad_halfhours_n.append(i)
-                    network_summary_new[i]=network_summary_new[j]
-                    CurArray_new[i],VoltArray_new[i],PowArray_new[i],Trans_kVA_new[i] = CurArray_new[j],VoltArray_new[j],PowArray_new[j],Trans_kVA_new[j]
-            (
-                Headrm_new,
-                Footrm_new,
-                Flow_new,
-                Rate,
-                Customer_Summary,
-                custph
-            ) = Headroom_calc(
-                network_summary_new,
-                Customer_Summary,
-                smartmeter,
-                heatpump,
-                pv,
-                demand,
-                demand_delta,
-                pv_delta,
-                pinchClist
-            )
+        #             network_summary_new[i] = network_outputs(
+        #                 N,
+        #                 CurArray_new[i],
+        #                 RateArray,
+        #                 VoltArray_new[i],
+        #                 PowArray_new[i],
+        #                 Trans_kVA_new[i],
+        #                 TransRatekVA,
+        #                 pinchClist,
+        #                 All_VC
+        #             )
+        #         if converged==False:
+        #             j=i-timedelta(hours=0.5)
+        #             bad_halfhours_n.append(i)
+        #             network_summary_new[i]=network_summary_new[j]
+        #             CurArray_new[i],VoltArray_new[i],PowArray_new[i],Trans_kVA_new[i] = CurArray_new[j],VoltArray_new[j],PowArray_new[j],Trans_kVA_new[j]
+        #     (
+        #         Headrm_new,
+        #         Footrm_new,
+        #         Flow_new,
+        #         Rate,
+        #         Customer_Summary,
+        #         custph
+        #     ) = Headroom_calc(
+        #         network_summary_new,
+        #         Customer_Summary,
+        #         smartmeter,
+        #         heatpump,
+        #         pv,
+        #         demand,
+        #         demand_delta,
+        #         pv_delta,
+        #         pinchClist
+        #     )
                 
-            labels = {
-                "col": "blue",
-                "style": "-",
-                "label": "With Adjustments",
-                "TranskVA": TransRatekVA,
-            }
-            #plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels,pinchClist,InputsbyFP_new,genresnew,colors,'Adjusts')
-            #plot_flex(InputsbyFP_new,pinchClist,colors,'Adjusts')
-            Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(network_summary_new, Coords,pinchClist)
-            #Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new,pinchClist,colors,'Adjusts')
-            Vmax_new, Vmin_new, Cmax_new = calc_current_voltage(
-                CurArray_new, VoltArray_new, Coords, Lines, Flow_new, RateArray, pinchClist, colors
-            )
-            #plot_current_voltage(Vmax_new, Vmin_new, Cmax_new, RateArray, pinchClist,colors,N,'Adjusts')
+        #     labels = {
+        #         "col": "blue",
+        #         "style": "-",
+        #         "label": "With Adjustments",
+        #         "TranskVA": TransRatekVA,
+        #     }
+        #     #plot_headroom(Headrm_new, Footrm_new, Flow_new, Rate, labels,pinchClist,InputsbyFP_new,genresnew,colors,'Adjusts')
+        #     #plot_flex(InputsbyFP_new,pinchClist,colors,'Adjusts')
+        #     Chigh_count_new, Vhigh_count_new, Vlow_count_new, VHpinch_new = counts(network_summary_new, Coords,pinchClist)
+        #     #Coords = plots(Network_Path, Chigh_count_new, Vhigh_count_new, Vlow_count_new,pinchClist,colors,'Adjusts')
+        #     Vmax_new, Vmin_new, Cmax_new = calc_current_voltage(
+        #         CurArray_new, VoltArray_new, Coords, Lines, Flow_new, RateArray, pinchClist, colors
+        #     )
+        #     #plot_current_voltage(Vmax_new, Vmin_new, Cmax_new, RateArray, pinchClist,colors,N,'Adjusts')
             
-            ## - residual demand - plt.plot(InputsbyFP_new['demand']+InputsbyFP_new['demand_delta'])
+        #     ## - residual demand - plt.plot(InputsbyFP_new['demand']+InputsbyFP_new['demand_delta'])
             
-        FullSummmary[N][C][Y]['Customer Summary']=Customer_Summary
-        FullSummmary[N][C][Y]['Chigh_count_new']=Chigh_count_new
-        FullSummmary[N][C][Y]['Vhigh_count_new']=Vhigh_count_new
-        FullSummmary[N][C][Y]['Vlow_count_new']=Vlow_count_new
-        FullSummmary[N][C][Y]['Bad_Timesteps']=bad_halfhours_n
+        # FullSummmary[N][C][Y]['Customer Summary']=Customer_Summary
+        # FullSummmary[N][C][Y]['Chigh_count_new']=Chigh_count_new
+        # FullSummmary[N][C][Y]['Vhigh_count_new']=Vhigh_count_new
+        # FullSummmary[N][C][Y]['Vlow_count_new']=Vlow_count_new
+        # FullSummmary[N][C][Y]['Bad_Timesteps']=bad_halfhours_n
         
-        end=datetime.now()
-        time=end-start
+        # end=datetime.now()
+        # time=end-start
         # aa=list(Customer_Summary['zone'].unique())
         # aa.sort()
         # All_C_Limits[N]=pd.Series(index=aa)
@@ -419,3 +431,21 @@ for N in networks:
 # pickle_out = open("../Data/Full_Batch_Summary.pickle", "wb")
 # pickle.dump(FullSummmary, pickle_out)
 # pickle_out.close()
+
+demseries=pd.DataFrame(index=demand.keys(),columns=(range(0,75)))
+for i in demand.keys():
+    demseries.loc[i]=demand[i][125:]
+file='Network1_Feeder4_Demand_1Day_10Minutely_100HPs_withEVs.xlsx'
+demseries.to_excel(file, sheet_name="Demand")
+
+book = load_workbook(file)
+writer = pd.ExcelWriter(file, engine='openpyxl')
+writer.book = book
+writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+VminDF=pd.DataFrame()
+VminDF['Phase1']=Vmin['14']
+VminDF['Phase2']=Vmin['24']
+VminDF['Phase3']=Vmin['34']
+VminDF.to_excel(writer, "Vmin", columns=None, header=True, index=True, startrow=0)
+writer.save()
+    

@@ -57,7 +57,7 @@ assign = pickle.load(pick_in)
 
 num_cores = multiprocessing.cpu_count()
 
-networks=['network_17/']#,'network_5/','network_10/','network_17/','network_18/']
+networks=['network_5/']#,'network_5/','network_10/','network_17/','network_18/']
 # inputs = tqdm(networks)
 EVCapacitySummary={}
 AllEVs={}
@@ -99,10 +99,10 @@ for Network in networks:
     daycount=0
     for d in days[:2]:
         print(d)
-        pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
-        EV_DataFrame = pickle.load(pick_in)
+        # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
+        # EV_DataFrame = pickle.load(pick_in)
 
-        #EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network)
+        EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network)
         
         Y=14
         start_date = d#date(2013, 12, 2)
@@ -292,5 +292,5 @@ for Network in networks:
 
 inputs = tqdm(networks)
 
-# if __name__ == "__main__":
-#     processed_list = Parallel(n_jobs=num_cores)(delayed(spool)(i) for i in inputs)
+if __name__ == "__main__":
+    processed_list = Parallel(n_jobs=num_cores)(delayed(spool)(i) for i in inputs)

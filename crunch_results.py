@@ -542,12 +542,12 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                 color=colors[f - 1],
                 label="Feeder " + str(f),
             )
-        plt.plot(np.full(len(Vmax), 0.94), color="red", linestyle="--", linewidth=0.5)
+        plt.plot(np.full(len(Vmax), 0.9), color="red", linestyle="--", linewidth=0.5)
         plt.title("Phase " + str(p))
         plt.ylabel("Min Voltage (p.u.)")
 
         plt.xlim([0, len(Cmax)])
-        plt.ylim([0.9, 1.05])
+        plt.ylim([0.85, 1.05])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)

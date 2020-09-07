@@ -70,13 +70,13 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
             DSSLoads.Vmaxpu(50)
             DSSLoads.Vminpu(0.02)
-            DSSLoads.kV(0.23)
+            DSSLoads.kV(0.24)
             iLoad = DSSLoads.Next()
         
         ################### Calculating Gen for each Demand ############################
         iGen = DSSGens.First()
         while iGen > 0:
-            DSSGens.kV(0.23+v_delta)
+            DSSGens.kV(0.24+v_delta)
             DSSGens.kW(pv[iGen - 1] + pv_delta[iGen - 1])
             DSSGens.PF(1)
             
@@ -86,7 +86,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSGens.Vmaxpu(50)
             DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
-            DSSGens.Model(3)
+            DSSGens.Model(1)
             iGen = DSSGens.Next()
         
         ######### Solve the Circuit ############

@@ -181,7 +181,7 @@ for Network in networks:
                 EVTDSample=pd.DataFrame()
                 for s in EVSample['name']:
                     EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
-        
+                EV_Avg=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
                 book = load_workbook(optfile)
                    
                 writer = pd.ExcelWriter(optfile, engine='openpyxl')
@@ -200,7 +200,7 @@ for Network in networks:
                 except:
                     status[k][l]='Fail'
                     b=b+1
-                    print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j, ',Fail')
+                    print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
                     j=1
                     nEVs=nEVs-1
                 
@@ -221,7 +221,8 @@ for Network in networks:
             k=k+1
             
         
-            ##plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
+            ##
+            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
                 
             
             #########----------- Write Outputs for Validation --------############
@@ -238,11 +239,15 @@ for Network in networks:
                 
                 for z in IDs:
                     AllEVs[i]=AllEVs[i].join(dems[z], how='outer')
-                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j, ',Success')
+                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
             else:
-                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j, ',No EVs')   
+                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh , No EVs')   
     pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay.pickle", "wb")
     pickle.dump(AllEVs, pickle_out)
+    pickle_out.close()
+    
+    pickle_out = open("../Data/"+str(Network)+"nEVs_Realised.pickle", "wb")
+    pickle.dump(nEVs_All[Network]['Realised'], pickle_out)
     pickle_out.close()
     
     end=datetime.now()
@@ -250,17 +255,15 @@ for Network in networks:
     t_time=end-start
     print('Days Optimisation took '+str(t_time))
 
-pickle_out = open("../Data/nEVs_Realised.pickle", "wb")
-pickle.dump(nEVs_All, pickle_out)
-pickle_out.close()
+
 #return EVCapacitySummary, AllEVs
 
 # #networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 # networks=['network_17/','network_18/']
-# # inputs = tqdm(networks)
+# inputs = tqdm(networks)
 
-# # if __name__ == "__main__":
-# #     processed_list = Parallel(n_jobs=num_cores)(delayed(daily_EVSchedule)(i) for i in inputs)
+# if __name__ == "__main__":
+#     processed_list = Parallel(n_jobs=num_cores)(delayed(daily_EVSchedule)(i) for i in inputs)
 
 
 # EVCapacitySummary={}

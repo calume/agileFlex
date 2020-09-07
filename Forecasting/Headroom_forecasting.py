@@ -589,7 +589,7 @@ for N in networks:
     for C in Cases:
         #print(N, C)
         ##DailyDelta=percentiles(C,N)
-        #DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
+        DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
         q=q+1
 
     assign[N]=pd.Series(index=HdrmSum[N].index)
