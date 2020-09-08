@@ -150,14 +150,14 @@ for N in networks:
             
             #start_date = date(2014, 6, 1)
             #end_date = date(2014, 9, 3)
-            start_date = date(2000+Y, 1, 31)
-            end_date = date(2000+Y, 2, 1)
+            start_date = date(2000+Y-1, 12, 1)
+            end_date = date(2000+Y, 2, 27)
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
             sims=sims_tenminutes
         
-            pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
+            pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
             HP_DataFrame = HP_DataFrame.loc[sims]
             
@@ -166,11 +166,11 @@ for N in networks:
                 SM_DataFrame[i]=SM_DataFrame[i].resample('10T').mean()
                 for k in SM_DataFrame[i].columns:
                    SM_DataFrame[i][k]=SM_DataFrame[i][k].interpolate(method='pad')
-            EV_DataFrame=EV_DataFrame.append(EV_DataFrame.iloc[-1:])
-            EV_DataFrame.index=sims_tenminutes
+            #EV_DataFrame=EV_DataFrame.append(EV_DataFrame.iloc[-1:])
+            #EV_DataFrame.index=sims_tenminutes
 
-            for k in EV_DataFrame.columns:
-               EV_DataFrame[k]=EV_DataFrame[k].interpolate(method='pad')            
+            #for k in EV_DataFrame.columns:
+            #   EV_DataFrame[k]=EV_DataFrame[k].interpolate(method='pad')            
             
             for i in PV_DataFrame.keys():
                 if Y==14:
@@ -181,7 +181,7 @@ for N in networks:
                 for k in PV_DataFrame[i].columns:
                     PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
                 
-#            Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(sims)  
+            Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(sims)  
             Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
             ####------ For when the customer summary table is fixed we laod it in from the pickle file
             pickin = open("../Data/"+str(N)+"Customer_Summary"+str(C)+str(Y)+".pickle", "rb")
