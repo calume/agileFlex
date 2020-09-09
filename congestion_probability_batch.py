@@ -46,9 +46,9 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_1/']#,'network_5/','network_10/','network_18/','network_17/',]
+networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
 #All_C_Limits={}
-Cases=['50PV100HP']#,'25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -62,9 +62,9 @@ for N in networks:
             
             pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
-            pick_in = open("../Data/JDEVResampled.pickle", "rb")
-            EV_DataFrame = pickle.load(pick_in)
-            
+#            pick_in = open("../Data/JDEVResampled.pickle", "rb")
+#            EV_DataFrame = pickle.load(pick_in)
+#            
             pick_in = open("../Data/PV_BySiteName.pickle", "rb")
             PV_DataFrame = pickle.load(pick_in)
             print(N,C,Y)
@@ -129,9 +129,9 @@ for N in networks:
                 ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
                 ###------randomly assigned each run. We then load from the pickle file rather than generating it
                 
-                # pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
-                # pickle.dump(Customer_Summary, pickle_out)
-                # pickle_out.close()
+                pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
+                pickle.dump(Customer_Summary, pickle_out)
+                pickle_out.close()
                 return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
             
             
@@ -182,10 +182,10 @@ for N in networks:
                     PV_DataFrame[i][k]=PV_DataFrame[i][k].interpolate(method='pad')
                 
             Coords, Lines, Customer_Summary, HP_reduced,HPlist,SMlist = Create_Customer_Summary(sims)  
-            Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
+            ##Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
             ####------ For when the customer summary table is fixed we laod it in from the pickle file
-            pickin = open("../Data/"+str(N)+"Customer_Summary"+str(C)+str(Y)+".pickle", "rb")
-            Customer_Summary = pickle.load(pickin)
+#            pickin = open("../Data/"+str(N)+"Customer_Summary"+str(C)+str(Y)+".pickle", "rb")
+#            Customer_Summary = pickle.load(pickin)
             
             
             #####------------ Initialise Input--------------------
@@ -239,7 +239,7 @@ for N in networks:
                 # -----for each customer set timestep demand and PV output----#
                 
                 for z in range(0, len(Customer_Summary)):
-                    ev[i][z]=EV_DataFrame.loc[i][EV_DataFrame.columns[z]]
+                    #ev[i][z]=EV_DataFrame.loc[i][EV_DataFrame.columns[z]]
                     smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][Customer_Summary["smartmeter_ID"][z]][i]
                     if Customer_Summary["heatpump_ID"][z] != 0:
                         heatpump[i][z] = HP_DataFrame[str(Customer_Summary["heatpump_ID"][z])][i]
@@ -247,8 +247,8 @@ for N in networks:
                         ipv=i
                         if Y==15:
                             ipv=i-timedelta(days=365)
-                        #pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][ipv]) 
-                    demand[i][z] = smartmeter[i][z] + heatpump[i][z] +ev[i][z]
+                        pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][ipv]) 
+                    demand[i][z] = smartmeter[i][z] + heatpump[i][z] #+ev[i][z]
             
                 ###------ Demand includes Smartmeter and heatpump
                 demand[i] = np.nan_to_num(demand[i])
