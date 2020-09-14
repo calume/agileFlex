@@ -29,13 +29,13 @@ from tqdm import tqdm
 #from Forecasting.Headroom_forecasting import return_temp
 from zonal_summary import daily_EVSchedule
 from itertools import cycle, islice
-from crunch_results_batch import (
+from crunch_results import (
     counts,
     plots,
     Headroom_calc,
     plot_headroom,
     plot_flex,
-    calc_current_voltage,
+    plot_current_voltage,
 )
 ####----------Set Test Network ------------
 start=datetime.now()
@@ -265,9 +265,9 @@ for Network in networks:
         )
         
         Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
-        #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
+        Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
         Vmax,Vmin,Cmax=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
-        #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
+        plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
         #plot_flex(InputsbyFP,pinchClist,colors)
         labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
         #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)

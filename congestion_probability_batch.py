@@ -48,7 +48,7 @@ start=datetime.now()
 
 networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
 #All_C_Limits={}
-Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -155,7 +155,7 @@ for N in networks:
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_tenminutes
+            sims=sims_tenminutes#[110:111]
         
             pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
@@ -297,7 +297,7 @@ for N in networks:
                 pinchClist
             )
             Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
-            #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
+            Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
             Vmax,Vmin,Cmax=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
             plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
             #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors,'FirstPass')
@@ -308,9 +308,9 @@ for N in networks:
             Voltage_data['Vmin']=Vmin
             Voltage_data['Flow']=Flow
             
-            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
-            # pickle.dump(Voltage_data, pickle_out)
-            # pickle_out.close()            
+            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
+            pickle.dump(Voltage_data, pickle_out)
+            pickle_out.close()            
 
             # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
             # pickle.dump(Headrm, pickle_out)
@@ -432,20 +432,20 @@ for N in networks:
 # pickle.dump(FullSummmary, pickle_out)
 # pickle_out.close()
 
-demseries=pd.DataFrame(index=demand.keys(),columns=(range(0,75)))
-for i in demand.keys():
-    demseries.loc[i]=demand[i][125:]
-file='Network1_Feeder4_Demand_1Day_10Minutely_100HPs_withEVs.xlsx'
-demseries.to_excel(file, sheet_name="Demand")
+# demseries=pd.DataFrame(index=demand.keys(),columns=(range(0,75)))
+# for i in demand.keys():
+#     demseries.loc[i]=demand[i][125:]
+# file='Network1_Feeder4_Demand_1Day_10Minutely_100HPs_withEVs.xlsx'
+# demseries.to_excel(file, sheet_name="Demand")
 
-book = load_workbook(file)
-writer = pd.ExcelWriter(file, engine='openpyxl')
-writer.book = book
-writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-VminDF=pd.DataFrame()
-VminDF['Phase1']=Vmin['14']
-VminDF['Phase2']=Vmin['24']
-VminDF['Phase3']=Vmin['34']
-VminDF.to_excel(writer, "Vmin", columns=None, header=True, index=True, startrow=0)
-writer.save()
+# book = load_workbook(file)
+# writer = pd.ExcelWriter(file, engine='openpyxl')
+# writer.book = book
+# writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+# VminDF=pd.DataFrame()
+# VminDF['Phase1']=Vmin['14']
+# VminDF['Phase2']=Vmin['24']
+# VminDF['Phase3']=Vmin['34']
+# VminDF.to_excel(writer, "Vmin", columns=None, header=True, index=True, startrow=0)
+# writer.save()
     

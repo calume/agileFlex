@@ -235,7 +235,7 @@ def generate_summaryData():
 #    "AutumnWkd",
 #]
 AcornGroup = ["Adversity", "Comfortable", "Affluent"]
-times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
+times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"]
 elexon_class1 = pd.read_excel(
     "Profiles/Average_Profiling_data_Elexon.xlsx", sheet_name="class1", index_col=0
 )
@@ -310,33 +310,31 @@ def DataFramebySeason(SM_DataFrame, SM_Summary, smkeys, AcornGroup):
 # Daily profiles are created by Smartmeter categorised Acorn and Season
 def profilesBySM(SM_ByAcorn):
     SM_DistsByAcorn = {}
-    for i in AcornGroup:
-        SM_DistsByAcorn[i] = {}
-        for z in smkeys:
-            SM_ByAcorn[i][z] = SM_ByAcorn[i][z].loc[
-                :, ~SM_ByAcorn[i][z].columns.duplicated()
-            ]
-            print(z)
-            SM_DistsByAcorn[i][z] = {}
-            for c in SM_ByAcorn[i][z]:
-                n = 0
-                print(c)
-                SM_DistsByAcorn[i][z][c] = pd.DataFrame(
-                    index=range(0, 20000), columns=range(0, 48)
-                )
-                for d in range(0, int(len(SM_ByAcorn[i][z][c]) / 48)):
-                    SM_DistsByAcorn[i][z][c].iloc[n] = (
-                        SM_ByAcorn[i][z][c]
-                        .iloc[48 * d : 48 * d + 48]
-                        .values.astype(float)
-                    )
-                    # print(SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].index.min())
-                    # print(SM_ByAcorn[i][z][c].iloc[48*d:48*d+48].index.max())
-                    n = n + 1
-                SM_DistsByAcorn[i][z][c] = SM_DistsByAcorn[i][z][c][
-                    SM_DistsByAcorn[i][z][c].sum(axis=1) > 0
-                ]
-                SM_DistsByAcorn[i][z][c].reset_index(drop=True, inplace=True)
+    #for i in AcornGroup:
+    SM_DistsByAcorn = {}
+    SM_ByAcorn = SM_ByAcorn.loc[
+        :, ~SM_ByAcorn.columns.duplicated()
+    ]
+    SM_DistsByAcorn = {}
+    for c in SM_ByAcorn:
+        n = 0
+        print(c)
+        SM_DistsByAcorn[c] = pd.DataFrame(
+            index=range(0, 20000), columns=range(0, 48)
+        )
+        for d in range(0, int(len(SM_ByAcorn[c]) / 48)):
+            SM_DistsByAcorn[c].iloc[n] = (
+                SM_ByAcorn[c]
+                .iloc[48 * d : 48 * d + 48]
+                .values.astype(float)
+            )
+            # print(SM_ByAcorn[c].iloc[48*d:48*d+48].index.min())
+            # print(SM_ByAcorn[c].iloc[48*d:48*d+48].index.max())
+            n = n + 1
+        SM_DistsByAcorn[c] = SM_DistsByAcorn[c][
+            SM_DistsByAcorn[c].sum(axis=1) > 0
+        ]
+        SM_DistsByAcorn[c].reset_index(drop=True, inplace=True)
     return SM_DistsByAcorn
 
 
@@ -347,90 +345,83 @@ def SM_Visualise(SM_DistsConsolidated, times):
     Seasons = ["Winter", "Spring", "Summer", "Autumn"]
     n = 1
     r = 0
-    plt.plot(elexon_class1['WinterWkd'].values, linestyle="--", label="Elexon Class 1")
-    plt.plot(elexon_class2['WinterWkd'].values, linestyle=":", label="Elexon Class 2")
+    plt.plot(elexon_class1['WinterWkd'].values,color='orange', linestyle=":", label="Elexon Class 1")
+    plt.plot(elexon_class2['WinterWkd'].values,color='black', linestyle=":", label="Elexon Class 2")
     plt.plot(
         SM_DistsConsolidated["Affluent"].mean(),
-        color="#33FF92",
+        color="green",
         label="Affluent",
+        linestyle='-.'
     )
     plt.plot(
         SM_DistsConsolidated["Comfortable"].mean(),
         color="#17becf",
         label="Comfortable",
+        linestyle='-'
     )
     plt.plot(
         SM_DistsConsolidated["Adversity"].mean(),
         color="#FA8072",
         label="Adversity",
+        linestyle='--'
     )
     plt.xlabel("Settlement Period (half hourly)", fontsize=11)
     plt.ylabel("Demand (kW)", fontsize=11)
     plt.xlim([0, 47])
     plt.ylim([0, 1.5])
     # plt.yticks([0,0.5,1,1.5,2])
-    plt.yticks([0, 0.5, 1, 1.5])
+    #plt.yticks([0, 0.5, 1, 1.5])
     plt.xticks(fontsize=11)
     plt.yticks(fontsize=11)
     plt.legend()
-    #plt.xticks(range(0, 47, 6), times)
+    plt.grid(linewidth=0.2)
+    plt.xticks(range(0,48,8),times)
 
 
 ## ---------- Removing heating loads
-# pick_in = open("../../Data/SM_DistsByAcorn.pickle", "rb")
-# SM_DistsByAcorn = pickle.load(pick_in)
+pick_in = open("../../Data/SM_ByAcorn.pickle", "rb")
+SM_ByAcorn = pickle.load(pick_in)
 
 
 def Heaters(SM_DataFrame):
-    Heaters = (SM_DataFrame[SM_DataFrame.index.hour == 0] > 4).sum() > 1
-    Heaters = Heaters[Heaters]
-    HeatersSort = (
-        SM_DataFrame[SM_DataFrame[Heaters.index].index.hour == 0].sum()
-        + SM_DataFrame[SM_DataFrame[Heaters.index].index.hour == 1].sum()
-    ).sort_values()
-    ToRemove = HeatersSort[HeatersSort > 2000].index
+    HeatersSort={}
+    ToRemove={}
+    for a in AcornGroup:
+        Heaters = (SM_DataFrame[a][SM_DataFrame[a].index.hour == 0] > 4).sum() > 1
+        Heaters = Heaters[Heaters]
+        HeatersSort[a] = (
+            SM_DataFrame[a][SM_DataFrame[a][Heaters.index].index.hour == 0].sum()
+            + SM_DataFrame[a][SM_DataFrame[a][Heaters.index].index.hour == 1].sum()
+        ).sort_values()
+        ToRemove[a] = HeatersSort[a][HeatersSort[a] > 2000].index
     return ToRemove, HeatersSort
 
 
+ToRemove, HeatersSort=Heaters(SM_ByAcorn)
+SM_DistsByAcorn=profilesBySM(SM_ByAcorn['Affluent'][ToRemove['Affluent']])
 # ----------------- Visualise Heat Loads ----------
-def HeatVisuals(times, SM_DistsByAcorn, SM_DataFrame, HeatersSort):
-    n = 1
-    for z in HeatersSort[-4:].index:
-        plt.subplot(420 + n)
-        plt.xlim([0, 47])
-        plt.ylim([0, 12])
-        plt.xticks(fontsize=8)
-        plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)
-        if n == 1:
-            plt.title("Weekend (Sat-Sun)", fontsize=9, fontweight="bold")
-        for i in SM_DistsByAcorn["Affluent"]["WinterWknd"][z].index:
-            plt.plot(SM_DistsByAcorn["Affluent"]["WinterWknd"][z].loc[i], linewidth=0.5)
-        plt.plot(
-            SM_DistsByAcorn["Affluent"]["WinterWknd"][z].mean(),
-            linestyle="--",
-            color="black",
-        )
-        n = n + 1
-        if n % 2 == 0:
-            plt.ylabel(z, rotation=25, fontsize=9, fontweight="bold")
-        plt.subplot(420 + n)
-        plt.xlim([0, 47])
-        plt.ylim([0, 12])
-        plt.xticks(fontsize=8)
-        plt.yticks(fontsize=8)
-        plt.xticks(range(0, 47, 8), times)
-        for i in SM_DistsByAcorn["Affluent"]["WinterWkd"][z].index:
-            plt.plot(SM_DistsByAcorn["Affluent"]["WinterWkd"][z].loc[i], linewidth=0.5)
-        plt.plot(
-            SM_DistsByAcorn["Affluent"]["WinterWkd"][z].mean(),
-            linestyle="--",
-            color="black",
-        )
-        if n == 2:
-            plt.title("Week Day (Mon-Fri)", fontsize=9, fontweight="bold")
-        n = n + 1
-
+#def HeatVisuals(times, SM_DistsByAcorn):
+n = 1
+plt.xlim([0, 47])
+plt.ylim([0, 12])
+plt.xticks(fontsize=11)
+plt.yticks(fontsize=11)
+plt.xticks(range(0,48,8),times)
+styles=[':','--','-','-.',':.']
+l=0
+for z in SM_DistsByAcorn:
+    # for i in SM_DistsByAcorn[z].index:
+    #     plt.plot(SM_DistsByAcorn[z].loc[i], linewidth=0.5)
+    plt.plot(
+        SM_DistsByAcorn[z].mean(),
+        linestyle=styles[l],
+        label=z
+    )
+    plt.ylabel("Mean Demand (kW)", fontsize=11)
+    plt.legend(title='Smartmeter ID')
+    plt.grid(linewidth=0.2)
+    l=l+1
+#HeatVisuals(times, SM_ByAcorn, HeatersSort)
 
 # ------------ Rerun for dropped columns due to Heating
 def removeHeating(SM_DataFrame, SM_Summary, ToRemove):
@@ -471,64 +462,64 @@ def createnewDailyByAcorn():
     pickle.dump(SM_DistsByAcorn, pickle_out)
     pickle_out.close()
 
-pick_in = open("../../Data/SM_ByAcorn_NH.pickle", "rb")
-SM_ByAcorn_NH = pickle.load(pick_in)
+# pick_in = open("../../Data/SM_ByAcorn_NH.pickle", "rb")
+# SM_ByAcorn_NH = pickle.load(pick_in)
 
-pick_in = open("../../Data/SM_ByAcorn.pickle", "rb")
-SM_ByAcorn = pickle.load(pick_in)
+# pick_in = open("../../Data/SM_ByAcorn.pickle", "rb")
+# SM_ByAcorn = pickle.load(pick_in)
 
-SM_DailyDataFrame={}
-SM_DailyDataFrame_NH={}
-tsamp=48
-for j in AcornGroup:
-     SM_DailyDataFrame[j]={}
-     SM_DailyDataFrame_NH[j]={}
-     for c in SM_ByAcorn[j].columns:
-         n = 0
-         print(c)
-         dailyrange = range(0, len(dt), tsamp)
-         SM_DailyDataFrame[j][c] = pd.DataFrame(
-             index=dt[dailyrange], columns=range(0, tsamp)
-         )
-         for d in range(0, len(dailyrange)):
-             SM_DailyDataFrame[j][c].iloc[n] = (
-                 SM_ByAcorn[j][c].iloc[tsamp * d : tsamp * d + tsamp].values.astype(float)
-             )
-             # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.min())
-             # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.max())
-             n = n + 1
-         SM_DailyDataFrame[j][c] = SM_DailyDataFrame[j][c][
-             SM_DailyDataFrame[j][c].sum(axis=1) > 0
-         ].fillna(0)
+# SM_DailyDataFrame={}
+# SM_DailyDataFrame_NH={}
+# tsamp=48
+# for j in AcornGroup:
+#      SM_DailyDataFrame[j]={}
+#      SM_DailyDataFrame_NH[j]={}
+#      for c in SM_ByAcorn[j].columns:
+#          n = 0
+#          print(c)
+#          dailyrange = range(0, len(dt), tsamp)
+#          SM_DailyDataFrame[j][c] = pd.DataFrame(
+#              index=dt[dailyrange], columns=range(0, tsamp)
+#          )
+#          for d in range(0, len(dailyrange)):
+#              SM_DailyDataFrame[j][c].iloc[n] = (
+#                  SM_ByAcorn[j][c].iloc[tsamp * d : tsamp * d + tsamp].values.astype(float)
+#              )
+#              # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.min())
+#              # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.max())
+#              n = n + 1
+#          SM_DailyDataFrame[j][c] = SM_DailyDataFrame[j][c][
+#              SM_DailyDataFrame[j][c].sum(axis=1) > 0
+#          ].fillna(0)
 
-     for c in SM_ByAcorn_NH[j].columns:
-         n = 0
-         print(c)
-         dailyrange = range(0, len(dt), tsamp)
-         SM_DailyDataFrame_NH[j][c] = pd.DataFrame(
-             index=dt[dailyrange], columns=range(0, tsamp)
-         )
-         for d in range(0, len(dailyrange)):
-             SM_DailyDataFrame_NH[j][c].iloc[n] = (
-                 SM_ByAcorn_NH[j][c].iloc[tsamp * d : tsamp * d + tsamp].values.astype(float)
-             )
-             # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.min())
-             # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.max())
-             n = n + 1
-         SM_DailyDataFrame_NH[j][c] = SM_DailyDataFrame_NH[j][c][
-             SM_DailyDataFrame_NH[j][c].sum(axis=1) > 0
-         ].fillna(0)
+#      for c in SM_ByAcorn_NH[j].columns:
+#          n = 0
+#          print(c)
+#          dailyrange = range(0, len(dt), tsamp)
+#          SM_DailyDataFrame_NH[j][c] = pd.DataFrame(
+#              index=dt[dailyrange], columns=range(0, tsamp)
+#          )
+#          for d in range(0, len(dailyrange)):
+#              SM_DailyDataFrame_NH[j][c].iloc[n] = (
+#                  SM_ByAcorn_NH[j][c].iloc[tsamp * d : tsamp * d + tsamp].values.astype(float)
+#              )
+#              # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.min())
+#              # print(SM_ByAcorn_NH[c].iloc[tsamp * d : tsamp * d + tsamp].index.max())
+#              n = n + 1
+#          SM_DailyDataFrame_NH[j][c] = SM_DailyDataFrame_NH[j][c][
+#              SM_DailyDataFrame_NH[j][c].sum(axis=1) > 0
+#          ].fillna(0)
 
-pickle_out = open("../../Data/SM_DailyDataFrame.pickle", "wb")
-pickle.dump(SM_DailyDataFrame, pickle_out)
-pickle_out.close()
+# pickle_out = open("../../Data/SM_DailyDataFrame.pickle", "wb")
+# pickle.dump(SM_DailyDataFrame, pickle_out)
+# pickle_out.close()
 
-pickle_out = open("../../Data/SM_DailyDataFrame_NH.pickle", "wb")
-pickle.dump(SM_DailyDataFrame_NH, pickle_out)
-pickle_out.close()
+# pickle_out = open("../../Data/SM_DailyDataFrame_NH.pickle", "wb")
+# pickle.dump(SM_DailyDataFrame_NH, pickle_out)
+# pickle_out.close()
 
-pick_in = open("../../Data/SM_DailyDataFrame.pickle", "rb")
-SM_DailyDataFrame = pickle.load(pick_in)
+# pick_in = open("../../Data/SM_DailyDataFrame.pickle", "rb")
+# SM_DailyDataFrame = pickle.load(pick_in)
 
 pick_in = open("../../Data/SM_DailyDataFrame_NH.pickle", "rb")
 SM_DailyDataFrame_NH = pickle.load(pick_in)
@@ -536,20 +527,20 @@ SM_DailyDataFrame_NH = pickle.load(pick_in)
 SM_DistsConsolidated = {}
 SM_DistsConsolidated_NH = {}
 for j in AcornGroup:
-     SM_DistsConsolidated[j]={}
-     SM_DistsConsolidated_NH[j] = {}
-     DFkeys = list(SM_DailyDataFrame[j].keys())
-     SM_DistsConsolidated[j] = SM_DailyDataFrame[j][DFkeys[0]].astype(float)
-     for k in DFkeys:
-         SM_DistsConsolidated[j] = SM_DistsConsolidated[j].append(
-             SM_DailyDataFrame[j][k].astype(float), ignore_index=True
-         )
-     DFkeys_NH = list(SM_DailyDataFrame_NH[j].keys())
-     SM_DistsConsolidated_NH[j] = SM_DailyDataFrame_NH[j][DFkeys_NH[0]].astype(float)
-     for k in DFkeys_NH:
-         SM_DistsConsolidated_NH[j] = SM_DistsConsolidated_NH[j].append(
-             SM_DailyDataFrame_NH[j][k].astype(float), ignore_index=True
-         )
+      SM_DistsConsolidated[j]={}
+      SM_DistsConsolidated_NH[j] = {}
+      # DFkeys = list(SM_DailyDataFrame[j].keys())
+      # SM_DistsConsolidated[j] = SM_DailyDataFrame[j][DFkeys[0]].astype(float)
+      # for k in DFkeys:
+      #     SM_DistsConsolidated[j] = SM_DistsConsolidated[j].append(
+      #         SM_DailyDataFrame[j][k].astype(float), ignore_index=True
+      #     )
+      DFkeys_NH = list(SM_DailyDataFrame_NH[j].keys())
+      SM_DistsConsolidated_NH[j] = SM_DailyDataFrame_NH[j][DFkeys_NH[0]].astype(float)
+      for k in DFkeys_NH:
+          SM_DistsConsolidated_NH[j] = SM_DistsConsolidated_NH[j].append(
+              SM_DailyDataFrame_NH[j][k].astype(float), ignore_index=True
+          )
 
 #pickle_out = open("../../Data/SM_DistsConsolidated.pickle", "wb")
 #pickle.dump(SM_DistsConsolidated, pickle_out)
@@ -558,9 +549,9 @@ for j in AcornGroup:
 #pick_in = open("../../Data/SM_DistsConsolidated.pickle", "rb")
 #SM_DistsConsolidated = pickle.load(pick_in)
 
-SM_Visualise(SM_DistsConsolidated, times)
+#SM_Visualise(SM_DistsConsolidated, times)
 SM_Visualise(SM_DistsConsolidated_NH, times)
-#
+
 ###- Plus 1 year to SM timestamps to line up with PV and HP
 #SM_DataFrame.index = SM_DataFrame.index + datetime.timedelta(days=364)
 #

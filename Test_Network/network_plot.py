@@ -27,6 +27,22 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 pd.options.mode.chained_assignment = None
 from tabulate import tabulate
 from numpy.random import choice
+import numpy as np
+
+# pick_in = open("pvcaplist.pickle", "rb")
+# pvcaplist = pickle.load(pick_in)
+# hist,bins = np.histogram(pvcaplist, bins=np.arange(0, 4.2, 0.1))
+# fig, ax = plt.subplots(figsize=(5, 4))
+# ax.bar(bins[:-1], hist, width=0.2, align="center")
+# ax.set_xlim(left=0,right=4.2)
+# ax.set_ylabel("Number of Customers", fontsize=11)
+# ax.set_xlabel("PV Capacity (kW)", fontsize=11)
+# for t in ax.xaxis.get_majorticklabels():
+#     t.set_fontsize(11)
+# for t in ax.yaxis.get_majorticklabels():
+#     t.set_fontsize(11)
+# plt.tight_layout()
+# plt.grid(linewidth=0.2)
 
 # ------------------------Define Network Agents----------------------------
 def customer_summary(Network_Path,Case):
@@ -124,7 +140,13 @@ def customer_summary(Network_Path,Case):
         
         if Case[5:]=='100HP' or Case[4:]=='100HP':
             Customer_Summary["Acorn_Group"] = "Affluent"
-    
+            
+        if Case[4:]=='00HP':
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[::2]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Comfortable"             
+            Cslice=Customer_Summary[Customer_Summary['zone']==j].index[1::2]
+            Customer_Summary["Acorn_Group"].loc[Cslice] = "Adversity"
+            
     Customer_Summary["PV_kW"][Customer_Summary["Acorn_Group"] == "Affluent"] = pvcaplist[0:sum(Customer_Summary["Acorn_Group"] == "Affluent")]
     Customer_Summary["Heat_Pump_Flag"][Customer_Summary["Acorn_Group"] == "Affluent"] = 1
 

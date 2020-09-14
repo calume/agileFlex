@@ -57,7 +57,7 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     
     lns = lns1+lns2+lns3+lns4+lns5
     labs = [l.get_label() for l in lns]
-    ax2.legend(lns, labs, loc=0)
+    ax2.legend(lns, labs,loc='center')
     ax2.set_xlim(0,144)
     plt.xticks(range(0,168,24),times)
     plt.title('Zone- '+str(zone)+'. Max EVs - '+str(nEVs)+' / '+str(nCusts)+' customers')
@@ -65,7 +65,7 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     plt.show()
     
 start=datetime.now()
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/']#,'network_5/','network_10/','network_17/','network_18/']
 
 #def daily_EVSchedule(Network):
 
@@ -133,7 +133,7 @@ for Network in networks:
     
     nEVs_All[Network]['Realised']=0
     
-    for i in nEVs_All[Network].index:
+    for i in ['31']:#nEVs_All[Network].index:
         Case=assign[Network][i]
         EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][Case][i]
         nEVs=int(nEVs_All[Network][Case][i])
@@ -159,7 +159,7 @@ for Network in networks:
             l=1
             b=0
     
-            while (status[k][l-1]=='Fail' and nEVs>0) or (j<10 and nEVs>0): 
+            while (status[k][l-1]=='Fail' and nEVs>0) or (j<1 and nEVs>0): 
                 net=Network[8:-1]
                 optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
                 copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
