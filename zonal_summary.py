@@ -133,95 +133,94 @@ for Network in networks:
     
     nEVs_All[Network]['Realised']=0
     
-    for i in ['31']:#nEVs_All[Network].index:
+    for i in nEVs_All[Network].index:
         Case=assign[Network][i]
         EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][Case][i]
         nEVs=int(nEVs_All[Network][Case][i])
         #nEVs=int(nEVs_All[Network]['Realised'][i])
         j=1
-        if Case != '00PV00HP':
-            pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
-            WinterHdRm = pickle.load(pick_in)
-            
-            pick_in = open("../Data/"+str(Network+Case)+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
-            WinterFtRm = pickle.load(pick_in)
-            
-            a=WinterHdRm[i]['P5']*factor
-            a.index=dt2
-            hdrm=a[74:].append(a[:74])
-            
-            b=WinterFtRm[i]['P5']*factor
-            b.index=dt2
-            ftrm=b[74:].append(b[:74])
-                
-            status[k]={}
-            status[k][0]='Fail'
-            l=1
-            b=0
-    
-            while (status[k][l-1]=='Fail' and nEVs>0) or (j<1 and nEVs>0): 
-                net=Network[8:-1]
-                optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
-                copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
-                gen=pd.read_excel(optfile, sheet_name='genseries')
-                genmin=pd.read_excel(optfile, sheet_name='genmin')
-                prices=pd.read_excel(optfile, sheet_name='timeseriesGen')
-               
-                gen['Grid']=hdrm.values
-                v2g=gen['Grid'].rename('v2g')
-                v2g[v2g>0]=0
-                prices['cost(pounds/kwh)']=priceIn.values
-                prices['cost(pounds/kwh)'][gen['Grid']<0]=prices['cost(pounds/kwh)'][gen['Grid']<0]+0.175
-                
-                gen['Grid'][gen['Grid']<0]=0
-                
-                genmin['Grid']=-ftrm.values
-                #genmin['Grid'][genmin['Grid']>0]=0
-                EVSample=EVs.sample(n=nEVs)
-                EVTDSample=pd.DataFrame()
-                for s in EVSample['name']:
-                    EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
-                EV_Avg=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
-                book = load_workbook(optfile)
-                   
-                writer = pd.ExcelWriter(optfile, engine='openpyxl')
-                writer.book = book
-                writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-                
-                EVSample.to_excel(writer, "EVs", columns=None, header=True, index=False, startrow=0)
-                EVTDSample.to_excel(writer, "EVsTravelDiary", columns=None, header=True, index=False, startrow=0)
-                gen.to_excel(writer, "genseries", columns=None, header=True, index=False, startrow=0)
-                genmin.to_excel(writer, "genmin", columns=None, header=True, index=False, startrow=0)
-                prices.to_excel(writer, "timeseriesGen", columns=None, header=True, index=False, startrow=0)
-                
-                writer.save()
-                try:
-                    status[k][l]=main(net)
-                except:
-                    status[k][l]='Fail'
-                    b=b+1
-                    print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
-                    j=1
-                    nEVs=nEVs-1
-                
-                if status[k][l]=='Success':
-                    b=0
-                    j=j+1
-                EVCapacitySummary['EV Capacity New'][i]=nEVs
-                nEVs_All[Network]['Realised'][i]=nEVs
-                results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
-                # netCharge=pd.Series(results.groupby(['Time period']).sum()['Charging(kW)']-results.groupby(['Time period']).sum()['Discharging(kW)'])
-                # advancePeriods=genmin['Grid'][genmin['Grid']<0]
-                # if (hdrm<0).any()==True and status[k][l]=='Success' and (((advancePeriods-netCharge)[netCharge.index].round(2)<0).any())==True:
-                #     nEVs=nEVs-1
-                #     EVCapacitySummary['EV Capacity Reduced'][k]=nEVs
-                #     status[k][l]='Fail'
-                #     b=1
-                l=l+1
-            k=k+1
-            
+        #if Case != '00PV00HP':
+        pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
+        WinterHdRm = pickle.load(pick_in)
         
-            ##
+        pick_in = open("../Data/"+str(Network+Case)+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+        WinterFtRm = pickle.load(pick_in)
+        
+        a=WinterHdRm[i]['P5']*factor
+        a.index=dt2
+        hdrm=a[74:].append(a[:74])
+        
+        b=WinterFtRm[i]['P5']*factor
+        b.index=dt2
+        ftrm=b[74:].append(b[:74])
+            
+        status[k]={}
+        status[k][0]='Fail'
+        l=1
+        b=0
+
+        while (status[k][l-1]=='Fail' and nEVs>0) or (j<10 and nEVs>0): 
+            net=Network[8:-1]
+            optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
+            copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
+            gen=pd.read_excel(optfile, sheet_name='genseries')
+            genmin=pd.read_excel(optfile, sheet_name='genmin')
+            prices=pd.read_excel(optfile, sheet_name='timeseriesGen')
+           
+            gen['Grid']=hdrm.values
+            v2g=gen['Grid'].rename('v2g')
+            v2g[v2g>0]=0
+            prices['cost(pounds/kwh)']=priceIn.values
+            prices['cost(pounds/kwh)'][gen['Grid']<0]=prices['cost(pounds/kwh)'][gen['Grid']<0]+0.175
+            
+            gen['Grid'][gen['Grid']<0]=0
+            
+            genmin['Grid']=-ftrm.values
+            #genmin['Grid'][genmin['Grid']>0]=0
+            EVSample=EVs.sample(n=nEVs)
+            EVTDSample=pd.DataFrame()
+            for s in EVSample['name']:
+                EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
+            EV_Avg=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
+            book = load_workbook(optfile)
+               
+            writer = pd.ExcelWriter(optfile, engine='openpyxl')
+            writer.book = book
+            writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+            
+            EVSample.to_excel(writer, "EVs", columns=None, header=True, index=False, startrow=0)
+            EVTDSample.to_excel(writer, "EVsTravelDiary", columns=None, header=True, index=False, startrow=0)
+            gen.to_excel(writer, "genseries", columns=None, header=True, index=False, startrow=0)
+            genmin.to_excel(writer, "genmin", columns=None, header=True, index=False, startrow=0)
+            prices.to_excel(writer, "timeseriesGen", columns=None, header=True, index=False, startrow=0)
+            
+            writer.save()
+            try:
+                status[k][l]=main(net)
+            except:
+                status[k][l]='Fail'
+                b=b+1
+                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
+                j=1
+                nEVs=nEVs-1
+            
+            if status[k][l]=='Success':
+                b=0
+                j=j+1
+            EVCapacitySummary['EV Capacity New'][i]=nEVs
+            nEVs_All[Network]['Realised'][i]=nEVs
+            results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
+            # netCharge=pd.Series(results.groupby(['Time period']).sum()['Charging(kW)']-results.groupby(['Time period']).sum()['Discharging(kW)'])
+            # advancePeriods=genmin['Grid'][genmin['Grid']<0]
+            # if (hdrm<0).any()==True and status[k][l]=='Success' and (((advancePeriods-netCharge)[netCharge.index].round(2)<0).any())==True:
+            #     nEVs=nEVs-1
+            #     EVCapacitySummary['EV Capacity Reduced'][k]=nEVs
+            #     status[k][l]='Fail'
+            #     b=1
+            l=l+1
+        k=k+1
+        
+        if status[k-1][l-1]=='Success':
             plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
                 
             
@@ -272,3 +271,38 @@ for Network in networks:
 #     EVCapacitySummary[N]={}
 #     AllEVs[N]={}
 #     daily_EVSchedule(N)
+
+#########--- Sample Table for report
+EVSS=EVTDSample.copy()
+evsinH=((EVSS['t_in']*10)//60+12).values.astype(str)
+evsinM=((EVSS['t_in']*10)%60).values.astype(str)
+
+evsoutH=(((EVSS['t_out']*10)//60+12)%12).values.astype(str)
+evsoutM=((EVSS['t_out']*10)%60).values.astype(str)
+for i in range(0,len(evsinH)):
+    evsinH[i]=evsinH[i]+evsinM[i]
+
+for i in range(0,len(evsoutH)):
+    evsoutH[i]=evsoutH[i]+evsoutM[i]
+
+EVSS['t_in']=evsinH.astype(int)
+EVSS['t_out']=evsoutH.astype(int)
+#EVSS['t_out']=EVSS['t_out']%1440
+
+EVSS['EStart']=EVSS['EStart'].round(1)
+EVSS['EEnd']=EVSS['EEnd'].round(1)
+
+EVSS['name']=EVSS['name'].astype(str).str[6:]
+
+
+# #######---------DUOS Plot -------------##########
+# times2 = ["12:00", "18:00", "00:00", "06:00"]
+# priceIn=pd.read_csv('Prices.csv')
+# plt.bar(priceIn.index,priceIn['DegradationLow (V2GB)'].values, label='Degradation', hatch='X')
+# plt.bar(priceIn.index,priceIn['DUoS'].values, label='DUoS', color='red',hatch='.',bottom=priceIn['DegradationLow (V2GB)'].values)
+# plt.bar(priceIn.index,priceIn['V2G'].values, label='V2G', bottom=(priceIn['DUoS'].values+priceIn['DegradationLow (V2GB)'].values), hatch='+')
+# plt.legend()
+# plt.grid(linewidth=0.2)
+# plt.ylabel('Price (£/kWh)')
+# plt.xlim([0, 47])
+# plt.xticks(range(0,48,12),times2)

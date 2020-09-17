@@ -20,9 +20,9 @@ from scipy.interpolate import interpn
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/']#,'network_10/','network_5/','network_18/']
+networks=['network_17/']#,'network_10/','network_5/','network_18/','network_17/']
 Y=14
-Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['00PV00HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
 pick_in = open("../Data/All_VC_Limits.pickle", "rb")

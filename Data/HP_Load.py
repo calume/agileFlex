@@ -116,29 +116,29 @@ dt = pd.date_range(startdate, enddate, freq=delta)
 
 #createDataFrame(IDs)
 
-pick_in = open("../../Data/HP_DataFrame_10mins_pad.pickle", "rb")
-HP_DataFrame = pickle.load(pick_in)
+# pick_in = open("../../Data/HP_DataFrame_10mins_pad.pickle", "rb")
+# HP_DataFrame = pickle.load(pick_in)
 
-HP_reduced = HP_DataFrame.reindex(dt.tolist()).count()> (0.9*len(dt))
+# HP_reduced = HP_DataFrame.reindex(dt.tolist()).count()> (0.9*len(dt))
 
-HP_reduced = HP_reduced[HP_reduced]
+# HP_reduced = HP_reduced[HP_reduced]
 
-HP_DataFrame = HP_DataFrame[HP_reduced.index].loc[dt]
+# HP_DataFrame = HP_DataFrame[HP_reduced.index].loc[dt]
 
-HP_reduced = HP_DataFrame.sum()>0
-HP_reduced = HP_reduced[HP_reduced]
-HP_DataFrame = HP_DataFrame[HP_reduced.index].loc[dt]
+# HP_reduced = HP_DataFrame.sum()>0
+# HP_reduced = HP_reduced[HP_reduced]
+# HP_DataFrame = HP_DataFrame[HP_reduced.index].loc[dt]
 
-pickle_out = open("../../Data/HP_DataFrame_10mins_pad.pickle", "wb")
-pickle.dump(HP_DataFrame, pickle_out)
-pickle_out.close()
+# pickle_out = open("../../Data/HP_DataFrame_10mins_pad.pickle", "wb")
+# pickle.dump(HP_DataFrame, pickle_out)
+# pickle_out.close()
 
 tsamp=144
 
-# This function plots a histogram of heat pump maximum output
+# ##This function plots a histogram of heat pump maximum output
 
-#####- Generate Daily HP demand profiles by season, timestamp removed
-#def profilesBySM(HP_BySeason):
+# ####- Generate Daily HP demand profiles by season, timestamp removed
+# ##def profilesBySM(HP_BySeason):
 
 
 # HP_DailyDataFrame={}
@@ -163,83 +163,84 @@ tsamp=144
 # pickle_out = open("../../Data/HP_DailyDataFrame_10min_pad.pickle", "wb")
 # pickle.dump(HP_DailyDataFrame, pickle_out)
 # pickle_out.close()
-#
-#pick_in = open("../../Data/HP_DailyDataFrame_10min_pad.pickle", "rb")
-#HP_DailyDataFrame = pickle.load(pick_in)
-#
-#
-#HP_DistsConsolidated = {}
-#DFkeys = list(HP_DailyDataFrame.keys())
-#HP_DistsConsolidated = HP_DailyDataFrame[DFkeys[0]].astype(float)
-#for k in DFkeys:
-#    HP_DistsConsolidated = HP_DistsConsolidated.append(
-#        HP_DailyDataFrame[k].astype(float), ignore_index=True
-#    )
-#
-#pickle_out = open("../../Data/HP_DistsConsolidated_10min_pad.pickle", "wb")
-#pickle.dump(HP_DistsConsolidated, pickle_out)
-#pickle_out.close()
-#
-#pick_in = open("../../Data/HP_DistsConsolidated_10min_pad.pickle", "rb")
-#HP_DistsConsolidated = pickle.load(pick_in)
-#
-#
-## ------------------- Data Visualisation -----------------------------#
-##def SM_Visualise(HP_DistsConsolidated, smkeys, times):
-#allmeans=[]
-#for z in HP_DailyDataFrame:
-#    allmeans.append(HP_DailyDataFrame[z].sum().mean()/6)
-#    
-## for z in HP_DailyDataFrame:
-##     plt.plot(HP_DailyDataFrame[z].mean(), linewidth=0.3)
-#    
-#plt.plot(
-#    HP_DistsConsolidated.mean(),
-#    color="black",
-#    label="Mean",
-#    linestyle="-",
-#)
-#plt.plot(
-#    HP_DistsConsolidated.quantile(0.50),
-#    color="blue",
-#    label="Q50",
-#    linestyle="--",
-#)
-#plt.plot(
-#    HP_DistsConsolidated.quantile(0.95),
-#    color="red",
-#    label="Q95",
-#    linestyle="-.",
-#)
-#plt.plot(
-#    HP_DistsConsolidated.quantile(0.75),
-#    color="green",
-#    label="Q75",
-#    linestyle=":",
-#)
-#plt.ylabel("10-minutely sampled demand (kW)", fontsize=11)
-#plt.xlim([0, tsamp])
-#plt.ylim([0, 4])
-#plt.grid(linewidth=0.2)
-## plt.yticks([0,0.5,1,1.5])
-#plt.xticks(fontsize=11)
-#plt.yticks(fontsize=11)
-#plt.legend(fontsize=11)
-#plt.xticks(range(0,tsamp+24,int(tsamp/6)),times)
-#plt.tight_layout()
-#
-#
-#histo30, binz30 = np.histogram(allmeans, bins=range(0, int(max(allmeans)), 1))
-#fig, ax = plt.subplots(figsize=(5, 4))
-#ax.bar(binz30[:-1], histo30, width=1, align="edge")
-#ax.set_xlim(left=0,right=50)
-#ax.set_ylabel("Number of HPs", fontsize=11)
-#ax.set_xlabel("Mean Daily Demand (kWh/day)", fontsize=11)
-#for t in ax.xaxis.get_majorticklabels():
-#    t.set_fontsize(11)
-#for t in ax.yaxis.get_majorticklabels():
-#    t.set_fontsize(11)
-#plt.tight_layout()
+
+pick_in = open("../../Data/HP_DailyDataFrame_10min_pad.pickle", "rb")
+HP_DailyDataFrame = pickle.load(pick_in)
+
+
+# HP_DistsConsolidated = {}
+# DFkeys = list(HP_DailyDataFrame.keys())
+# HP_DistsConsolidated = HP_DailyDataFrame[DFkeys[0]].astype(float)
+# for k in DFkeys:
+#     HP_DistsConsolidated = HP_DistsConsolidated.append(
+#         HP_DailyDataFrame[k].astype(float), ignore_index=True
+#     )
+
+# pickle_out = open("../../Data/HP_DistsConsolidated_10min_pad.pickle", "wb")
+# pickle.dump(HP_DistsConsolidated, pickle_out)
+# pickle_out.close()
+
+pick_in = open("../../Data/HP_DistsConsolidated_10min_pad.pickle", "rb")
+HP_DistsConsolidated = pickle.load(pick_in)
+
+
+# ------------------- Data Visualisation -----------------------------#
+#def SM_Visualise(HP_DistsConsolidated, smkeys, times):
+allmeans=[]
+for z in HP_DailyDataFrame:
+    allmeans.append(HP_DailyDataFrame[z].sum().mean()/6)
+    
+# for z in HP_DailyDataFrame:
+#     plt.plot(HP_DailyDataFrame[z].mean(), linewidth=0.3)
+    
+plt.plot(
+    HP_DistsConsolidated.mean(),
+    color="black",
+    label="Mean",
+    linestyle="-",
+)
+plt.plot(
+    HP_DistsConsolidated.quantile(0.50),
+    color="blue",
+    label="Q50",
+    linestyle="--",
+)
+plt.plot(
+    HP_DistsConsolidated.quantile(0.95),
+    color="red",
+    label="Q95",
+    linestyle="-.",
+)
+plt.plot(
+    HP_DistsConsolidated.quantile(0.75),
+    color="green",
+    label="Q75",
+    linestyle=":",
+)
+plt.ylabel("10-minutely sampled demand (kW)", fontsize=11)
+plt.xlim([0, tsamp])
+plt.ylim([0, 4])
+plt.grid(linewidth=0.2)
+# plt.yticks([0,0.5,1,1.5])
+plt.xticks(fontsize=11)
+plt.yticks(fontsize=11)
+plt.legend(fontsize=11)
+plt.xticks(range(0,tsamp+24,int(tsamp/6)),times)
+plt.tight_layout()
+
+
+histo30, binz30 = np.histogram(allmeans, bins=range(0, int(max(allmeans)), 1))
+fig, ax = plt.subplots(figsize=(5, 4))
+ax.bar(binz30[:-1], histo30, width=1, align="edge")
+ax.set_xlim(left=0,right=50)
+ax.set_ylabel("Number of HPs", fontsize=11)
+ax.set_xlabel("Mean Daily Demand (kWh/day)", fontsize=11)
+for t in ax.xaxis.get_majorticklabels():
+    t.set_fontsize(11)
+for t in ax.yaxis.get_majorticklabels():
+    t.set_fontsize(11)
+plt.grid(linewidth=0.2)
+plt.tight_layout()
 
 #HP_BySeason = DataFramebySeason(HP_DataFrame, smkeys)
 #pickle_out = open("../../Data/HP_DataFrameBySeason.pickle", "wb")

@@ -64,6 +64,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     ################### Calculating Load for each Demand ############################
     iterations=100
     v_delta=0
+    c=0
     while iterations==100 and v_delta<0.05:
         iLoad = DSSLoads.First()
         while iLoad > 0:
@@ -72,7 +73,8 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
             DSSLoads.Vminpu(0.02)
             DSSLoads.kV(0.24)
             iLoad = DSSLoads.Next()
-        
+            if c>3:
+                DSSLoads.Model(2)
         ################### Calculating Gen for each Demand ############################
         iGen = DSSGens.First()
         while iGen > 0:
@@ -98,6 +100,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
         iterations=dss.Solution.Iterations()
         print(iterations)
         v_delta=v_delta+0.01
+        c=c+1
         
     ############-----Export Results-------------------------#################
         
