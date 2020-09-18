@@ -57,7 +57,7 @@ assign = pickle.load(pick_in)
 
 num_cores = multiprocessing.cpu_count()
 
-networks=['network_5/']#,'network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 # inputs = tqdm(networks)
 EVCapacitySummary={}
 AllEVs={}
@@ -85,19 +85,19 @@ for Network in networks:
     ########--------- Code to load dates with highest HP demand for testing-------------##########
     days=[]
     for w in assign[Network].index:
-        if assign[Network][w] != '00PV00HP':
-            pick_in = open("../Data/"+str(Network+assign[Network][w])+"_WinterHdRm_Raw.pickle", "rb")
-            HdRm = pickle.load(pick_in)
-        if assign[Network][w] == '00PV00HP':
-            pick_in = open("../Data/"+str(Network+'00PV25HP')+"_WinterHdRm_Raw.pickle", "rb")
-            HdRm = pickle.load(pick_in)          
+        #if assign[Network][w] != '00PV00HP':
+        pick_in = open("../Data/"+str(Network+assign[Network][w])+"_WinterHdRm_Raw.pickle", "rb")
+        HdRm = pickle.load(pick_in)
+#        if assign[Network][w] == '00PV00HP':
+#            pick_in = open("../Data/"+str(Network+'00PV25HP')+"_WinterHdRm_Raw.pickle", "rb")
+#            HdRm = pickle.load(pick_in)          
         HdRm=HdRm[w]
         days.append(HdRm.sum(axis=1).idxmin().date())
     days=pd.Series(days).unique()
     ######--------- Run power flow Timeseries--------------------------#
     Voltage_data={}
     daycount=0
-    for d in days[:2]:
+    for d in days:
         print(d)
         # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
         # EV_DataFrame = pickle.load(pick_in)
@@ -252,12 +252,13 @@ for Network in networks:
             CurArray_new[i], VoltArray_new[i], PowArray_new[i], Trans_kVA_new[i] = CurArray[i], VoltArray[i], PowArray[i], Trans_kVA[i]
         
         #####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
-        Headrm, Footrm, Flow, Rate, Customer_Summary, custph = Headroom_calc(
+        Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(
             network_summary,
             Customer_Summary,
             smartmeter,
             heatpump,
             pv,
+            ev,
             demand,
             demand_delta,
             pv_delta,
@@ -266,8 +267,8 @@ for Network in networks:
         
         Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
         Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
-        Vmax,Vmin,Cmax=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
-        plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
+        Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
+        #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
         #plot_flex(InputsbyFP,pinchClist,colors)
         labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
         #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)
@@ -289,8 +290,3 @@ for Network in networks:
     #print('Tomorrow is a '+str(daytype)+ ' with forecast temperature '+str(temp)+'deg C')
     time=end-start
     print(str(len(days))+' Days Validation took '+str(time))
-
-inputs = tqdm(networks)
-
-if __name__ == "__main__":
-    processed_list = Parallel(n_jobs=num_cores)(delayed(spool)(i) for i in inputs)

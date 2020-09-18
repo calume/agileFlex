@@ -40,7 +40,7 @@ from openpyxl import load_workbook
 
 ### --- All VC Limits is Current limits set by Low Voltage
 
-pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+pick_in = open("../Data/All_VC_Limits0.94.pickle", "rb")
 All_VC = pickle.load(pick_in)
 
 ####----------Set Test Network ------------
@@ -312,13 +312,13 @@ for N in networks:
             # pickle.dump(Voltage_data, pickle_out)
             # pickle_out.close()            
 
-            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
-            # pickle.dump(Headrm, pickle_out)
-            # pickle_out.close()            
+            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
+            pickle.dump(Headrm, pickle_out)
+            pickle_out.close()            
 
-            # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
-            # pickle.dump(Footrm, pickle_out)
-            # pickle_out.close()
+            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
+            pickle.dump(Footrm, pickle_out)
+            pickle_out.close()
             
             #----------- Calculation of adjusted demand for Thermal Violations------------------#
 

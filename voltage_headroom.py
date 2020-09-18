@@ -20,9 +20,9 @@ from scipy.interpolate import interpn
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_17/']#,'network_10/','network_5/','network_18/','network_17/']
+networks=['network_1/','network_10/','network_5/','network_18/','network_17/']
 Y=14
-Cases=['00PV00HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
 pick_in = open("../Data/All_VC_Limits.pickle", "rb")
@@ -74,11 +74,11 @@ for N in networks:
 
         VC_Fits.loc[i]['m'],VC_Fits.loc[i]['c']=np.polyfit(x,y,1)
         plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
-        V_lim=0.9
-        V_lim_u=0.9
+        V_lim=0.94
+        V_lim_u=0.94
         VC_Limit[i]=(V_lim_u-VC_Fits.loc[i]['c'])/VC_Fits.loc[i]['m']
         if y.min() >0.9:
-            VC_Limit[i]=VC_Limit[i]*0.6
+            VC_Limit[i]=VC_Limit[i]*0.8
         unders=y[x<VC_Limit[i]]
         if sum(unders[unders<V_lim_u])>0:
             VC_Limit[i]=x[y<=V_lim_u].min()
@@ -111,6 +111,6 @@ for N in networks:
 """ Say 2% drop acceptable, that is 383.2V which is 0.921 p.u."""
 """ Minimum for UK appliances is 216.2 V P-N, which is 374.47 V P-P and 0.9 p.u (for 416 V base)"""
 
-# pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
-# pickle.dump(All_VC_Limits, pickle_out)
-# pickle_out.close()   
+pickle_out = open("../Data/All_VC_Limits0.94.pickle", "wb")
+pickle.dump(All_VC_Limits, pickle_out)
+pickle_out.close()   

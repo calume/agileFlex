@@ -20,7 +20,6 @@ import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error
 from scipy.optimize import curve_fit
-import Tcl
 
 def return_temp(path):
        ###----------------------- Load in Test data Set -------------##########
@@ -481,7 +480,7 @@ All_VC = pickle.load(pick_in)
 pick_in = open("../../Data/All_C_Limits.pickle", "rb")
 All_C = pickle.load(pick_in)
 
-networks=['network_17/']#'network_5/','network_10/','network_18/']#,'network_18/']
+networks=['network_1/','network_5/','network_10/','network_18/','network_17/']
 #Cases=['00PV25HP','25PV50HP','25PV75HP','50PV100HP','25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP'] ###Cases=['25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 lbls=['0% HP, 0% PV','25% HP, 0% PV', '50% HP, 25% PV', '75% HP, 25% PV', '100% HP, 50% PV']  
@@ -575,7 +574,7 @@ v2gZones={}
 AllHdRms=pd.DataFrame(index=Cases+['Total Zones'])
 v2gs=pd.DataFrame(index=Cases+['Total Zones'])
 for N in networks:
-    aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<0].count()
+    aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<-2].count()
     aa.name=N
     AllHdRms=AllHdRms.join(aa)    
     AllHdRms[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])
@@ -604,7 +603,7 @@ for N in networks:
             assign[N][i]='50PV100HP'
         if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
             assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
-        if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]>Thresh)>0:
+        if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<-2]>Thresh)>0:
             aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
             assign[N][i]=aa[aa>Thresh].index[-1]
             v2gZones[N].append(i)
