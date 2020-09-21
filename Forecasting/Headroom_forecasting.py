@@ -96,19 +96,19 @@ def return_temp(path):
     return all_temp, all_rad
 
 
-def prep_inputs(Case,Network):  
+
+def prep_inputs(Case,Network,VlimCase):  
     all_temp, all_rad = return_temp('../../')
-       
     ###----------Winter Data------------------#####
 
-    pick_in = open("../../Data/"+str(Network+Case)+"Winter14_10mins_HdRm.pickle", "rb")
+    pick_in = open("../../Data/"+VlimCase+"Winter14_10mins_HdRm.pickle", "rb")
     Winter_HdRm = pickle.load(pick_in)
 
 
-    pick_in = open("../../Data/"+str(Network+Case)+"Winter14_10mins_Ftrm.pickle", "rb")
+    pick_in = open("../../Data/"+VlimCase+"Winter14_10mins_Ftrm.pickle", "rb")
     Winter_FtRm = pickle.load(pick_in)
     
-    # pick_in = open("../../Data/"+str(Network+Case)+"Winter14_10mins_HdRm.pickle", "rb")
+    # pick_in = open("../../Data/"+VlimCase+"Winter14_10mins_HdRm.pickle", "rb")
     # Winter14_HdRm = pickle.load(pick_in)
     
     # for i in Winter_HdRm.keys():
@@ -156,9 +156,9 @@ def prep_inputs(Case,Network):
     return dates, temps, names, Headrm_DF,Footrm_DF, winter_dates, all_temp
 
 
-def percentiles(Case,Network):    
+def percentiles(Case,Network,VlimCase):    
     tsamp=144
-    dates, temps, names, Headrm_DF,Footrm_DF, winter_dates,all_temp = prep_inputs(Case,Network)
+    dates, temps, names, Headrm_DF,Footrm_DF, winter_dates,all_temp = prep_inputs(Case,Network,VlimCase)
     tempLabels = range(1, 5)
     TempBins = pd.cut(all_temp, bins=4, labels=tempLabels, retbins=True)
     DailyDelta={}
@@ -199,11 +199,11 @@ def percentiles(Case,Network):
     #             DailyByBin[c]["P5-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.05)
     #             DailyByBin[c]["Median-" + str(z)][p] = DailyByBin[c][z][p].quantile(0.5)
     
-    pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_All.pickle", "wb")
+    pickle_out = open("../../Data/"+VlimCase+"_WinterHdrm_All.pickle", "wb")
     pickle.dump(DailyDeltaPercentiles, pickle_out)
     pickle_out.close()
     
-    pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_Raw.pickle", "wb")
+    pickle_out = open("../../Data/"+VlimCase+"_WinterHdrm_Raw.pickle", "wb")
     pickle.dump(DailyDelta, pickle_out)
     pickle_out.close()
     for c in Footrm_DF.columns:
@@ -225,7 +225,7 @@ def percentiles(Case,Network):
     
             datesBinned = {}
             DailyByBin[c] = {}
-    pickle_out = open("../../Data/"+str(Network+Case)+"_WinterFtrm_All.pickle", "wb")
+    pickle_out = open("../../Data/"+VlimCase+"_WinterFtrm_All.pickle", "wb")
     pickle.dump(DailyDeltaPercentiles, pickle_out)
     pickle_out.close()  
 
@@ -286,11 +286,11 @@ def percentiles(Case,Network):
     #                 DailyByBin[names[g]][c]["P5-" + str(z)][p] = DailyByBin[names[g]][c][z][p].quantile(0.05)
     #                 DailyByBin[names[g]][c]["Median-" + str(z)][p] = DailyByBin[names[g]][c][z][p].quantile(0.5)
     
-    # pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_ByTemp.pickle", "wb")
+    # pickle_out = open("../../Data/"+VlimCase+"_WinterHdrm_ByTemp.pickle", "wb")
     # pickle.dump(DailyByBin, pickle_out)
     # pickle_out.close()
     
-    # pickle_out = open("../../Data/"+str(Network+Case)+"_WinterHdrm_Raw.pickle", "wb")
+    # pickle_out = open("../../Data/"+VlimCase+"_WinterHdrm_Raw.pickle", "wb")
     # pickle.dump(DailyDelta, pickle_out)
     # pickle_out.close()
     
@@ -298,14 +298,14 @@ def percentiles(Case,Network):
     return DailyDelta
 
 
-def headroom_plots(Network,Case,n,lbls,kva):
-    # pick_in = open("../../Data/"+str(Network+Case)+"_WinterHdrm_Raw.pickle", "rb")
+def headroom_plots(Network,Case,n,lbls,kva,VlimCase):
+    # pick_in = open("../../Data/"+VlimCase+"_WinterHdrm_Raw.pickle", "rb")
     # DailyDelta= pickle.load(pick_in)
    
-    # pick_in = open("../../Data/"+str(Network+Case)+"_WinterHdrm_ByTemp.pickle", "rb")
+    # pick_in = open("../../Data/"+VlimCase+"_WinterHdrm_ByTemp.pickle", "rb")
     # DailyByBin= pickle.load(pick_in)
     
-    pick_in = open("../../Data/"+str(Network+Case)+"_WinterHdrm_All.pickle", "rb")
+    pick_in = open("../../Data/"+VlimCase+"_WinterHdrm_All.pickle", "rb")
     DailyDeltaPercentiles= pickle.load(pick_in)
     n_zones=len(DailyDeltaPercentiles)
     tsamp=144
@@ -423,7 +423,7 @@ def headroom_plots(Network,Case,n,lbls,kva):
     return DailyDeltaPercentiles
 
 ###################------------ plot HPs vs Headroom ----------###############
-def HP_vs_Headroom(networks, Cases):
+def HP_vs_Headroom(networks, Cases,VlimCase):
     Customer_Summary={}
     DailyPercentiles={}
     Y=14
@@ -443,7 +443,7 @@ def HP_vs_Headroom(networks, Cases):
             pick_in = open("../../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
             Customer_Summary[N][C]= pickle.load(pick_in)
             
-            pick_in = open("../../Data/"+str(N+C)+"_WinterHdrm_All.pickle", "rb")
+            pick_in = open("../../Data/"+VlimCase+"_WinterHdrm_All.pickle", "rb")
             DailyPercentiles[N][C]= pickle.load(pick_in)
             
             
@@ -474,10 +474,10 @@ def HP_vs_Headroom(networks, Cases):
         # plt.title('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
     return HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary
 
-pick_in = open("../../Data/All_VC_Limits.pickle", "rb")
+pick_in = open("../../Data/All_VC_Limits0.94.pickle", "rb")
 All_VC = pickle.load(pick_in)
 
-pick_in = open("../../Data/All_C_Limits.pickle", "rb")
+pick_in = open("../../Data/All_C_Limits0.94.pickle", "rb")
 All_C = pickle.load(pick_in)
 
 networks=['network_1/','network_5/','network_10/','network_18/','network_17/']
@@ -485,22 +485,25 @@ networks=['network_1/','network_5/','network_10/','network_18/','network_17/']
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP'] ###Cases=['25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 lbls=['0% HP, 0% PV','25% HP, 0% PV', '50% HP, 25% PV', '75% HP, 25% PV', '100% HP, 50% PV']  
 
+
+
 for N in networks:
-    
+
     for i in All_VC[N].index:
         All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
     
     q=0
     for C in Cases:
         print(N, C)
+        #VlimCase=Network+Case
+        VlimCase=N+"upperVlimit/"+C        
         
-        
-        ##DailyDelta=percentiles(C,N)
-        ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
+        DailyDelta=percentiles(C,N,VlimCase)
+        ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
         q=q+1
 
 
-HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
+HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases,VlimCase)
 
 
 EVAvg=14.2 #kWh charge / day
@@ -624,7 +627,7 @@ print('')
 print('--------------------Number of Zones with Headroom for V2G to support HPs-------------------------')
 print(v2gs.astype(int))
 print('-------------------------------------------------------------------------------------------------')        
-pickle_out = open("../../Data/nEVs_NoShifting.pickle", "wb")
+pickle_out = open("../../Data/nEVs_NoShifting0.94.pickle", "wb")
 pickle.dump(nEVs, pickle_out)
 pickle_out.close()
 
@@ -677,9 +680,9 @@ for N in networks:
             Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
             Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
             Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
-        pickle_out = open("../../Data/"+N+"Customer_Summary_Final.pickle", "wb")
+        pickle_out = open("../../Data/"+N+"Customer_Summary_Final0.94.pickle", "wb")
         pickle.dump(Customer_Summary[N], pickle_out)
         pickle_out.close()
-pickle_out = open("../../Data/Assign_Final.pickle", "wb")
+pickle_out = open("../../Data/Assign_Final0.94.pickle", "wb")
 pickle.dump(assign, pickle_out)
 pickle_out.close()
