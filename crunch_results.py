@@ -481,6 +481,10 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         index=CurArray.keys(),
         columns=cs,
     )
+    C_Violations = pd.DataFrame(
+        index=CurArray.keys(),
+        columns=cs,
+    )
     for i in CurArray.keys():
         for p in range(1, 4):
 
@@ -493,7 +497,9 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                     Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
                     p - 1,
                 ].min()
-                #Vpinch[str(p) + str(f)][i] = VoltArray[i][pinchVlist[f]][p - 1]
+                curs=CurArray[i][Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values,p - 1]
+                rates=RateArray[Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values]
+                C_Violations[str(p) + str(f)][i] = sum(curs>rates)
 
     # ------- PLot of maximum voltages per phase and feeder
     plt.figure()
@@ -597,5 +603,5 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
     plt.legend()
     plt.tight_layout()
 
-    return Vmax, Vmin, Cmax
+    return Vmax, Vmin, Cmax, C_Violations
 

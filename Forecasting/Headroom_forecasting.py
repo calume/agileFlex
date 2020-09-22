@@ -499,192 +499,192 @@ for N in networks:
         #VlimCase=Network+Case
         VlimCase=N+"upperVlimit/"+C        
         
-        ##DailyDelta=percentiles(C,N,VlimCase)
+        DailyDelta=percentiles(C,N,VlimCase)
         ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
         q=q+1
 
 
-HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
+# HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
 
 
-EVAvg=14.2 #kWh charge / day
-Thresh=150
+# EVAvg=14.2 #kWh charge / day
+# Thresh=150
 
-nEVs={}
-#nEVs_shift={}
-EVs={}
-KVA_HP={}
-KVA_LIM=pd.Series(index=networks,dtype=float)
-Allsums=pd.DataFrame(index=Cases+['Total Customers'],dtype=int)
-cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
-mk=['o','^','*','P']
-count=1
-for N in networks:
-    plt.figure(N)
-    nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
-    nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
-    for c in nEVs[N].columns:
-        for j in nEVs[N][c].index:
-            nEVs[N][c].loc[j]=min(nEVs[N][c].loc[j],HPSum[N]['50PV100HP'].loc[j])
-    EVs[N]=nEVs[N].copy()
-    KVA_HP[N]=nEVs[N].copy()
-    for i in nEVs[N].columns:
-        EVs[N][i]=EVs[N][i]/HPSum[N]['50PV100HP']
-        EVs[N][i]=EVs[N][i].astype(float).round(decimals=2)
-    EVs[N][EVs[N]>1]=1
+# nEVs={}
+# #nEVs_shift={}
+# EVs={}
+# KVA_HP={}
+# KVA_LIM=pd.Series(index=networks,dtype=float)
+# Allsums=pd.DataFrame(index=Cases+['Total Customers'],dtype=int)
+# cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
+# mk=['o','^','*','P']
+# count=1
+# for N in networks:
+#     plt.figure(N)
+#     nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
+#     nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
+#     for c in nEVs[N].columns:
+#         for j in nEVs[N][c].index:
+#             nEVs[N][c].loc[j]=min(nEVs[N][c].loc[j],HPSum[N]['50PV100HP'].loc[j])
+#     EVs[N]=nEVs[N].copy()
+#     KVA_HP[N]=nEVs[N].copy()
+#     for i in nEVs[N].columns:
+#         EVs[N][i]=EVs[N][i]/HPSum[N]['50PV100HP']
+#         EVs[N][i]=EVs[N][i].astype(float).round(decimals=2)
+#     EVs[N][EVs[N]>1]=1
     
-    #nEVs[N]['00PV00HP']=0
-    o=0
-    for i in nEVs[N].columns[1:]:
-        KVA_HP[N][i]=round((All_VC[N]/HPSum[N][i]).astype(float),2)
-        #nEVs[N][i]=HdrmSum[N][i][HdrmSum[N][i]>0].fillna(0).astype(float)/EVAvg
-        if count==len(networks):
-            plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none',label=i)
-        else:
-            plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none')
-        o=o+1
-    C=np.arange(0.3,10,step=0.1)
-    x=np.nan_to_num(KVA_HP[N].astype(float).values.flatten())
-    y=np.nan_to_num(HdrmSum[N].astype(float).values.flatten())    
-    def func (x,a,b,c):
-        return a *np.log(b*x)+c
-    try:
-        kva_lim=x[y<5].max()
-        kva_plim=np.quantile(x[y<5],0.95)
-        KVA_LIM[N]=kva_lim
-        m1,m,c=np.polyfit(x,y,2)
-        #popt, pcov = curve_fit(func, x, y)
-        #plt.plot(C, func(C, *popt))
-        plt.plot(C,(m1*C**2+m*C+c), linewidth=0.5)
-        plt.plot(np.zeros(16),linestyle=':', linewidth='0.5')
-        plt.plot([kva_lim,kva_lim],[y.min(),y.max()],linestyle='--', linewidth='0.5')
-        #plt.plot([kva_plim,kva_plim],[y.min(),y.max()],linestyle=':', linewidth='1.5') 
-    except:
-        print('Cant Fit')
+#     #nEVs[N]['00PV00HP']=0
+#     o=0
+#     for i in nEVs[N].columns[1:]:
+#         KVA_HP[N][i]=round((All_VC[N]/HPSum[N][i]).astype(float),2)
+#         #nEVs[N][i]=HdrmSum[N][i][HdrmSum[N][i]>0].fillna(0).astype(float)/EVAvg
+#         if count==len(networks):
+#             plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none',label=i)
+#         else:
+#             plt.scatter(All_VC[N]/HPSum[N][i],HdrmSum[N][i], marker=mk[o], edgecolors=cols[o], facecolors='none')
+#         o=o+1
+#     C=np.arange(0.3,10,step=0.1)
+#     x=np.nan_to_num(KVA_HP[N].astype(float).values.flatten())
+#     y=np.nan_to_num(HdrmSum[N].astype(float).values.flatten())    
+#     def func (x,a,b,c):
+#         return a *np.log(b*x)+c
+#     try:
+#         kva_lim=x[y<5].max()
+#         kva_plim=np.quantile(x[y<5],0.95)
+#         KVA_LIM[N]=kva_lim
+#         m1,m,c=np.polyfit(x,y,2)
+#         #popt, pcov = curve_fit(func, x, y)
+#         #plt.plot(C, func(C, *popt))
+#         plt.plot(C,(m1*C**2+m*C+c), linewidth=0.5)
+#         plt.plot(np.zeros(16),linestyle=':', linewidth='0.5')
+#         plt.plot([kva_lim,kva_lim],[y.min(),y.max()],linestyle='--', linewidth='0.5')
+#         #plt.plot([kva_plim,kva_plim],[y.min(),y.max()],linestyle=':', linewidth='1.5') 
+#     except:
+#         print('Cant Fit')
 
-    plt.xlabel('Minimum kVA Limit per Heatpump')
-    plt.ylabel('Total Daily Headroom (kVAh)')
-    ab=nEVs[N].sum().astype(int)
-    ab.name=N
-    Allsums=Allsums.join(ab.astype(int))
-    Allsums[N]['Total Customers']=HPSum[N]['50PV100HP'].sum()
-    count=count+1
-plt.legend()
-plt.xlim(0,10)
-plt.ylim(-1000,1000)
-
-assign={}
-v2gZones={}
-AllHdRms=pd.DataFrame(index=Cases+['Total Zones'])
-v2gs=pd.DataFrame(index=Cases+['Total Zones'])
-for N in networks:
-    aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<-2].count()
-    aa.name=N
-    AllHdRms=AllHdRms.join(aa)    
-    AllHdRms[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])
-    
-    aa=(HdrmSum[N][HdrmAnyBelow[N]<0]>Thresh).sum()
-    aa.name=N
-    v2gs=v2gs.join(aa)    
-    v2gs[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])    
-    
-    for i in All_VC[N].index:
-        All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
-    
-    q=0
-    for C in Cases:
-        VlimCase=N+"upperVlimit/"+C 
-        #print(N, C)
-        ##DailyDelta=percentiles(C,N)
-        DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
-        q=q+1
-
-    assign[N]=pd.Series(index=HdrmSum[N].index)
-    v2gZones[N]=[]
-    for i in HdrmSum[N].index:
-        if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
-            assign[N][i]='00PV00HP'
-        if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
-            assign[N][i]='50PV100HP'
-        if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
-            assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
-        if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<-2]>Thresh)>0:
-            aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
-            assign[N][i]=aa[aa>Thresh].index[-1]
-            v2gZones[N].append(i)
-
-print('')
-print('---------------Number of EVs----------------------')
-print(Allsums.astype(int))
-print('--------------------------------------------------')
-print('')
-print('---------------kVA per Heatpump Limit-------------')
-print(KVA_LIM)
-print('--------------------------------------------------')
-print('')
-print('--------------------Number of Zones Needing Upgrade To meet HP Demand----------------------------')
-print(AllHdRms.astype(int))
-print('-------------------------------------------------------------------------------------------------')
-print('')
-print('--------------------Number of Zones with Headroom for V2G to support HPs-------------------------')
-print(v2gs.astype(int))
-print('-------------------------------------------------------------------------------------------------')        
-pickle_out = open("../../Data/nEVs_NoShifting0.94.pickle", "wb")
-pickle.dump(nEVs, pickle_out)
-pickle_out.close()
-
-
-# #     ##==============---------- Calculate Max HPs and Max Possible EVs------------================
-
-# EVTDs =  pd.read_csv('../testcases/timeseries/Routine_10000EVTD.csv')
-# EVs = pd.read_csv('../testcases/timeseries/Routine_10000EV.csv')
-# all_means=[]
-# for i in range(0,1000):
-#     EVSample=EVs.sample(10)
-#     EVTDSample=pd.DataFrame()
-#     for s in EVSample['name']:
-#         EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s]) 
-#     Daily=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
-#     print(Daily)
-#     all_means.append(Daily)
-# print('Multi Mean Q95',np.quantile(all_means,0.95))  
-
-# histo, binz = np.histogram(all_means, bins=range(0, int(max(all_means)), 1))
-# fig, ax = plt.subplots(figsize=(5, 4))
-# ax.bar(binz[:-1], histo, width=1, align="edge")
-# ax.set_xlim(left=0,right=25)
-# ax.set_ylabel("Frequency", fontsize=11)
-# ax.set_xlabel("Mean EV Daily Charge (kWh)", fontsize=11)
-# for t in ax.xaxis.get_majorticklabels():
-#     t.set_fontsize(11)
-# for t in ax.yaxis.get_majorticklabels():
-#     t.set_fontsize(11)
-# plt.plot([np.mean(all_means),np.mean(all_means)],[0,max(histo)], linewidth=1, color='black', label='Mean')
-# plt.plot([np.quantile(all_means,0.75),np.quantile(all_means,0.75)],[0,max(histo)], linewidth=1,linestyle='--', color='orange', label='Q75')
-# plt.plot([np.quantile(all_means,0.95),np.quantile(all_means,0.95)],[0,max(histo)], linewidth=1,linestyle=':', color='red', label='Q95')
-# plt.grid(linewidth=0.2)
+#     plt.xlabel('Minimum kVA Limit per Heatpump')
+#     plt.ylabel('Total Daily Headroom (kVAh)')
+#     ab=nEVs[N].sum().astype(int)
+#     ab.name=N
+#     Allsums=Allsums.join(ab.astype(int))
+#     Allsums[N]['Total Customers']=HPSum[N]['50PV100HP'].sum()
+#     count=count+1
 # plt.legend()
-# plt.tight_layout()
+# plt.xlim(0,10)
+# plt.ylim(-1000,1000)
+
+# assign={}
+# v2gZones={}
+# AllHdRms=pd.DataFrame(index=Cases+['Total Zones'])
+# v2gs=pd.DataFrame(index=Cases+['Total Zones'])
+# for N in networks:
+#     aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<-2].count()
+#     aa.name=N
+#     AllHdRms=AllHdRms.join(aa)    
+#     AllHdRms[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])
+    
+#     aa=(HdrmSum[N][HdrmAnyBelow[N]<0]>Thresh).sum()
+#     aa.name=N
+#     v2gs=v2gs.join(aa)    
+#     v2gs[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])    
+    
+#     for i in All_VC[N].index:
+#         All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
+    
+#     q=0
+#     for C in Cases:
+#         VlimCase=N+"upperVlimit/"+C 
+#         #print(N, C)
+#         ##DailyDelta=percentiles(C,N)
+#         DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
+#         q=q+1
+
+#     assign[N]=pd.Series(index=HdrmSum[N].index)
+#     v2gZones[N]=[]
+#     for i in HdrmSum[N].index:
+#         if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
+#             assign[N][i]='00PV00HP'
+#         if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
+#             assign[N][i]='50PV100HP'
+#         if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
+#             assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
+#         if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<-2]>Thresh)>0:
+#             aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
+#             assign[N][i]=aa[aa>Thresh].index[-1]
+#             v2gZones[N].append(i)
+
+# print('')
+# print('---------------Number of EVs----------------------')
+# print(Allsums.astype(int))
+# print('--------------------------------------------------')
+# print('')
+# print('---------------kVA per Heatpump Limit-------------')
+# print(KVA_LIM)
+# print('--------------------------------------------------')
+# print('')
+# print('--------------------Number of Zones Needing Upgrade To meet HP Demand----------------------------')
+# print(AllHdRms.astype(int))
+# print('-------------------------------------------------------------------------------------------------')
+# print('')
+# print('--------------------Number of Zones with Headroom for V2G to support HPs-------------------------')
+# print(v2gs.astype(int))
+# print('-------------------------------------------------------------------------------------------------')        
+# pickle_out = open("../../Data/nEVs_NoShifting0.94.pickle", "wb")
+# pickle.dump(nEVs, pickle_out)
+# pickle_out.close()
+
+
+# # #     ##==============---------- Calculate Max HPs and Max Possible EVs------------================
+
+# # EVTDs =  pd.read_csv('../testcases/timeseries/Routine_10000EVTD.csv')
+# # EVs = pd.read_csv('../testcases/timeseries/Routine_10000EV.csv')
+# # all_means=[]
+# # for i in range(0,1000):
+# #     EVSample=EVs.sample(10)
+# #     EVTDSample=pd.DataFrame()
+# #     for s in EVSample['name']:
+# #         EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s]) 
+# #     Daily=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
+# #     print(Daily)
+# #     all_means.append(Daily)
+# # print('Multi Mean Q95',np.quantile(all_means,0.95))  
+
+# # histo, binz = np.histogram(all_means, bins=range(0, int(max(all_means)), 1))
+# # fig, ax = plt.subplots(figsize=(5, 4))
+# # ax.bar(binz[:-1], histo, width=1, align="edge")
+# # ax.set_xlim(left=0,right=25)
+# # ax.set_ylabel("Frequency", fontsize=11)
+# # ax.set_xlabel("Mean EV Daily Charge (kWh)", fontsize=11)
+# # for t in ax.xaxis.get_majorticklabels():
+# #     t.set_fontsize(11)
+# # for t in ax.yaxis.get_majorticklabels():
+# #     t.set_fontsize(11)
+# # plt.plot([np.mean(all_means),np.mean(all_means)],[0,max(histo)], linewidth=1, color='black', label='Mean')
+# # plt.plot([np.quantile(all_means,0.75),np.quantile(all_means,0.75)],[0,max(histo)], linewidth=1,linestyle='--', color='orange', label='Q75')
+# # plt.plot([np.quantile(all_means,0.95),np.quantile(all_means,0.95)],[0,max(histo)], linewidth=1,linestyle=':', color='red', label='Q95')
+# # plt.grid(linewidth=0.2)
+# # plt.legend()
+# # plt.tight_layout()
 
 
 
 
-#########-------------Create Mixed HP Penetration Customer Summaries--------############
-for N in networks:
-    Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
-    for i in HdrmSum[N].index:
-        if assign[N][i] != '00PV00HP':
-            ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
-            Customer_Summary[N]['Final'].loc[ind]=Customer_Summary[N][assign[N][i]].loc[ind]
-        else:
-            ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
-            Customer_Summary[N]['Final']['heatpump_ID'].loc[ind]=0
-            Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
-            Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
-            Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
-        pickle_out = open("../../Data/"+N+"Customer_Summary_Final0.94.pickle", "wb")
-        pickle.dump(Customer_Summary[N], pickle_out)
-        pickle_out.close()
-pickle_out = open("../../Data/Assign_Final0.94.pickle", "wb")
-pickle.dump(assign, pickle_out)
-pickle_out.close()
+# #########-------------Create Mixed HP Penetration Customer Summaries--------############
+# for N in networks:
+#     Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
+#     for i in HdrmSum[N].index:
+#         if assign[N][i] != '00PV00HP':
+#             ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+#             Customer_Summary[N]['Final'].loc[ind]=Customer_Summary[N][assign[N][i]].loc[ind]
+#         else:
+#             ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+#             Customer_Summary[N]['Final']['heatpump_ID'].loc[ind]=0
+#             Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
+#             Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
+#             Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
+#         pickle_out = open("../../Data/"+N+"Customer_Summary_Final0.94.pickle", "wb")
+#         pickle.dump(Customer_Summary[N], pickle_out)
+#         pickle_out.close()
+# pickle_out = open("../../Data/Assign_Final0.94.pickle", "wb")
+# pickle.dump(assign, pickle_out)
+# pickle_out.close()

@@ -46,9 +46,9 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_1/','network_5/','network_10/','network_18/','network_17/',]
+networks=['network_5/']#,'network_5/','network_10/','network_18/','network_17/',]
 All_C_Limits={}
-Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['00PV25HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -129,9 +129,9 @@ for N in networks:
                 ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
                 ###------randomly assigned each run. We then load from the pickle file rather than generating it
                 
-                pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
-                pickle.dump(Customer_Summary, pickle_out)
-                pickle_out.close()
+                # pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
+                # pickle.dump(Customer_Summary, pickle_out)
+                # pickle_out.close()
                 return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
             
             
@@ -155,7 +155,7 @@ for N in networks:
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_tenminutes[:1]
+            sims=sims_tenminutes[80:100]
         
             pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
@@ -222,6 +222,7 @@ for N in networks:
             pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
             if N=='network_10/':
                 pinchClist.remove(34)
+            TransAll=pd.Series(index=sims)
             for i in sims.tolist():
                 print(N,C,Y, i)
                 # -------------- Sample for each day weekday/weekend and season -----------#
@@ -283,7 +284,7 @@ for N in networks:
                 network_summary_new[i] = network_summary[i]
                 genresnew[i]=genres[i]
                 CurArray_new[i], VoltArray_new[i], PowArray_new[i], Trans_kVA_new[i] = CurArray[i], VoltArray[i], PowArray[i], Trans_kVA[i]
-            
+                TransAll[i]=network_summary[i]['Trans_kVA']
             #####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
             Headrm, Footrm, Flow, Rate, Customer_Summary, custph = Headroom_calc(
                 network_summary,
@@ -296,29 +297,32 @@ for N in networks:
                 pv_delta,
                 pinchClist
             )
-            #Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
+            Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
             #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
-            #Vmax,Vmin,Cmax=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
+            Vmax,Vmin,Cmax, C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
             #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
             #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors,'FirstPass')
             labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
             
-            #=============== This below code is for creating Current Limits for Voltage======##########
-#            Voltage_data={}
-#            Voltage_data['Vmin']=Vmin
-#            Voltage_data['Flow']=Flow
-#            
-#            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
-#            pickle.dump(Voltage_data, pickle_out)
-#            pickle_out.close()            
+            ############=============== This below code is for creating Current Limits for Voltage======##########
+            Voltage_data={}
+            Voltage_data['Vmin']=Vmin
+            Voltage_data['Flow']=Flow
+            Voltage_data['C_Violations']=C_Violations
+            Voltage_data['Trans_kVA']=TransAll
+            
+            
+            pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
+            pickle.dump(Voltage_data, pickle_out)
+            pickle_out.close()            
 
-#            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
-#            pickle.dump(Headrm, pickle_out)
-#            pickle_out.close()            
-#
-#            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
-#            pickle.dump(Footrm, pickle_out)
-#            pickle_out.close()
+            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
+            pickle.dump(Headrm, pickle_out)
+            pickle_out.close()            
+
+            pickle_out = open("../Data/"+N+"upperVlimit/"+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
+            pickle.dump(Footrm, pickle_out)
+            pickle_out.close()
             
             #----------- Calculation of adjusted demand for Thermal Violations------------------#
 
@@ -417,16 +421,16 @@ for N in networks:
         
         # end=datetime.now()
         # time=end-start
-#        aa=list(Customer_Summary['zone'].unique())
-#        aa.sort()
-#        All_C_Limits[N]=pd.Series(index=aa)
-#        for k in range(1,4): 
-#            for l in network_summary[i][k]['C_Rate'].keys():
-#                All_C_Limits[N][str(k)+str(l)]=network_summary[i][k]['C_Rate'][l]
-#
-#pickle_out = open("../Data/All_C_Limits0.94.pickle", "wb")
-#pickle.dump(All_C_Limits, pickle_out)
-#pickle_out.close()
+#         aa=list(Customer_Summary['zone'].unique())
+#         aa.sort()
+#         All_C_Limits[N]=pd.Series(index=aa)
+#         for k in range(1,4): 
+#             for l in network_summary[i][k]['C_Rate'].keys():
+#                 All_C_Limits[N][str(k)+str(l)]=network_summary[i][k]['C_Rate'][l]
+
+# pickle_out = open("../Data/All_C_Limits0.94.pickle", "wb")
+# pickle.dump(All_C_Limits, pickle_out)
+# pickle_out.close()
 
 # pickle_out = open("../Data/Full_Batch_Summary.pickle", "wb")
 # pickle.dump(FullSummmary, pickle_out)

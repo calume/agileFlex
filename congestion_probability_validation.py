@@ -268,8 +268,7 @@ for Network in networks:
         
         Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
         #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
-        Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
-        #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
+        Vmax,Vmin,Cmax, C_Violations=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
         #plot_flex(InputsbyFP,pinchClist,colors)
         labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
         #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)
