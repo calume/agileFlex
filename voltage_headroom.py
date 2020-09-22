@@ -20,7 +20,7 @@ from scipy.interpolate import interpn
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/','network_10/','network_5/','network_18/','network_17/']
+networks=['network_18/']#,'network_10/','network_5/','network_18/','network_17/']
 Y=14
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
@@ -32,8 +32,8 @@ for N in networks:
     AllVmin=pd.DataFrame()
     AllPflow=pd.DataFrame()
     for C in Cases:
-        pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
-        #pick_in = open("../Data/"+N+"validation/Winter"+str(Y)+"_V_Data.pickle", "rb")
+        #pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
+        pick_in = open("../Data/"+N+"validation/Winter"+str(Y)+"_V_Data0.94.pickle", "rb")
         V_data = pickle.load(pick_in)
         cs=[]
         for p in range(1, 4):
@@ -60,20 +60,20 @@ for N in networks:
     for i in trues:#V_data['Pflow'].columns:
         x=AllPflow[i].astype(float).values
         y=AllVmin[i].astype(float).values
-#        data , x_e, y_e = np.histogram2d( x, y, bins = 30, density = True )
-#        z = interpn( ( 0.5*(x_e[1:] + x_e[:-1]) , 0.5*(y_e[1:]+y_e[:-1]) ) , data , np.vstack([x,y]).T , method = "splinef2d", bounds_error = False)
-#        z[np.where(np.isnan(z))] = 0.0
-#        plt.figure(i)
-#        idx = z.argsort()
-#        x, y, z = x[idx], y[idx], z[idx]
-#        plt.scatter( x, y, c=z,s=1)
-#    
-#        norm = Normalize(vmin = np.min(z), vmax = np.max(z))
-#        cbar = plt.colorbar(cm.ScalarMappable(norm = norm))
-#        cbar.ax.set_ylabel('Density')
+        data , x_e, y_e = np.histogram2d( x, y, bins = 30, density = True )
+        z = interpn( ( 0.5*(x_e[1:] + x_e[:-1]) , 0.5*(y_e[1:]+y_e[:-1]) ) , data , np.vstack([x,y]).T , method = "splinef2d", bounds_error = False)
+        z[np.where(np.isnan(z))] = 0.0
+        plt.figure(i)
+        idx = z.argsort()
+        x, y, z = x[idx], y[idx], z[idx]
+        plt.scatter( x, y, c=z,s=1)
+    
+        norm = Normalize(vmin = np.min(z), vmax = np.max(z))
+        cbar = plt.colorbar(cm.ScalarMappable(norm = norm))
+        cbar.ax.set_ylabel('Density')
 
         VC_Fits.loc[i]['m'],VC_Fits.loc[i]['c']=np.polyfit(x,y,1)
-        #plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
+        plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
         V_lim=0.94
         V_lim_u=0.94
         VC_Limit[i]=(V_lim_u-VC_Fits.loc[i]['c'])/VC_Fits.loc[i]['m']
@@ -97,13 +97,13 @@ for N in networks:
         #     unders_n=y[x<VC_Limit[i]]
         #     prob=len(unders_n[unders_n<0.94])/len(unders_n)*100
         #     q=q-0.001
-#        plt.plot([0,VC_Limit[i]*2],[V_lim,V_lim], linewidth=0.5)
-#        plt.plot([0,VC_Limit[i]*2],[0.9,0.9], linewidth=0.5, linestyle=':', color='black')
-#        plt.plot([VC_Limit[i],VC_Limit[i]],[0.88,1], linewidth=0.7)
-#        plt.title('Network/Zone '+N+i)
-#        plt.xlabel('Supply Power (kVA)')
-#        plt.ylabel('Min Voltage (Amps)')
-#        plt.ylim(0.88,1)
+        plt.plot([0,VC_Limit[i]*2],[V_lim,V_lim], linewidth=0.5)
+        plt.plot([0,VC_Limit[i]*2],[0.9,0.9], linewidth=0.5, linestyle=':', color='black')
+        plt.plot([VC_Limit[i],VC_Limit[i]],[0.88,1], linewidth=0.7)
+        plt.title('Network/Zone '+N+i)
+        plt.xlabel('Supply Power (kVA)')
+        plt.ylabel('Min Voltage (Amps)')
+        plt.ylim(0.88,1)
         print(str(i)+', % Probability of <0.9 p.u at Flow<VCmin '+str(prob))
     All_VC_Limits[N]=VC_Limit
 
@@ -111,6 +111,6 @@ for N in networks:
 """ Say 2% drop acceptable, that is 383.2V which is 0.921 p.u."""
 """ Minimum for UK appliances is 216.2 V P-N, which is 374.47 V P-P and 0.9 p.u (for 416 V base)"""
 
-pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
-pickle.dump(All_VC_Limits, pickle_out)
-pickle_out.close()   
+#pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
+#pickle.dump(All_VC_Limits, pickle_out)
+#pickle_out.close()   

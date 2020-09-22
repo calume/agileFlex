@@ -67,15 +67,12 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
 start=datetime.now()
 networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
-def daily_EVSchedule(Network):
+#def daily_EVSchedule(Network):
 
-#pick_in = open("../Data/nEVs_NoShifting.pickle", "rb")
-#nEVs_All = pickle.load(pick_in)
+pick_in = open("../Data/nEVs_NoShifting0.94.pickle", "rb")
+nEVs_All = pickle.load(pick_in)
     
-    pick_in = open("../Data/"+str(Network)+"nEVs_Realised.pickle", "rb")
-    nEVs_All = pickle.load(pick_in)
-
-#for Network in networks:
+for Network in networks:
     factor=1
     daytype='All'#'wkd'
     start_date = date(2013, 12, 1)
@@ -87,12 +84,12 @@ def daily_EVSchedule(Network):
     #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
     #SummerHdRm = pickle.load(pick_in)
     
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final0.94.pickle", "rb")
     Customer_summary = pickle.load(pick_in)
     
     Customer_summary=Customer_summary['Final']
     
-    pick_in = open("../Data/Assign_Final.pickle", "rb")
+    pick_in = open("../Data/Assign_Final0.94.pickle", "rb")
     assign = pickle.load(pick_in)
     
     EVTDs =  pd.read_csv('testcases/timeseries/Routine_10000EVTD.csv')
@@ -100,7 +97,7 @@ def daily_EVSchedule(Network):
     
     ########------ Customers by Phase/Feeder ---------###
     custsbyzone=[]
-    for c in (nEVs_All.index):
+    for c in (nEVs_All[Network].index):
         CbyP=Customer_summary[Customer_summary['Phase']==c[0]]
         custsbyzone.append(len(CbyP[CbyP['Feeder']==c[1]]))
     
@@ -111,8 +108,8 @@ def daily_EVSchedule(Network):
     priceIn=priceIn.resample('10T').mean()
     priceIn=priceIn.interpolate(method='pad')[:-1]
     
-    EVCapacitySummary=pd.DataFrame(columns=['Zone','Customers','EV Capacity'], index=nEVs_All.index)
-    EVCapacitySummary['Zone']=nEVs_All.index
+    EVCapacitySummary=pd.DataFrame(columns=['Zone','Customers','EV Capacity'], index=nEVs_All[Network].index)
+    EVCapacitySummary['Zone']=nEVs_All[Network].index
     EVCapacitySummary['Customers']=custsbyzone
     EVCapacitySummary['EV Capacity']=0
     EVCapacitySummary['EV Capacity New']=0
@@ -131,19 +128,20 @@ def daily_EVSchedule(Network):
     
     ###------------Update Assign Dataframe with 10x solvable nEVs -once only-----------######
     
-    #nEVs_All[Network]['Realised']=0
+    nEVs_All[Network]['Realised']=0
     
-    for i in nEVs_All.index:
+    for i in nEVs_All[Network].index:
         Case=assign[Network][i]
-        EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[i]
-        nEVs=int(nEVs_All[i])
+        VlimCase=Network+"upperVlimit/"+Case
+        EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][Case][i]
+        nEVs=int(nEVs_All[Network][Case][i])
         #nEVs=int(nEVs_All[Network]['Realised'][i])
         j=1
         #if Case != '00PV00HP':
-        pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+VlimCase+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
         WinterHdRm = pickle.load(pick_in)
         
-        pick_in = open("../Data/"+str(Network+Case)+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+VlimCase+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
         WinterFtRm = pickle.load(pick_in)
         
         a=WinterHdRm[i]['P5']*factor
@@ -159,7 +157,7 @@ def daily_EVSchedule(Network):
         l=1
         b=0
 
-        while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
+        while (status[k][l-1]=='Fail' and nEVs>0) or (j<10 and nEVs>0): 
             net=Network[8:-1]
             optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
             copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
@@ -209,7 +207,7 @@ def daily_EVSchedule(Network):
                 j=j+1
                 results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
             EVCapacitySummary['EV Capacity New'][i]=nEVs
-            #nEVs_All['Realised'][i]=nEVs
+            nEVs_All[Network]['Realised'][i]=nEVs
             
             # netCharge=pd.Series(results.groupby(['Time period']).sum()['Charging(kW)']-results.groupby(['Time period']).sum()['Discharging(kW)'])
             # advancePeriods=genmin['Grid'][genmin['Grid']<0]
@@ -242,13 +240,13 @@ def daily_EVSchedule(Network):
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
         else:
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh , No EVs')   
-    pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay.pickle", "wb")
-    pickle.dump(AllEVs, pickle_out)
-    pickle_out.close()
-    
-#    pickle_out = open("../Data/"+str(Network)+"nEVs_Realised.pickle", "wb")
-#    pickle.dump(nEVs_All[Network]['Realised'], pickle_out)
+#    pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay.pickle", "wb")
+#    pickle.dump(AllEVs, pickle_out)
 #    pickle_out.close()
+    
+    pickle_out = open("../Data/"+str(Network)+"nEVs_Realised0.94.pickle", "wb")
+    pickle.dump(nEVs_All[Network]['Realised'], pickle_out)
+    pickle_out.close()
 #    
     end=datetime.now()
     
@@ -256,7 +254,7 @@ def daily_EVSchedule(Network):
     print('Days Optimisation took '+str(t_time))
 
 
-    return EVCapacitySummary, AllEVs
+#    return EVCapacitySummary, AllEVs
 
 # #networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 # networks=['network_17/','network_18/']

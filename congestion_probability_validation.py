@@ -27,7 +27,7 @@ import multiprocessing
 from joblib import Parallel, delayed
 from tqdm import tqdm
 #from Forecasting.Headroom_forecasting import return_temp
-from zonal_summary import daily_EVSchedule
+from zonal_summary_valid import daily_EVSchedule
 from itertools import cycle, islice
 from crunch_results import (
     counts,
@@ -42,15 +42,6 @@ start=datetime.now()
 
 pick_in = open("../Data/All_VC_Limits.pickle", "rb")
 All_VC = pickle.load(pick_in)
-
-pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
-SM_DataFrame = pickle.load(pick_in)
-
-pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
-HP_DataFrame = pickle.load(pick_in)
-
-pick_in = open("../Data/PV_BySiteName.pickle", "rb")
-PV_DataFrame = pickle.load(pick_in)
 
 pick_in = open("../Data/Assign_Final.pickle", "rb")
 assign = pickle.load(pick_in)
@@ -86,7 +77,7 @@ for Network in networks:
     days=[]
     for w in assign[Network].index:
         #if assign[Network][w] != '00PV00HP':
-        pick_in = open("../Data/"+str(Network+assign[Network][w])+"_WinterHdRm_Raw.pickle", "rb")
+        pick_in = open("../Data/"+Network+"upperVlimit/"+assign[Network][w]+"_WinterHdRm_Raw.pickle", "rb")
         HdRm = pickle.load(pick_in)
 #        if assign[Network][w] == '00PV00HP':
 #            pick_in = open("../Data/"+str(Network+'00PV25HP')+"_WinterHdRm_Raw.pickle", "rb")
@@ -98,6 +89,16 @@ for Network in networks:
     Voltage_data={}
     daycount=0
     for d in days:
+        
+        pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
+        SM_DataFrame = pickle.load(pick_in)
+        
+        pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
+        HP_DataFrame = pickle.load(pick_in)
+        
+        pick_in = open("../Data/PV_BySiteName.pickle", "rb")
+        PV_DataFrame = pickle.load(pick_in)
+
         print(d)
         # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
         # EV_DataFrame = pickle.load(pick_in)
@@ -143,7 +144,7 @@ for Network in networks:
         Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, '00PV25HP')
         
         ######------ For when the customer summary table is fixed we laod it in from the pickle file
-        pickin = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+        pickin = open("../Data/"+str(Network)+"Customer_Summary_Final0.94.pickle", "rb")
         Customer_Summary = pickle.load(pickin)
         Customer_Summary=Customer_Summary['Final']
         for u in EV_DataFrame.keys():
@@ -266,7 +267,7 @@ for Network in networks:
         )
         
         Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
-        Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
+        #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
         Vmax,Vmin,Cmax=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
         #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,Network,'FirstPass')
         #plot_flex(InputsbyFP,pinchClist,colors)
@@ -283,7 +284,7 @@ for Network in networks:
         
         daycount=daycount+1
     
-    pickle_out = open("../Data/"+Network+"validation/Winter"+str(Y)+"_V_Data.pickle", "wb")
+    pickle_out = open("../Data/"+Network+"validation/Winter"+str(Y)+"_V_Data0.94.pickle", "wb")
     pickle.dump(Voltage_data, pickle_out)
     pickle_out.close() 
     end=datetime.now()

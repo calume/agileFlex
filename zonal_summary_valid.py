@@ -72,7 +72,7 @@ def daily_EVSchedule(Network):
 #pick_in = open("../Data/nEVs_NoShifting.pickle", "rb")
 #nEVs_All = pickle.load(pick_in)
     
-    pick_in = open("../Data/"+str(Network)+"nEVs_Realised.pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"nEVs_Realised0.94.pickle", "rb")
     nEVs_All = pickle.load(pick_in)
 
 #for Network in networks:
@@ -87,12 +87,12 @@ def daily_EVSchedule(Network):
     #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
     #SummerHdRm = pickle.load(pick_in)
     
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final0.94.pickle", "rb")
     Customer_summary = pickle.load(pick_in)
     
     Customer_summary=Customer_summary['Final']
     
-    pick_in = open("../Data/Assign_Final.pickle", "rb")
+    pick_in = open("../Data/Assign_Final0.94.pickle", "rb")
     assign = pickle.load(pick_in)
     
     EVTDs =  pd.read_csv('testcases/timeseries/Routine_10000EVTD.csv')
@@ -140,10 +140,10 @@ def daily_EVSchedule(Network):
         #nEVs=int(nEVs_All[Network]['Realised'][i])
         j=1
         #if Case != '00PV00HP':
-        pick_in = open("../Data/"+str(Network+Case)+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+Network+"upperVlimit/"+Case+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
         WinterHdRm = pickle.load(pick_in)
         
-        pick_in = open("../Data/"+str(Network+Case)+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+Network+"upperVlimit/"+Case+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
         WinterFtRm = pickle.load(pick_in)
         
         a=WinterHdRm[i]['P5']*factor
@@ -242,7 +242,7 @@ def daily_EVSchedule(Network):
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
         else:
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh , No EVs')   
-    pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay.pickle", "wb")
+    pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay0.94.pickle", "wb")
     pickle.dump(AllEVs, pickle_out)
     pickle_out.close()
     

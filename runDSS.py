@@ -162,7 +162,7 @@ def network_outputs(N,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransR
 
         Chigh_lines = list(Cseries[Cseries > RateArray].index)
         Vhigh_nodes = list(Vseries[Vseries > 1.1].index)
-        Vlow_nodes = list(Vseries[Vseries < 0.94].index)
+        Vlow_nodes = list(Vseries[Vseries < 0.9].index)
 
         network_summary[i]["Chigh_lines"] = Chigh_lines
         network_summary[i]["C_Flow"] = {}
@@ -185,7 +185,7 @@ def network_outputs(N,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransR
 
         network_summary[i]["Chigh_vals"] = list(Cseries[Cseries > RateArray])
         network_summary[i]["Vhigh_vals"] = list(Vseries[Vseries > 1.1])
-        network_summary[i]["Vlow_vals"] = list(Vseries[Vseries < 0.94])
+        network_summary[i]["Vlow_vals"] = list(Vseries[Vseries < 0.9])
 
     network_summary["Trans_kVA"] = -TransKVA
     return network_summary

@@ -423,7 +423,7 @@ def headroom_plots(Network,Case,n,lbls,kva,VlimCase):
     return DailyDeltaPercentiles
 
 ###################------------ plot HPs vs Headroom ----------###############
-def HP_vs_Headroom(networks, Cases,VlimCase):
+def HP_vs_Headroom(networks, Cases):
     Customer_Summary={}
     DailyPercentiles={}
     Y=14
@@ -431,6 +431,7 @@ def HP_vs_Headroom(networks, Cases,VlimCase):
     HPSum={}  
     HdrmAnyBelow={}   
     for N in networks:
+        
         Customer_Summary[N]={}
         DailyPercentiles[N]={}
         pick_in = open("../../Data/"+str(N+Cases[0])+"_WinterHdrm_All.pickle", "rb")
@@ -439,7 +440,7 @@ def HP_vs_Headroom(networks, Cases,VlimCase):
         HPSum[N]=pd.DataFrame(index=list(DailyDelta.keys()), columns=Cases)
         HdrmAnyBelow[N]=pd.DataFrame(index=list(DailyDelta.keys()), columns=Cases)
         for C in Cases:        
-            
+            VlimCase=N+"upperVlimit/"+C 
             pick_in = open("../../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
             Customer_Summary[N][C]= pickle.load(pick_in)
             
@@ -498,12 +499,12 @@ for N in networks:
         #VlimCase=Network+Case
         VlimCase=N+"upperVlimit/"+C        
         
-        DailyDelta=percentiles(C,N,VlimCase)
+        ##DailyDelta=percentiles(C,N,VlimCase)
         ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
         q=q+1
 
 
-HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases,VlimCase)
+HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
 
 
 EVAvg=14.2 #kWh charge / day
@@ -592,9 +593,10 @@ for N in networks:
     
     q=0
     for C in Cases:
+        VlimCase=N+"upperVlimit/"+C 
         #print(N, C)
         ##DailyDelta=percentiles(C,N)
-        DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
+        DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
         q=q+1
 
     assign[N]=pd.Series(index=HdrmSum[N].index)
