@@ -76,7 +76,7 @@ def daily_EVSchedule(Network):
     nEVs_All = pickle.load(pick_in)
 
 #for Network in networks:
-    factor=1
+    factor=0.95
     daytype='All'#'wkd'
     start_date = date(2013, 12, 1)
     end_date = date(2013, 12, 3)

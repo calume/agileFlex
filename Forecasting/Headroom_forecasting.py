@@ -450,8 +450,8 @@ def HP_vs_Headroom(networks, Cases):
             
             for i in DailyPercentiles[N][C].keys():
                 #HdrmSum[N][C][i]=(DailyPercentiles[N][C][i]['P5'][:60].sum()+DailyPercentiles[N][C][i]['P5'][96:].sum())/6  ##-- Day PV effect removed
-                HdrmSum[N][C][i]=DailyPercentiles[N][C][i]['P5'].sum()/6
-                HdrmAnyBelow[N][C][i]=DailyPercentiles[N][C][i]['P5'][DailyPercentiles[N][C][i]['P5']<0].sum()/6
+                HdrmSum[N][C][i]=(0.95*DailyPercentiles[N][C][i]['P5'].sum())/6
+                HdrmAnyBelow[N][C][i]=(0.95*DailyPercentiles[N][C][i]['P5'][DailyPercentiles[N][C][i]['P5']<0].sum())/6
                 HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum()
         r = 0    
         
