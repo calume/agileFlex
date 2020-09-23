@@ -38,43 +38,42 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     fig, ax1 = plt.subplots()
     fig.canvas.set_window_title(zone)
     color = 'tab:red'
-    ax1.set_xlabel('time')
+    #ax1.set_xlabel('time',,fontsize=9)
     ax1.set_ylabel('Headroom / EV Charge/Discharge (kW)', color=color)
     lns1=ax1.plot(summary.index, summary['Charging(kW)']-summary['Discharging(kW)'], color=color, label="Net EV Charge")
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.set_xlim(0,144)
     
-    lns2=ax1.plot(summary.index, summary['PG_Min'], color='red', linestyle="--", label="Footroom")
-    lns3=ax1.plot(summary.index, summary['v2g'], color='black', linestyle=":", label="V2G Request")
-    lns4=ax1.plot(summary.index, summary['PG_Max'], color='green', linestyle="--", label="Headroom")
+    lns2=ax1.plot(summary.index, summary['PG_Min'], color='red', linestyle="--", label="Footroom", linewidth=1)
+    lns3=ax1.plot(summary.index, summary['v2g'], color='black', linestyle=":", label="V2G Request", linewidth=1)
+    lns4=ax1.plot(summary.index, summary['PG_Max'], color='green', linestyle="--", label="Headroom", linewidth=1)
     
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
     
     color = 'tab:blue'
-    ax2.set_ylabel('Price (£/kWh)', color=color)  # we already handled the x-label with ax1
-    lns5=ax2.plot(summary.index, summary['cost(pounds/kwh)'], color=color, label="Grid+V2G Price")
+    ax2.set_ylabel('Price (p/kWh)', color=color)  # we already handled the x-label with ax1
+    lns5=ax2.plot(summary.index, summary['cost(pounds/kwh)'].round(2)*100, color=color,linestyle="-.", label="Grid+V2G Price", linewidth=1)
     ax2.tick_params(axis='y', labelcolor=color)
     
     lns = lns1+lns2+lns3+lns4+lns5
     labs = [l.get_label() for l in lns]
-    ax2.legend(lns, labs,loc='center')
+    ax2.legend(lns, labs,loc=4,fontsize=9)
     ax2.set_xlim(0,144)
     plt.xticks(range(0,168,24),times)
-    plt.title('Zone- '+str(zone)+'. Max EVs - '+str(nEVs)+' / '+str(nCusts)+' customers')
+    #plt.title('Zone- '+str(zone)+'. Max EVs - '+str(nEVs)+' / '+str(nCusts)+' customers')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
     
 start=datetime.now()
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/']#,'network_5/','network_10/','network_17/','network_18/']
 
 #def daily_EVSchedule(Network):
 
-pick_in = open("../Data/nEVs_NoShifting0.94.pickle", "rb")
+pick_in = open("../Data/nEVs_Realised.pickle", "rb")
 nEVs_All = pickle.load(pick_in)
-    
+nEVs_Realised={}
 for Network in networks:
     factor=0.95
-    daytype='All'#'wkd'
     start_date = date(2013, 12, 1)
     end_date = date(2013, 12, 3)
     delta_tenminutes = timedelta(minutes=10)
@@ -84,12 +83,12 @@ for Network in networks:
     #pick_in = open("../Data/Network1SummerHdRm.pickle", "rb")
     #SummerHdRm = pickle.load(pick_in)
     
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final0.94.pickle", "rb")
+    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
     Customer_summary = pickle.load(pick_in)
     
     Customer_summary=Customer_summary['Final']
     
-    pick_in = open("../Data/Assign_Final0.94.pickle", "rb")
+    pick_in = open("../Data/Assign_Final.pickle", "rb")
     assign = pickle.load(pick_in)
     
     EVTDs =  pd.read_csv('testcases/timeseries/Routine_10000EVTD.csv')
@@ -128,27 +127,26 @@ for Network in networks:
     
     ###------------Update Assign Dataframe with 10x solvable nEVs -once only-----------######
     
-    nEVs_All[Network]['Realised']=0
+    nEVs_Realised[Network]=nEVs_All[Network]
     
-    for i in nEVs_All[Network].index:
+    for i in ['13']:#nEVs_All[Network].index:
         Case=assign[Network][i]
-        VlimCase=Network+"upperVlimit/"+Case
-        EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][Case][i]
-        nEVs=int(nEVs_All[Network][Case][i])
+        EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][i]
+        nEVs=int(nEVs_All[Network][i])-1
         #nEVs=int(nEVs_All[Network]['Realised'][i])
         j=1
         #if Case != '00PV00HP':
-        pick_in = open("../Data/"+VlimCase+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+Network+Case+"_WinterHdrm_All.pickle", "rb")
         WinterHdRm = pickle.load(pick_in)
         
-        pick_in = open("../Data/"+VlimCase+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open("../Data/"+Network+Case+"_WinterFtrm_All.pickle", "rb")
         WinterFtRm = pickle.load(pick_in)
         
-        a=WinterHdRm[i]['P5']*factor
+        a=WinterHdRm[i].quantile(0.05)*factor
         a.index=dt2
         hdrm=a[74:].append(a[:74])
         
-        b=WinterFtRm[i]['P5']*factor
+        b=WinterFtRm[i].quantile(0.05)*factor*0.7
         b.index=dt2
         ftrm=b[74:].append(b[:74])
             
@@ -157,7 +155,7 @@ for Network in networks:
         l=1
         b=0
 
-        while (status[k][l-1]=='Fail' and nEVs>0) or (j<10 and nEVs>0): 
+        while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
             net=Network[8:-1]
             optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
             copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
@@ -207,7 +205,7 @@ for Network in networks:
                 j=j+1
                 results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
             EVCapacitySummary['EV Capacity New'][i]=nEVs
-            nEVs_All[Network]['Realised'][i]=nEVs
+            nEVs_Realised[Network][i]=nEVs
             
             # netCharge=pd.Series(results.groupby(['Time period']).sum()['Charging(kW)']-results.groupby(['Time period']).sum()['Discharging(kW)'])
             # advancePeriods=genmin['Grid'][genmin['Grid']<0]
@@ -219,9 +217,9 @@ for Network in networks:
             l=l+1
         k=k+1
         
-#        if status[k-1][l-1]=='Success':
-#            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
-#                
+        if status[k-1][l-1]=='Success':
+            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
+                
             
             #########----------- Write Outputs for Validation --------############
             
@@ -243,16 +241,15 @@ for Network in networks:
 #    pickle_out = open("../Data/"+str(Network)+"EV_Dispatch_OneDay.pickle", "wb")
 #    pickle.dump(AllEVs, pickle_out)
 #    pickle_out.close()
-    
-    pickle_out = open("../Data/"+str(Network)+"nEVs_Realised0.94.pickle", "wb")
-    pickle.dump(nEVs_All[Network]['Realised'], pickle_out)
-    pickle_out.close()
-#    
+
     end=datetime.now()
     
     t_time=end-start
     print('Days Optimisation took '+str(t_time))
 
+# pickle_out = open("../Data/nEVs_Realised.pickle", "wb")
+# pickle.dump(nEVs_Realised, pickle_out)
+# pickle_out.close()
 
 #    return EVCapacitySummary, AllEVs
 

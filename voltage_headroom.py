@@ -25,8 +25,8 @@ Y=14
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
-pick_in = open("../Data/All_VC_Limits0.94.pickle", "rb")
-All_VC = pickle.load(pick_in)
+# pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+# All_VC = pickle.load(pick_in)
 
 for N in networks:
     AllVmin=pd.DataFrame()
@@ -111,6 +111,6 @@ for N in networks:
 """ Say 2% drop acceptable, that is 383.2V which is 0.921 p.u."""
 """ Minimum for UK appliances is 216.2 V P-N, which is 374.47 V P-P and 0.9 p.u (for 416 V base)"""
 
-# pickle_out = open("../Data/All_VC_Limits0.94.pickle", "wb")
-# pickle.dump(All_VC_Limits, pickle_out)
-# pickle_out.close()   
+pickle_out = open("../Data/All_VC_Limits.pickle", "wb")
+pickle.dump(All_VC_Limits, pickle_out)
+pickle_out.close()   

@@ -144,7 +144,7 @@ for Network in networks:
         Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, '00PV25HP')
         
         ######------ For when the customer summary table is fixed we laod it in from the pickle file
-        pickin = open("../Data/"+str(Network)+"Customer_Summary_Final0.94.pickle", "rb")
+        pickin = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
         Customer_Summary = pickle.load(pickin)
         Customer_Summary=Customer_Summary['Final']
         for u in EV_DataFrame.keys():
@@ -283,7 +283,7 @@ for Network in networks:
         
         daycount=daycount+1
     
-    pickle_out = open("../Data/"+Network+"validation/Winter"+str(Y)+"_V_Data0.94.pickle", "wb")
+    pickle_out = open("../Data/"+Network+"validation/Winter"+str(Y)+"_V_Data.pickle", "wb")
     pickle.dump(Voltage_data, pickle_out)
     pickle_out.close() 
     end=datetime.now()

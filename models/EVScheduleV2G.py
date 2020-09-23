@@ -172,7 +172,7 @@ def EV_SoCBoundary1(model,c,w,t):
 model.EVmodelSoCStart = Constraint(model.EVBoundaryStart,rule=EV_SoCBoundary1)
 
 def EV_SoCBoundary2(model,c,w,t):
-    return model.SoC[c,w,t] == model.SoCEnd[c,w,t]*0.99
+    return model.SoC[c,w,t] == model.SoCEnd[c,w,t]*0.97
 model.EVmodelSoCEnd = Constraint(model.EVBoundaryEnd,rule=EV_SoCBoundary2)
 
 def EV_ChargeCapUB1(model,c,w,t):
