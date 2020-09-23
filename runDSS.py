@@ -173,7 +173,7 @@ def network_outputs(N,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransR
         # ---------Negative power flow represents export.
 
         for n in range(1, len(pinchClist)+1):
-            network_summary[i]["C_Rate"][n] = RateArray[pinchClist[n - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
+            network_summary[i]["C_Rate"][n] = 0.9*RateArray[pinchClist[n - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
             if (str(i)+str(n)) in All_VC[N]:
                 network_summary[i]["V_Rate"][n] = All_VC[N][str(i)+str(n)]
             else:

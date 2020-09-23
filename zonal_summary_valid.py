@@ -296,14 +296,14 @@ def daily_EVSchedule(Network):
 #EVSS['name']=EVSS['name'].astype(str).str[6:]
 
 
-# #######---------DUOS Plot -------------##########
-# times2 = ["12:00", "18:00", "00:00", "06:00"]
-# priceIn=pd.read_csv('Prices.csv')
-# plt.bar(priceIn.index,priceIn['DegradationLow (V2GB)'].values, label='Degradation', hatch='X')
-# plt.bar(priceIn.index,priceIn['DUoS'].values, label='DUoS', color='red',hatch='.',bottom=priceIn['DegradationLow (V2GB)'].values)
-# plt.bar(priceIn.index,priceIn['V2G'].values, label='V2G', bottom=(priceIn['DUoS'].values+priceIn['DegradationLow (V2GB)'].values), hatch='+')
-# plt.legend()
-# plt.grid(linewidth=0.2)
-# plt.ylabel('Price (£/kWh)')
-# plt.xlim([0, 47])
-# plt.xticks(range(0,48,12),times2)
+#######---------DUOS Plot -------------##########
+times2 = ["12:00", "18:00", "00:00", "06:00"]
+priceIn=pd.read_csv('Prices.csv')
+plt.bar(priceIn.index,priceIn['DegradationLow (V2GB)'].values, label='Degradation', hatch='X')
+plt.bar(priceIn.index,priceIn['DUoS'].values, label='DUoS', color='red',hatch='.',bottom=priceIn['DegradationLow (V2GB)'].values)
+plt.bar(priceIn.index,priceIn['V2G'].values, label='V2G', bottom=(priceIn['DUoS'].values+priceIn['DegradationLow (V2GB)'].values), hatch='+')
+plt.legend()
+plt.grid(linewidth=0.2)
+plt.ylabel('Price (p/kWh)')
+plt.xlim([0, 47])
+plt.xticks(range(0,48,12),times2)

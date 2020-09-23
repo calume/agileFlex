@@ -21,14 +21,15 @@ from matplotlib.lines import Line2D
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/','network_10/','network_5/','network_18/','network_17/']
+networks=['network_1/']#,'network_10/','network_5/','network_18/','network_17/']
 Y=14
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
-pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+pick_in = open("../Data/All_VC_Limits0.94.pickle", "rb")
 All_VC = pickle.load(pick_in)
 VlowPerc={}
+ChighPerc={}
 Y=14
 c=0
 cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
@@ -37,10 +38,14 @@ style = ["--", ":", "-.", "--","-"]
 fills = ["full", "left", "bottom", "right","none"]
 times = ["0% HP", "25% HP", "50% HP","75% HP", "100%HP"]
 allvmins={}
+allchigh={}
 allcusts={}
+transmax={}
+times2 = ["00:00", "06:00", "12:00", "18:00"]
 for N in networks:
     AllVmin=pd.DataFrame()
     VlowPerc[N]=pd.DataFrame()
+    ChighPerc[N]=pd.DataFrame()
     AllPflow=pd.DataFrame()
     for C in Cases:
         pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
@@ -56,7 +61,8 @@ for N in networks:
         
         ##### Count Vmins < 0.9 and 0.94 ################
         VlowPerc[N][C]=round((V_data['Vmin']<0.9).sum()/len(V_data['Vmin'].index)*100,2)   
-
+        
+        ChighPerc[N][C]=round((V_data['C_Violations']>0).sum()/len(V_data['C_Violations'].index)*100,2) 
 
 
         cs=[]
@@ -95,8 +101,6 @@ for N in networks:
         if N =='network_17/':
             plt.plot(VlowPerc[N]['nCusts'],VlowPerc[N][h], marker=mk[o], fillstyle=fills[c], color=cols[c], label=times[o],linestyle = 'None')
             o=o+1
-    c=c+1
-
 plt.grid(linewidth=0.2)
 custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
         Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 10',linestyle = 'None'),
@@ -113,17 +117,44 @@ plt.legend(fontsize=12)
 plt.xlabel('Number of Customers',fontsize=12)
 plt.ylabel('% of timesteps with Voltage < 216 V',fontsize=12)
 
-
-
-for n in allcusts:
-    allvmins[n]=np.array(allvmins[n]).astype(float)
-    allcusts[n]=np.array(allcusts[n]).astype(float)
-    print(n, allcusts[n][allvmins[n]>0].min())
-
-summary=pd.DataFrame(index=VlowPerc[N].columns[1:].append(pd.Index(['Total'])))
+plt.figure()
 for N in networks:
-    summary[N]=(VlowPerc[N][VlowPerc[N].columns[1:]]>0).sum()
-    summary[N].loc['Total']=len(VlowPerc[N])
+    for h in ChighPerc[N].columns:
+        if c==0:
+            allchigh[h]=[]
+        allvmins[h].extend(ChighPerc[N][h].values)
+        if N!='network_17/':
+            plt.plot(VlowPerc[N]['nCusts'],ChighPerc[N][h], marker=mk[o], fillstyle=fills[c], color=cols[c],linestyle = 'None')
+            o=o+1
+        if N =='network_17/':
+            plt.plot(VlowPerc[N]['nCusts'],ChighPerc[N][h], marker=mk[o], fillstyle=fills[c], color=cols[c], label=times[o],linestyle = 'None')
+            o=o+1
+    c=c+1
+
+plt.grid(linewidth=0.2)
+custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 10',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 5',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 18',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#d62728",fillstyle='none', label='Network 17',linestyle = 'None')]
+
+leg2=plt.legend(handles=custom,loc=6,fontsize=12)
+plt.gca().add_artist(leg2)
+plt.legend(fontsize=12)
+plt.xlabel('Number of Customers',fontsize=12)
+plt.ylabel('% of timesteps with thermal violation',fontsize=12)
+
+
+
+# for n in allcusts:
+#     allvmins[n]=np.array(allvmins[n]).astype(float)
+#     allcusts[n]=np.array(allcusts[n]).astype(float)
+#     print(n, allcusts[n][allvmins[n]>0].min())
+
+# summary=pd.DataFrame(index=VlowPerc[N].columns[1:].append(pd.Index(['Total'])))
+# for N in networks:
+#     summary[N]=(VlowPerc[N][VlowPerc[N].columns[1:]]>0).sum()
+#     summary[N].loc['Total']=len(VlowPerc[N])
 #     #plt.xticks(VlowPerc[N].columns,times)
 
 #     for i in trues:#V_data['Pflow'].columns:
@@ -201,3 +232,26 @@ for N in networks:
 # plt.grid(linewidth=0.2)
 # plt.legend()
 # plt.tight_layout()
+labs=times[1:]
+u=0
+for N in networks:
+    for C in Cases[1:]:
+        pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
+        V_data = pickle.load(pick_in)
+
+        transmax[C]=[]
+        for n in range(0,24):
+            # transmins.append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].min())
+            # transmedian.append(np.quantile(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n],0.5))
+            transmax[C].append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].max())
+        
+        plt.plot(transmax[C],label=labs[u],color=cols[u],linestyle=style[u])
+        u=u+1
+    plt.plot(np.full(24,800), label='Tx Rating (kVA)')
+    plt.ylabel('Max Transformer Power Flow (kVA)')
+    plt.legend()
+    plt.grid(linewidth=0.2)
+    plt.xlim([0, 23])
+    plt.xticks(range(0,24,6),times2)
+    
+            

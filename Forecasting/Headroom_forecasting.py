@@ -487,21 +487,39 @@ Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP'] ###Cases=['25PV2
 lbls=['0% HP, 0% PV','25% HP, 0% PV', '50% HP, 25% PV', '75% HP, 25% PV', '100% HP, 50% PV']  
 
 
-
+All_VCs={}
+All_Cs={}
 for N in networks:
-
-    for i in All_VC[N].index:
-        All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
-    
-    q=0
-    for C in Cases:
-        print(N, C)
-        #VlimCase=Network+Case
-        VlimCase=N+"upperVlimit/"+C        
+    print(N)
+    All_VCs[N]=pd.DataFrame(dtype=float)
+    All_Cs[N]=pd.DataFrame(dtype=float)
+    for p in range(1,4):
+        pp=All_VC[N][All_VC[N].index.str[0]==str(p)]
+        pp.index=pp.index.str[1].values
+        pc=All_C[N][All_C[N].index.str[0]==str(p)]
+        pc.index=pc.index.str[1].values
+        All_VCs[N][p]=pp.round(1)
+        All_Cs[N][p]=pc.round(1)
         
-        DailyDelta=percentiles(C,N,VlimCase)
-        ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
-        q=q+1
+        for i in All_VCs[N][p].index:
+            All_VCs[N][p][i]=min(All_VCs[N][p].loc[i],All_Cs[N][p].loc[i])
+            
+            if All_VCs[N][p][i]==All_VCs[N][p][i]:
+                All_VCs[N][p][i]=str(All_VCs[N][p][i])+' ('+str(str(All_Cs[N][p][i]))+')'
+        
+        # for i in All_VC[N].index:
+        #     All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
+    All_VCs[N]=All_VCs[N].fillna('N/A')   
+    print(All_VCs[N].to_latex())
+    q=0
+    # for C in Cases:
+    #     print(N, C)
+    #     #VlimCase=Network+Case
+    #     VlimCase=N+"upperVlimit/"+C        
+        
+    #     ##DailyDelta=percentiles(C,N,VlimCase)
+    #     ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,VlimCase)
+    #     q=q+1
 
 
 # HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
@@ -634,37 +652,37 @@ for N in networks:
 # pickle_out.close()
 
 
-# # #     ##==============---------- Calculate Max HPs and Max Possible EVs------------================
+# #     ##==============---------- Calculate Max HPs and Max Possible EVs------------================
 
-# # EVTDs =  pd.read_csv('../testcases/timeseries/Routine_10000EVTD.csv')
-# # EVs = pd.read_csv('../testcases/timeseries/Routine_10000EV.csv')
-# # all_means=[]
-# # for i in range(0,1000):
-# #     EVSample=EVs.sample(10)
-# #     EVTDSample=pd.DataFrame()
-# #     for s in EVSample['name']:
-# #         EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s]) 
-# #     Daily=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
-# #     print(Daily)
-# #     all_means.append(Daily)
-# # print('Multi Mean Q95',np.quantile(all_means,0.95))  
+# EVTDs =  pd.read_csv('../testcases/timeseries/Routine_10000EVTD.csv')
+# EVs = pd.read_csv('../testcases/timeseries/Routine_10000EV.csv')
+# all_means=[]
+# for i in range(0,1000):
+#     EVSample=EVs.sample(10)
+#     EVTDSample=pd.DataFrame()
+#     for s in EVSample['name']:
+#         EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s]) 
+#     Daily=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
+#     print(Daily)
+#     all_means.append(Daily)
+# print('Multi Mean Q95',np.quantile(all_means,0.95))  
 
-# # histo, binz = np.histogram(all_means, bins=range(0, int(max(all_means)), 1))
-# # fig, ax = plt.subplots(figsize=(5, 4))
-# # ax.bar(binz[:-1], histo, width=1, align="edge")
-# # ax.set_xlim(left=0,right=25)
-# # ax.set_ylabel("Frequency", fontsize=11)
-# # ax.set_xlabel("Mean EV Daily Charge (kWh)", fontsize=11)
-# # for t in ax.xaxis.get_majorticklabels():
-# #     t.set_fontsize(11)
-# # for t in ax.yaxis.get_majorticklabels():
-# #     t.set_fontsize(11)
-# # plt.plot([np.mean(all_means),np.mean(all_means)],[0,max(histo)], linewidth=1, color='black', label='Mean')
-# # plt.plot([np.quantile(all_means,0.75),np.quantile(all_means,0.75)],[0,max(histo)], linewidth=1,linestyle='--', color='orange', label='Q75')
-# # plt.plot([np.quantile(all_means,0.95),np.quantile(all_means,0.95)],[0,max(histo)], linewidth=1,linestyle=':', color='red', label='Q95')
-# # plt.grid(linewidth=0.2)
-# # plt.legend()
-# # plt.tight_layout()
+# histo, binz = np.histogram(all_means, bins=range(0, int(max(all_means)), 1))
+# fig, ax = plt.subplots(figsize=(5, 4))
+# ax.bar(binz[:-1], histo, width=1, align="edge")
+# ax.set_xlim(left=0,right=25)
+# ax.set_ylabel("Frequency", fontsize=11)
+# ax.set_xlabel("Mean EV Daily Charge (kWh)", fontsize=11)
+# for t in ax.xaxis.get_majorticklabels():
+#     t.set_fontsize(11)
+# for t in ax.yaxis.get_majorticklabels():
+#     t.set_fontsize(11)
+# plt.plot([np.mean(all_means),np.mean(all_means)],[0,max(histo)], linewidth=1, color='black', label='Mean')
+# plt.plot([np.quantile(all_means,0.75),np.quantile(all_means,0.75)],[0,max(histo)], linewidth=1,linestyle='--', color='orange', label='Q75')
+# plt.plot([np.quantile(all_means,0.95),np.quantile(all_means,0.95)],[0,max(histo)], linewidth=1,linestyle=':', color='red', label='Q95')
+# plt.grid(linewidth=0.2)
+# plt.legend()
+# plt.tight_layout()
 
 
 

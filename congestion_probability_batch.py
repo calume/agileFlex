@@ -46,9 +46,9 @@ All_VC = pickle.load(pick_in)
 ####----------Set Test Network ------------
 start=datetime.now()
 
-networks=['network_5/']#,'network_5/','network_10/','network_18/','network_17/',]
+networks=['network_17/']#,'network_5/','network_10/','network_18/','network_17/',]
 All_C_Limits={}
-Cases=['00PV25HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
+Cases=['50PV100HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 FullSummmary={}
 for N in networks:
     FullSummmary[N]={}
@@ -129,9 +129,9 @@ for N in networks:
                 ###----- Here we save the Customer Summary to Fix it so the smartmeter, HP, SM IDs are no longer
                 ###------randomly assigned each run. We then load from the pickle file rather than generating it
                 
-                # pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
-                # pickle.dump(Customer_Summary, pickle_out)
-                # pickle_out.close()
+                pickle_out = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "wb")
+                pickle.dump(Customer_Summary, pickle_out)
+                pickle_out.close()
                 return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
             
             
@@ -155,7 +155,7 @@ for N in networks:
             sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
             
-            sims=sims_tenminutes[80:100]
+            sims=sims_tenminutes
         
             pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
@@ -221,7 +221,7 @@ for N in networks:
             bad_halfhours_n=[]     
             pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
             if N=='network_10/':
-                pinchClist.remove(34)
+                pinchClist.remove(28)
             TransAll=pd.Series(index=sims)
             for i in sims.tolist():
                 print(N,C,Y, i)
