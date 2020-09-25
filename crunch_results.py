@@ -158,8 +158,6 @@ def Headroom_calc(
     pv,
     ev,
     demand,
-    demand_delta,
-    pv_delta,
     pinchClist
 ):
     Headrm = {}
@@ -199,14 +197,6 @@ def Headroom_calc(
         index=network_summary.keys(),
         columns=cs,
     )
-    InputsbyFP["demand_delta"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
-    InputsbyFP["pv_delta"] = pd.DataFrame(
-        index=network_summary.keys(),
-        columns=cs,
-    )
 
     for i in network_summary:
         Headrm[0][i] = network_summary[i]["Trans_kVA"]
@@ -226,12 +216,6 @@ def Headroom_calc(
                     custph[p][f].index
                 ].sum()
                 InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
-                    custph[p][f].index
-                ].sum()
-                InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
-                    demand_delta[i]
-                )[custph[p][f].index].sum()
-                InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
                     custph[p][f].index
                 ].sum()
 
@@ -347,44 +331,6 @@ def plot_headroom(Headrm, Footrm, Flow, Rate, labels, pinchClist,InputsbyFP,genr
 #######---------- Demand and PV adjustments are shown along with Heat pump and Smartmeter demand
 def plot_flex(InputsbyFP,pinchClist,colors):
 
-    # ------- PLot of demand and generation per feeder and phase
-    
-    plt.figure()
-    for p in range(1, 4):
-        plt.subplot(310 + p)
-        for f in range(1, len(pinchClist)+1):
-            if InputsbyFP["demand_delta"].sum().sum() != 0:
-                plt.plot(
-                    InputsbyFP["demand_delta"][str(p) + str(f)].values,
-                    linewidth=1,
-                    linestyle="-",
-                    color=colors[f - 1],
-                    label="Feeder " + str(f),
-                )
-            if InputsbyFP["pv_delta"].sum().sum() != 0:
-                plt.plot(
-                    -InputsbyFP["pv_delta"][str(p) + str(f)].values,
-                    linewidth=1,
-                    linestyle="--",
-                    color=colors[f - 1],
-                    #label="Feeder " + str(f),
-                )
-        plt.title("Phase " + str(p))
-        plt.ylabel("Delta (kW)")
-
-        plt.xlim([0, len(InputsbyFP["pv_delta"])])
-        # plt.ylim([0, 5])
-
-        plt.xticks(fontsize=8)
-        plt.yticks(fontsize=8)
-        plt.xticks(
-            range(0, len(InputsbyFP["pv_delta"]), 24),
-            InputsbyFP["pv_delta"].index.strftime("%d/%m %H:%M")[
-                range(0, len(InputsbyFP["pv_delta"]), 24)
-            ],
-        )
-    plt.legend()
-    plt.tight_layout()
 
     # ----------- Plot of demands---------------#
 
@@ -497,8 +443,8 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                     Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
                     p - 1,
                 ].min()
-                curs=CurArray[i][Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values,p - 1]
-                rates=RateArray[Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values]
+                curs=CurArray[i][Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values,p - 1]
+                rates=RateArray[Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values]
                 C_Violations[str(p) + str(f)][i] = sum(curs>rates)
 
     # ------- PLot of maximum voltages per phase and feeder

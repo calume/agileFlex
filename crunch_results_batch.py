@@ -158,8 +158,6 @@ def Headroom_calc(
     heatpump,
     pv,
     demand,
-    demand_delta,
-    pv_delta,
     pinchClist
 ):
     Headrm = {}
@@ -235,6 +233,7 @@ def Headroom_calc(
         Rate[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
         for p in range(1, 4):
             for i in network_summary:
+                print('hdrm calc ', i)
                 Flow[z][p][i] = network_summary[i][p]["C_Flow"][z]
                 Rate[z][p][i] = min(network_summary[i][p]["C_Rate"][z],network_summary[i][p]["V_Rate"][z])
                 Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i]
@@ -349,42 +348,42 @@ def plot_flex(InputsbyFP,pinchClist,colors,k):
 
     # ------- PLot of demand and generation per feeder and phase
     
-    plt.figure('demand delta '+k)
-    for p in range(1, 4):
-        plt.subplot(310 + p)
-        for f in range(1, len(pinchClist)+1):
-            if InputsbyFP["demand_delta"].sum().sum() != 0:
-                plt.plot(
-                    InputsbyFP["demand_delta"][str(p) + str(f)].values,
-                    linewidth=1,
-                    linestyle="-",
-                    color=colors[f - 1],
-                    label="Feeder " + str(f),
-                )
-            if InputsbyFP["pv_delta"].sum().sum() != 0:
-                plt.plot(
-                    -InputsbyFP["pv_delta"][str(p) + str(f)].values,
-                    linewidth=1,
-                    linestyle="--",
-                    color=colors[f - 1],
-                    #label="Feeder " + str(f),
-                )
-        plt.title("Phase " + str(p))
-        plt.ylabel("Delta (kW)")
+    # plt.figure('demand delta '+k)
+    # for p in range(1, 4):
+    #     plt.subplot(310 + p)
+    #     for f in range(1, len(pinchClist)+1):
+    #         if InputsbyFP["demand_delta"].sum().sum() != 0:
+    #             plt.plot(
+    #                 InputsbyFP["demand_delta"][str(p) + str(f)].values,
+    #                 linewidth=1,
+    #                 linestyle="-",
+    #                 color=colors[f - 1],
+    #                 label="Feeder " + str(f),
+    #             )
+    #         if InputsbyFP["pv_delta"].sum().sum() != 0:
+    #             plt.plot(
+    #                 -InputsbyFP["pv_delta"][str(p) + str(f)].values,
+    #                 linewidth=1,
+    #                 linestyle="--",
+    #                 color=colors[f - 1],
+    #                 #label="Feeder " + str(f),
+    #             )
+    #     plt.title("Phase " + str(p))
+    #     plt.ylabel("Delta (kW)")
 
-        plt.xlim([0, len(InputsbyFP["pv_delta"])])
-        # plt.ylim([0, 5])
+    #     plt.xlim([0, len(InputsbyFP["pv_delta"])])
+    #     # plt.ylim([0, 5])
 
-        plt.xticks(fontsize=8)
-        plt.yticks(fontsize=8)
-        plt.xticks(
-            range(0, len(InputsbyFP["pv_delta"]), 24),
-            InputsbyFP["pv_delta"].index.strftime("%d/%m %H:%M")[
-                range(0, len(InputsbyFP["pv_delta"]), 24)
-            ],
-        )
-    plt.legend()
-    plt.tight_layout()
+    #     plt.xticks(fontsize=8)
+    #     plt.yticks(fontsize=8)
+    #     plt.xticks(
+    #         range(0, len(InputsbyFP["pv_delta"]), 24),
+    #         InputsbyFP["pv_delta"].index.strftime("%d/%m %H:%M")[
+    #             range(0, len(InputsbyFP["pv_delta"]), 24)
+    #         ],
+    #     )
+    # plt.legend()
+    # plt.tight_layout()
 
     # ----------- Plot of demands---------------#
 
@@ -497,8 +496,8 @@ def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                     Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
                     p - 1,
                 ].min()
-                curs=CurArray[i][Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values,p - 1]
-                rates=RateArray[Lines.index[Lines["Bus1"].astype(str).str[5] == str(f)].values]
+                curs=CurArray[i][Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values,p - 1]
+                rates=RateArray[Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values]
                 C_Violations[str(p) + str(f)][i] = sum(curs>rates)
     return Vmax, Vmin, Cmax, C_Violations
 

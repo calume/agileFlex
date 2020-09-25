@@ -50,7 +50,7 @@ def create_gens(Network_Path):
     )
 
 ####### Compile the OpenDSS file using the Master.txt directory#########
-def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
+def runDSS(Network_Path, demand, pv):
       
     dss.Basic.ClearAll()
     dss.Basic.Start(0)
@@ -68,7 +68,7 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
     while iterations==100 and v_delta<0.05:
         iLoad = DSSLoads.First()
         while iLoad > 0:
-            DSSLoads.kW(demand[iLoad - 1] + demand_delta[iLoad - 1])
+            DSSLoads.kW(demand[iLoad - 1])
             DSSLoads.Vmaxpu(50)
             DSSLoads.Vminpu(0.02)
             DSSLoads.kV(0.24)
@@ -79,12 +79,8 @@ def runDSS(Network_Path, demand, pv, demand_delta, pv_delta, PFControl):
         iGen = DSSGens.First()
         while iGen > 0:
             DSSGens.kV(0.24+v_delta)
-            DSSGens.kW(pv[iGen - 1] + pv_delta[iGen - 1])
+            DSSGens.kW(pv[iGen - 1])
             DSSGens.PF(1)
-            
-            if PFControl == 6:
-                DSSGens.kW((pv[iGen - 1] + pv_delta[iGen - 1]) * 0.95)
-                DSSGens.PF(-0.95)
             DSSGens.Vmaxpu(50)
             DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
