@@ -13142,3 +13142,9 @@ Tue, 29 Sep 2020 16:03:07 INFO     Model selected: EVScheduleV2G
 Tue, 29 Sep 2020 16:03:07 INFO     Given model file found and selected from the models library
 Tue, 29 Sep 2020 16:03:07 INFO     Given testcase file found and selected from the testcase library
 Tue, 29 Sep 2020 16:03:08 INFO     Done!
+Tue, 29 Sep 2020 16:03:28 INFO     Program started
+Tue, 29 Sep 2020 16:03:28 INFO     Solver selected: cplex
+Tue, 29 Sep 2020 16:03:28 INFO     Testcase selected: /timeseries/EVDay01_mix10.xlsx
+Tue, 29 Sep 2020 16:03:28 INFO     Model selected: EVScheduleV2G
+Tue, 29 Sep 2020 16:03:28 INFO     Given model file found and selected from the models library
+Tue, 29 Sep 2020 16:03:28 INFO     Given testcase file found and selected from the testcase library
