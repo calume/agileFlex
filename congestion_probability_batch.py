@@ -38,16 +38,16 @@ from openpyxl import load_workbook
 #from voltage_headroom import voltage_headroom
 
 
-def runbatch(networks,Cases,PrePost):
+def runbatch(networks,Cases,PrePost,paths):
     ### --- All VC Limits is Current limits set by Low Voltage
 
-    pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+    pick_in = open(paths+"All_VC_Limits.pickle", "rb")
     All_VC = pickle.load(pick_in)
     
     ####----------Set Test Network ------------
     start=datetime.now()
     start_date = date(2013, 12, 1)
-    end_date = date(2013, 12, 2)
+    end_date = date(2014, 2, 27)
     sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
 
     sims = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
@@ -62,9 +62,7 @@ def runbatch(networks,Cases,PrePost):
             
             pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
-#            pick_in = open("../Data/JDEVResampled.pickle", "rb")
-#            EV_DataFrame = pickle.load(pick_in)
-#            
+
             pick_in = open("../Data/PV_BySiteName.pickle", "rb")
             PV_DataFrame = pickle.load(pick_in)
             print(N,C)
@@ -288,6 +286,7 @@ def runbatch(networks,Cases,PrePost):
                 
                 ###--- These are converted into headrooms and summarised in network_summary
                 for i in CurArray.keys():
+                    print('ntwrk summary ',i)
                     network_summary[i] = network_outputs(
                         N,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist, All_VC
                     )
@@ -303,33 +302,32 @@ def runbatch(networks,Cases,PrePost):
                     demand,
                     pinchClist
                 )
-                Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
+                #Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
                 #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
-                Vmax,Vmin,Cmax, C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
+                #Vmax,Vmin,Cmax, C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
                 #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
                 #labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
                 #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors,'FirstPass')
                 
                 
                 ############=============== This below code is for creating Current Limits for Voltage======##########
-                Voltage_data={}
-                Voltage_data['Vmin']=Vmin
-                Voltage_data['Flow']=Flow
-                Voltage_data['C_Violations']=C_Violations
-                Voltage_data['Trans_kVA']=-Trans_kVA_S
+#                Voltage_data={}
+#                Voltage_data['Vmin']=Vmin
+#                Voltage_data['Flow']=Flow
+#                Voltage_data['C_Violations']=C_Violations
+#                Voltage_data['Trans_kVA']=-Trans_kVA_S
                 
-                return Voltage_data
-                # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "wb")
-                # pickle.dump(Voltage_data, pickle_out)
-                # pickle_out.close()            
+#                pickle_out = open("../Data/"+N+C+"Winter14_V_Data.pickle", "wb")
+#                pickle.dump(Voltage_data, pickle_out)
+#                pickle_out.close()            
+#    
+                pickle_out = open(paths+N+C+"Winter14_10mins_Hdrm.pickle", "wb")
+                pickle.dump(Headrm, pickle_out)
+                pickle_out.close()            
     
-                # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Hdrm.pickle", "wb")
-                # pickle.dump(Headrm, pickle_out)
-                # pickle_out.close()            
-    
-                # pickle_out = open("../Data/"+N+C+"Winter"+str(Y)+"_10mins_Ftrm.pickle", "wb")
-                # pickle.dump(Footrm, pickle_out)
-                # pickle_out.close()
+                pickle_out = open(paths+N+C+"Winter14_10mins_Ftrm.pickle", "wb")
+                pickle.dump(Footrm, pickle_out)
+                pickle_out.close()
 
                 ###############------------return Current Limits-----------------############
                 #aa=list(Customer_Summary['zone'].unique())
@@ -346,6 +344,5 @@ def runbatch(networks,Cases,PrePost):
                 raw_input_data()
                 do_loadflows(sims)
             if PrePost=='Post':
-                Voltage_data=post_process(N, C)
-                return Voltage_data
+                post_process(N, C)
 

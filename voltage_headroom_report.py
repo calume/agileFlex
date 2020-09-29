@@ -128,7 +128,7 @@ for N in networks:
     for h in ChighPerc[N].columns:
         if c==0:
             allchigh[h]=[]
-        allvmins[h].extend(ChighPerc[N][h].values)
+        #allvmins[h].extend(ChighPerc[N][h].values)
         if N!='network_17/':
             plt.plot(VlowPerc[N]['nCusts'],ChighPerc[N][h], marker=mk[o], fillstyle=fills[c], color=cols[c],linestyle = 'None')
             o=o+1
@@ -153,18 +153,44 @@ plt.ylabel('% of timesteps with thermal violations',fontsize=12)
 
 
 
-# # for n in allcusts:
-# #     allvmins[n]=np.array(allvmins[n]).astype(float)
-# #     allcusts[n]=np.array(allcusts[n]).astype(float)
-# #     print(n, allcusts[n][allvmins[n]>0].min())
+for n in allcusts:
+    allvmins[n]=np.array(allvmins[n]).astype(float)
+    allcusts[n]=np.array(allcusts[n]).astype(float)
+    print(n, allcusts[n][allvmins[n]>0].min())
 
 summary=pd.DataFrame(index=VlowPerc[N].columns[1:].append(pd.Index(['Total'])))
+bycusts={}
+FullSum=pd.DataFrame(index=networks, columns=['HPs','Total Customers'])
+
 for N in networks:
+    bycusts[N]=pd.Series(index=VlowPerc[N].index)
     summary[N]=(VlowPerc[N][VlowPerc[N].columns[1:]]>0).sum()
     summary[N].loc['Total']=len(VlowPerc[N])
     for k in summary[N].index[:-1]:
-        summary[N][k]=str(int(summary[N][k]))+' ('+str((ChighPerc[N]>0).sum()[k])+')'
+        summary[N][k]=str(int(summary[N][k]))+' ('+str((ChighPerc[N]>0.01).sum()[k])+')'
     #plt.xticks(VlowPerc[N].columns,times)
+    
+    for h in VlowPerc[N].index:
+        if len(VlowPerc[N].loc[h][VlowPerc[N].loc[h]==0])>0:
+            C=VlowPerc[N].loc[h][VlowPerc[N].loc[h]==0].index[-1]
+        else:
+            C='00PV00HP'
+        pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
+        Customer_Summary= pickle.load(pick_in)   
+        Vsum=sum(Customer_Summary[Customer_Summary['zone']==h]['Heat_Pump_Flag']>0)
+        
+        if len(ChighPerc[N].loc[h][ChighPerc[N].loc[h]==0])>0:
+            C=ChighPerc[N].loc[h][ChighPerc[N].loc[h]==0].index[-1]
+        else:
+            C='00PV00HP'
+        pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
+        Customer_Summary= pickle.load(pick_in)   
+        Csum=sum(Customer_Summary[Customer_Summary['zone']==h]['Heat_Pump_Flag']>0) 
+        bycusts[N][h]=min(Vsum,Csum)
+    
+    FullSum['HPs'][N]=bycusts[N].sum()
+    FullSum['Total Customers'][N]=len(Customer_Summary)
+FullSum.append(pd.Series(FullSum.sum(),name='Total'))
 
 # ########==============Histogram of number of costomers per zone=============#######
 

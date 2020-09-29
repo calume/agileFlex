@@ -66,13 +66,12 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     
 
 
-def EVRealiser(networks):
+def EVRealiser(networks,paths,quant,factor):
     start=datetime.now()
-    pick_in = open("../Data/nEVs_NoShifting.pickle", "rb")
+    pick_in = open(paths+"nEVs_NoShifting.pickle", "rb")
     nEVs_All = pickle.load(pick_in)
     nEVs_Realised={}
     for Network in networks:
-        factor=0.95
         start_date = date(2013, 12, 1)
         end_date = date(2013, 12, 3)
         delta_tenminutes = timedelta(minutes=10)
@@ -80,12 +79,12 @@ def EVRealiser(networks):
         dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
 
         
-        pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+        pick_in = open(paths+Network+"Customer_Summary_Final.pickle", "rb")
         Customer_summary = pickle.load(pick_in)
         
         Customer_summary=Customer_summary['Final']
         
-        pick_in = open("../Data/Assign_Final.pickle", "rb")
+        pick_in = open(paths+"Assign_Final.pickle", "rb")
         assign = pickle.load(pick_in)
         
         EVTDs =  pd.read_csv('testcases/timeseries/Routine_10000EVTD.csv')
@@ -132,17 +131,17 @@ def EVRealiser(networks):
             nEVs=int(nEVs_All[Network][i])
             j=1
 
-            pick_in = open("../Data/"+Network+Case+"_WinterHdrm_All.pickle", "rb")
+            pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
             WinterHdRm = pickle.load(pick_in)
             
-            pick_in = open("../Data/"+Network+Case+"_WinterFtrm_All.pickle", "rb")
+            pick_in = open(paths+Network+Case+"_WinterFtrm_All.pickle", "rb")
             WinterFtRm = pickle.load(pick_in)
             
-            a=WinterHdRm[i].quantile(0.05)*factor
+            a=WinterHdRm[i].quantile(quant)*0.95*factor
             a.index=dt2
             hdrm=a[74:].append(a[:74])
             
-            b=WinterFtRm[i].quantile(0.05)*factor*0.7
+            b=WinterFtRm[i].quantile(quant)*0.7*factor
             b.index=dt2
             ftrm=b[74:].append(b[:74])
                 
@@ -206,9 +205,9 @@ def EVRealiser(networks):
                 l=l+1
             k=k+1
             
-            # if status[k-1][l-1]=='Success':
-            #     plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
-                    
+#            if status[k-1][l-1]=='Success':
+#                plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
+#                    
                 
                 #########----------- Write Outputs for Validation --------############
                 
@@ -233,7 +232,7 @@ def EVRealiser(networks):
         t_time=end-start
         print('Days Optimisation took '+str(t_time))
     
-    pickle_out = open("../Data/nEVs_Realised.pickle", "wb")
+    pickle_out = open(paths+"nEVs_Realised.pickle", "wb")
     pickle.dump(nEVs_Realised, pickle_out)
     pickle_out.close()
 

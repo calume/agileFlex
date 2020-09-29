@@ -38,14 +38,14 @@ from crunch_results import (
     plot_current_voltage,
 )
 
-def runvalid(networks):
+def runvalid(networks,paths,quant,factor):
     ####----------Set Test Network ------------
     start=datetime.now()
     
-    pick_in = open("../Data/All_VC_Limits.pickle", "rb")
+    pick_in = open(paths+"All_VC_Limits.pickle", "rb")
     All_VC = pickle.load(pick_in)
     
-    pick_in = open("../Data/Assign_Final.pickle", "rb")
+    pick_in = open(paths+"Assign_Final.pickle", "rb")
     assign = pickle.load(pick_in)
     
     EVCapacitySummary={}
@@ -74,7 +74,7 @@ def runvalid(networks):
         days=[]
         for w in assign[Network].index:
             #if assign[Network][w] != '00PV00HP':
-            pick_in = open("../Data/"+Network+assign[Network][w]+"_WinterHdRm_All.pickle", "rb")
+            pick_in = open(paths+Network+assign[Network][w]+"_WinterHdRm_All.pickle", "rb")
             HdRm = pickle.load(pick_in)
     #        if assign[Network][w] == '00PV00HP':
     #            pick_in = open("../Data/"+str(Network+'00PV25HP')+"_WinterHdRm_Raw.pickle", "rb")
@@ -100,7 +100,7 @@ def runvalid(networks):
             # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
             # EV_DataFrame = pickle.load(pick_in)
     
-            EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network)
+            EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,paths,quant,factor)
             
             Y=14
             start_date = d#date(2013, 12, 2)
@@ -141,7 +141,7 @@ def runvalid(networks):
             Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, '00PV25HP')
             
             ######------ For when the customer summary table is fixed we laod it in from the pickle file
-            pickin = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+            pickin = open(paths+str(Network)+"Customer_Summary_Final.pickle", "rb")
             Customer_Summary = pickle.load(pickin)
             Customer_Summary=Customer_Summary['Final']
             for u in EV_DataFrame.keys():
@@ -231,7 +231,7 @@ def runvalid(networks):
                     genres[i],
                     converged
                 ) = runDSS(
-                    Network_Path, demand[i], pv[i], demand_delta[i], pv_delta[i], PFControl[i] 
+                    Network_Path, demand[i], pv[i]
                 )
                         
                 ###--- These are converted into headrooms and summarised in network_summary
@@ -258,8 +258,6 @@ def runvalid(networks):
                 pv,
                 ev,
                 demand,
-                demand_delta,
-                pv_delta,
                 pinchClist
             )
             
@@ -287,7 +285,7 @@ def runvalid(networks):
             
             daycount=daycount+1
         
-        pickle_out = open("../Data/"+Network+"validation/Winter"+str(Y)+"_V_Data.pickle", "wb")
+        pickle_out = open(paths+Network+"validation/Winter"+str(Y)+"_V_Data.pickle", "wb")
         pickle.dump(Voltage_data, pickle_out)
         pickle_out.close() 
         end=datetime.now()

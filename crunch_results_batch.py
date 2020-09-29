@@ -485,6 +485,7 @@ def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         columns=cs,
     )
     for i in CurArray.keys():
+        print('vmin calc', i)
         for p in range(1, 4):
 
             for f in range(1, len(pinchClist)+1):

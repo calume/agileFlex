@@ -97,15 +97,15 @@ def return_temp(path):
 
 
 
-def prep_inputs(Case,Network):  
+def prep_inputs(Case,Network,paths):  
     all_temp, all_rad = return_temp('../')
     ###----------Winter Data------------------#####
 
-    pick_in = open("../Data/"+Network+Case+"Winter14_10mins_HdRm.pickle", "rb")
+    pick_in = open(paths+Network+Case+"Winter14_10mins_HdRm.pickle", "rb")
     Winter_HdRm = pickle.load(pick_in)
 
 
-    pick_in = open("../Data/"+Network+Case+"Winter14_10mins_Ftrm.pickle", "rb")
+    pick_in = open(paths+Network+Case+"Winter14_10mins_Ftrm.pickle", "rb")
     Winter_FtRm = pickle.load(pick_in)
     
     # pick_in = open("../Data/"+Network+Case+"Winter14_10mins_HdRm.pickle", "rb")
@@ -156,9 +156,9 @@ def prep_inputs(Case,Network):
     return dates, temps, names, Headrm_DF,Footrm_DF, winter_dates, all_temp
 
 
-def percentiles(Case,Network):    
+def percentiles(Case,Network,paths):    
     tsamp=144
-    dates, temps, names, Headrm_DF,Footrm_DF, winter_dates,all_temp = prep_inputs(Case,Network)
+    dates, temps, names, Headrm_DF,Footrm_DF, winter_dates,all_temp = prep_inputs(Case,Network,paths)
     tempLabels = range(1, 5)
     TempBins = pd.cut(all_temp, bins=4, labels=tempLabels, retbins=True)
     DailyDelta={}
@@ -185,7 +185,7 @@ def percentiles(Case,Network):
         #         DailyByBin[c][z].loc[i] = DailyDelta[c].loc[i].values
 
     
-    pickle_out = open("../Data/"+Network+Case+"_WinterHdrm_All.pickle", "wb")
+    pickle_out = open(paths+Network+Case+"_WinterHdrm_All.pickle", "wb")
     pickle.dump(DailyDelta, pickle_out)
     pickle_out.close()
     
@@ -200,7 +200,7 @@ def percentiles(Case,Network):
     
         # datesBinned = {}
         # DailyByBin[c] = {}
-    pickle_out = open("../Data/"+Network+Case+"_WinterFtrm_All.pickle", "wb")
+    pickle_out = open(paths+Network+Case+"_WinterFtrm_All.pickle", "wb")
     pickle.dump(DailyDelta, pickle_out)
     pickle_out.close()  
 
@@ -217,14 +217,14 @@ def percentiles(Case,Network):
     return DailyDelta
 
 
-def headroom_plots(Network,Case,n,lbls,kva):
+def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
     # pick_in = open("../Data/"+Network+Case+"_WinterHdrm_Raw.pickle", "rb")
     # DailyDelta= pickle.load(pick_in)
    
     # pick_in = open("../Data/"+Network+Case+"_WinterHdrm_ByTemp.pickle", "rb")
     # DailyByBin= pickle.load(pick_in)
     
-    pick_in = open("../Data/"+Network+Case+"_WinterHdrm_All.pickle", "rb")
+    pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
     DailyDelta= pickle.load(pick_in)
     n_zones=len(DailyDelta)
     tsamp=144
@@ -301,7 +301,7 @@ def headroom_plots(Network,Case,n,lbls,kva):
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(range(0,tsamp+24,int(tsamp/6)),times)
-        plt.plot(DailyDelta[c].quantile(0.05).values, linewidth=1, color=cols[n], label=lbls[n])
+        plt.plot(0.95*factor*DailyDelta[c].quantile(quant).values, linewidth=1, color=cols[n], label=lbls[n])
         #plt.plot(DailyDeltaPercentiles['Median'].values, linestyle="--", linewidth=1, color=cols[g], label='Median - '+str(names[g]))
         #plt.ylim(-40, 40)
         plt.ylim(-40, 50)
@@ -317,7 +317,7 @@ def headroom_plots(Network,Case,n,lbls,kva):
 
 
 ###################------------ plot HPs vs Headroom ----------###############
-def HP_vs_Headroom(networks, Cases):
+def HP_vs_Headroom(networks, Cases,paths,quant,factor):
     Customer_Summary={}
     DailyDelta={}
     Y=14
@@ -337,14 +337,14 @@ def HP_vs_Headroom(networks, Cases):
             pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
             Customer_Summary[N][C]= pickle.load(pick_in)
             
-            pick_in = open("../Data/"+N+C+"_WinterHdrm_All.pickle", "rb")
+            pick_in = open(paths+N+C+"_WinterHdrm_All.pickle", "rb")
             DailyDelta[N][C]= pickle.load(pick_in)
             
             
             for i in DailyDelta[N][C].keys():
                 #HdrmSum[N][C][i]=(DailyPercentiles[N][C][i]['P5'][:60].sum()+DailyPercentiles[N][C][i]['P5'][96:].sum())/6  ##-- Day PV effect removed
-                HdrmSum[N][C][i]=(0.95*DailyDelta[N][C][i].quantile(0.05).sum())/6
-                HdrmAnyBelow[N][C][i]=(0.95*DailyDelta[N][C][i].quantile(0.05)[DailyDelta[N][C][i].quantile(0.05)<0].sum())/6
+                HdrmSum[N][C][i]=(0.95*factor*DailyDelta[N][C][i].quantile(quant).sum())/6
+                HdrmAnyBelow[N][C][i]=(0.95*factor*DailyDelta[N][C][i].quantile(quant)[DailyDelta[N][C][i].quantile(quant)<0].sum())/6
                 HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum()
         r = 0    
         
@@ -423,21 +423,21 @@ def limit_table(networks):
         print(All_VCs[N].to_latex())
         
 
-def headroom_percentiles(networks,Cases):
+def headroom_percentiles(networks,Cases,paths,quant,factor):
     q=0
     for N in networks:
     ###### ------------------ Create Daily Headroom Profiles -------------
         for C in Cases:
             print(N, C)
-            DailyDelta=percentiles(C,N)
+            ##DailyDelta=percentiles(C,N,paths)
             q=q+1
 
 
-    HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases)
+    HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases,paths,quant,factor)
     
     
     EVAvg=14.2 #kWh charge / day
-    Thresh=100
+    Thresh=80
     
     ########================ CALCULATE number of EVs ==============#######
     
@@ -493,7 +493,7 @@ def headroom_percentiles(networks,Cases):
         
         q=0
         for C in Cases:
-            ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP)
+            ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
             q=q+1
     
         assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
@@ -527,7 +527,7 @@ def headroom_percentiles(networks,Cases):
                 Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
                 Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
                 Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
-            pickle_out = open("../Data/"+N+"Customer_Summary_Final.pickle", "wb")
+            pickle_out = open(paths+N+"Customer_Summary_Final.pickle", "wb")
             pickle.dump(Customer_Summary[N], pickle_out)
             pickle_out.close()
         nEVs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
@@ -537,11 +537,15 @@ def headroom_percentiles(networks,Cases):
             nEVs_Final[N][k]=nEVs[N][Case][k]
             nHPs_Final[N][k]=HPSum[N][Case][k]
     
-    pickle_out = open("../Data/nEVs_NoShifting.pickle", "wb")
+    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
     pickle.dump(nEVs_Final, pickle_out)
     pickle_out.close()
+
+    pickle_out = open(paths+"nHPs_final.pickle", "wb")
+    pickle.dump(nHPs_Final, pickle_out)
+    pickle_out.close()
         
-    pickle_out = open("../Data/Assign_Final.pickle", "wb")
+    pickle_out = open(paths+"Assign_Final.pickle", "wb")
     pickle.dump(assign, pickle_out)
     pickle_out.close()
     

@@ -17,7 +17,6 @@ import random
 import multiprocessing
 from joblib import Parallel, delayed
 from tqdm import tqdm
-num_cores = multiprocessing.cpu_count()
 
 
 def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
@@ -64,16 +63,12 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
     
-start=datetime.now()
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
-def daily_EVSchedule(Network):
+def daily_EVSchedule(Network,paths,quant,factor):
   
-    pick_in = open("../Data/nEVs_Realised.pickle", "rb")
+    pick_in = open(paths+"nEVs_Realised.pickle", "rb")
     nEVs_All = pickle.load(pick_in)
 
-    factor=0.95
-    daytype='All'#'wkd'
     start_date = date(2013, 12, 1)
     end_date = date(2013, 12, 3)
     delta_tenminutes = timedelta(minutes=10)
@@ -81,12 +76,12 @@ def daily_EVSchedule(Network):
     dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
     
     
-    pick_in = open("../Data/"+str(Network)+"Customer_Summary_Final.pickle", "rb")
+    pick_in = open(paths+Network+"Customer_Summary_Final.pickle", "rb")
     Customer_summary = pickle.load(pick_in)
     
     Customer_summary=Customer_summary['Final']
     
-    pick_in = open("../Data/Assign_Final.pickle", "rb")
+    pick_in = open(paths+"Assign_Final.pickle", "rb")
     assign = pickle.load(pick_in)
     
     EVTDs =  pd.read_csv('testcases/timeseries/Routine_10000EVTD.csv')
@@ -130,17 +125,17 @@ def daily_EVSchedule(Network):
         nEVs=int(nEVs_All[Network][i])
         j=1
 
-        pick_in = open("../Data/"+Network+Case+"_WinterHdrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
         WinterHdRm = pickle.load(pick_in)
         
-        pick_in = open("../Data/"+Network+Case+"_WinterFtrm_"+str(daytype)+".pickle", "rb")
+        pick_in = open(paths+Network+Case+"_WinterFtrm_All.pickle", "rb")
         WinterFtRm = pickle.load(pick_in)
         
-        a=WinterHdRm[i].quantile(0.05)*factor
+        a=WinterHdRm[i].quantile(quant)*0.95*factor
         a.index=dt2
         hdrm=a[74:].append(a[:74])
         
-        b=WinterFtRm[i].quantile(0.05)*factor*0.7
+        b=WinterFtRm[i].quantile(quant)*0.7*factor
         b.index=dt2
         ftrm=b[74:].append(b[:74])
             
@@ -148,6 +143,9 @@ def daily_EVSchedule(Network):
         status[k][0]='Fail'
         l=1
         b=0
+        
+        if (hdrm<0).sum() >0:
+            nEVs=max((nEVs-1),0)
 
         while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
             net=Network[8:-1]
@@ -172,6 +170,11 @@ def daily_EVSchedule(Network):
             for s in EVSample['name']:
                 EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
             EV_Avg=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
+            
+            if (hdrm<0).sum() >0:
+                for b in EVTDSample.index:
+                    EVTDSample['EEnd'][b]=max((EVTDSample['EEnd'][b]*0.95),EVTDSample['EStart'][b])
+            
             book = load_workbook(optfile)
                
             writer = pd.ExcelWriter(optfile, engine='openpyxl')
@@ -206,7 +209,7 @@ def daily_EVSchedule(Network):
 #        if status[k-1][l-1]=='Success':
 #            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
 #                
-            
+#            
             #########----------- Write Outputs for Validation --------############
             
         dems={}
@@ -223,12 +226,6 @@ def daily_EVSchedule(Network):
                 AllEVs[i]=AllEVs[i].join(dems[z], how='outer')
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
         else:
-            print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh , No EVs')   
+            print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge', 'No EVs')   
        
-    end=datetime.now()
-    
-    t_time=end-start
-    print('Days Optimisation took '+str(t_time))
-
-
     return EVCapacitySummary, AllEVs
