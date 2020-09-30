@@ -437,7 +437,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     
     
     EVAvg=14.2 #kWh charge / day
-    Thresh=80
+    Thresh=140
     
     ########================ CALCULATE number of EVs ==============#######
     
@@ -452,7 +452,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     count=1
     for N in networks:
         #plt.figure(N)
-        nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
+        nEVs[N]=((0.5*HdrmSum[N])/EVAvg).astype(int)
         nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
         for c in nEVs[N].columns:
             for j in nEVs[N][c].index:

@@ -15,15 +15,16 @@ from congestion_probability_validation import runvalid
 networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 #networks=['network_17/','network_18/']
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
-paths="../Data/Lower/factor0.6/"
+paths="../Data/Lower/forcev2g/"
 desc=['225 V limit (Conservative)','216 V Limit (Lower Less conservative)','']
 #runbatch(networks,Cases,'Pre')
 #voltage_limits(networks,Cases,paths)
 #runbatch(networks,Cases,'Post',paths)
 
 quant=0
-factor=0.6
+factor=1
 nHPs_Final=headroom_percentiles(networks,Cases,paths,quant,factor)
+factor=0.5
 EVRealiser(networks, paths,quant,factor)
 runvalid(networks, paths,quant,factor)
 
@@ -45,8 +46,12 @@ for N in networks:
     print('HPs', nHPs_Final[N].sum())
     print('EVs', SumData['EV_summary'].sum().min())
     print('C Violations', (SumData['C_Violations'].sum(axis=1)>0).sum())
+    print('Problem Zones',SumData['C_Violations'].sum()[SumData['C_Violations'].sum()>0].index.values)
+    print('N  Violations',SumData['C_Violations'].sum()[SumData['C_Violations'].sum()>0].values,'\n')
     print('V Violations', int(((SumData['Vmin']<0.9).sum(axis=1)>0).sum()))
-    
+    print('Problem Zones',(SumData['Vmin']<0.9).sum()[(SumData['Vmin']<0.9).sum()>0].index.values)
+    print('N  Violations',(SumData['Vmin']<0.9).sum()[(SumData['Vmin']<0.9).sum()>0].values,'\n')
+    print('v2g Deliveried', SumData['V2gPerc'].mean(),'\n')
     
     
     

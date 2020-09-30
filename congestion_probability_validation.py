@@ -100,7 +100,7 @@ def runvalid(networks,paths,quant,factor):
             # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
             # EV_DataFrame = pickle.load(pick_in)
     
-            EVCapacitySummary, EV_DataFrame = daily_EVSchedule(Network,paths,quant,factor)
+            EVCapacitySummary, EV_DataFrame, V2G_Perc = daily_EVSchedule(Network,paths,quant,factor)
             
             Y=14
             start_date = d#date(2013, 12, 2)
@@ -163,15 +163,12 @@ def runvalid(networks,paths,quant,factor):
             #####-- These are produced by the OpenDSS Load Flow
             CurArray = {}
             VoltArray = {}
-            TransArray = {}
-            LoadArray = {}
             PowArray = {}
             CurArray_new = {}
             VoltArray_new = {}
             PowArray_new = {}
             Trans_kVA_new = {}
             Losses = {}
-            TranskVA_sum = {}
             Trans_kVA = {}
             network_summary = {}
             network_summary_new = {}
@@ -179,8 +176,7 @@ def runvalid(networks,paths,quant,factor):
             genres=pd.Series(index=sims.tolist(), dtype=float)
             genresnew=pd.Series(index=sims.tolist(), dtype=float)
             colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
-            bad_halfhours=[]
-            bad_halfhours_n=[] 
+            bad_halfhours=[] 
                 
             pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
             if Network=='network_10/':
@@ -275,11 +271,14 @@ def runvalid(networks,paths,quant,factor):
                 Voltage_data['Flow']=Flow
                 Voltage_data['C_Violations']=C_Violations
                 Voltage_data['Trans_kVA']=TransAll
+                Voltage_data['V2gPerc']=pd.Series(index=days,dtype=float)
+                Voltage_data['V2gPerc'][d]=np.mean(V2G_Perc)
             else:
                 Voltage_data['EV_summary'][d]=EVCapacitySummary['EV Capacity New']
                 Voltage_data['Vmin']=Voltage_data['Vmin'].append(Vmin)
                 Voltage_data['C_Violations']=Voltage_data['C_Violations'].append(C_Violations)
                 Voltage_data['Trans_kVA']=Voltage_data['Trans_kVA'].append(TransAll)
+                Voltage_data['V2gPerc'][d]=np.mean(V2G_Perc)
                 for f in Flow:
                     Voltage_data['Flow'][f]=Voltage_data['Flow'][f].append(Flow[f])
             

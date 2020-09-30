@@ -65,7 +65,7 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     
 
 def daily_EVSchedule(Network,paths,quant,factor):
-  
+    v2gperc=[]
     pick_in = open(paths+"nEVs_Realised.pickle", "rb")
     nEVs_All = pickle.load(pick_in)
 
@@ -146,7 +146,8 @@ def daily_EVSchedule(Network,paths,quant,factor):
         
         if (hdrm<0).sum() >0:
             nEVs=max((nEVs-1),0)
-
+        
+        ##while (status[k][l-1]=='Fail' and nEVs>0):   ##-- For Force V2G
         while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
             net=Network[8:-1]
             optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
@@ -162,9 +163,11 @@ def daily_EVSchedule(Network,paths,quant,factor):
             prices['cost(pounds/kwh)'][gen['Grid']<0]=prices['cost(pounds/kwh)'][gen['Grid']<0]+0.175
             
             gen['Grid'][gen['Grid']<0]=0
-            
+#            gen['Grid'][gen['Grid']<0]=v2g[gen['Grid']<0]  ###---- Force V2G make Genmax =V2g
+#            if l==21:
+#                print('relax')
+#                gen['Grid'][gen['Grid']<0]=0
             genmin['Grid']=-ftrm.values
-            #genmin['Grid'][genmin['Grid']>0]=0
             EVSample=EVs.sample(n=nEVs)
             EVTDSample=pd.DataFrame()
             for s in EVSample['name']:
@@ -194,12 +197,17 @@ def daily_EVSchedule(Network,paths,quant,factor):
                 status[k][l]='Fail'
                 b=b+1
                 print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
-                j=1
-                nEVs=nEVs-1
-            
+                j=1    ###--comment to force V2g
+                nEVs=nEVs-1  ###--comment to force V2g
+                #######------- For Forcing V2G--------#####
+#                j=j+1
+#                if j>10:
+#                    nEVs=nEVs-1
+#                    j=0
+                    
             if status[k][l]=='Success':
                 b=0
-                j=j+1
+                j=j+1    ###--comment to force V2g
                 results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
             EVCapacitySummary['EV Capacity New'][i]=nEVs
 
@@ -209,11 +217,26 @@ def daily_EVSchedule(Network,paths,quant,factor):
 #        if status[k-1][l-1]=='Success':
 #            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
 #                
-#            
+            
             #########----------- Write Outputs for Validation --------############
             
         dems={}
         if status[k-1][l-1] =='Success':
+            summary=pd.DataFrame(results.groupby(['Time period']).sum()['Charging(kW)'])
+            discharge=pd.DataFrame(results.groupby(['Time period']).sum()['Discharging(kW)'])
+            summary=summary.join(v2g,how='outer')
+            summary=summary.join(discharge,how='outer')
+            genSum=(summary['Charging(kW)']-summary['Discharging(kW)']).fillna(0)
+            genSum.name='Net'
+            summary=summary.join(genSum,how='outer')
+            v2gfulfilled=v2g[v2g<0]
+            v2gfulfilled.name='v2gfulfilled'
+            if len(v2g[v2g<0])>0:
+                for a in v2g[v2g<0].index:
+                    v2gfulfilled[a]=max(v2g[v2g<0][a],summary['Net'][v2g<0][a])
+                
+                summary=summary.join(v2gfulfilled,how='outer')
+                v2gperc.append(round(v2gfulfilled.sum()/v2g[v2g<0].sum()*100,1))
             IDs=results['name'].unique()
             
             for z in IDs:
@@ -228,4 +251,4 @@ def daily_EVSchedule(Network,paths,quant,factor):
         else:
             print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge', 'No EVs')   
        
-    return EVCapacitySummary, AllEVs
+    return EVCapacitySummary, AllEVs, v2gperc
