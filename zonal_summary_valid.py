@@ -131,7 +131,16 @@ def daily_EVSchedule(Network,paths,quant,factor):
         pick_in = open(paths+Network+Case+"_WinterFtrm_All.pickle", "rb")
         WinterFtRm = pickle.load(pick_in)
         
-        a=WinterHdRm[i].quantile(quant)*0.95*factor
+        if nEVs>45:  #### specifically aimed at network 17 zone 16
+            nEVs=45
+            factor=0.3
+        
+        dds=WinterHdRm[i].quantile(quant)
+        
+        dds[dds<0]=dds[dds<0]/0.95
+        dds[dds>0]=dds[dds>0]*0.95       
+        
+        a=dds*factor
         a.index=dt2
         hdrm=a[74:].append(a[:74])
         
@@ -147,8 +156,8 @@ def daily_EVSchedule(Network,paths,quant,factor):
         if (hdrm<0).sum() >0:
             nEVs=max((nEVs-1),0)
         
-        ##while (status[k][l-1]=='Fail' and nEVs>0):   ##-- For Force V2G
-        while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
+        while (status[k][l-1]=='Fail' and nEVs>0):   ##-- For Force V2G
+        ##while (status[k][l-1]=='Fail' and nEVs>0) or (j<2 and nEVs>0): 
             net=Network[8:-1]
             optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
             copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
@@ -162,11 +171,11 @@ def daily_EVSchedule(Network,paths,quant,factor):
             prices['cost(pounds/kwh)']=priceIn.values
             prices['cost(pounds/kwh)'][gen['Grid']<0]=prices['cost(pounds/kwh)'][gen['Grid']<0]+0.175
             
-            gen['Grid'][gen['Grid']<0]=0
-#            gen['Grid'][gen['Grid']<0]=v2g[gen['Grid']<0]  ###---- Force V2G make Genmax =V2g
-#            if l==21:
-#                print('relax')
-#                gen['Grid'][gen['Grid']<0]=0
+            ##gen['Grid'][gen['Grid']<0]=0
+            gen['Grid'][gen['Grid']<0]=v2g[gen['Grid']<0]  ###---- Force V2G make Genmax =V2g
+            if l==21:
+                print('relax')
+                gen['Grid'][gen['Grid']<0]=0
             genmin['Grid']=-ftrm.values
             EVSample=EVs.sample(n=nEVs)
             EVTDSample=pd.DataFrame()
@@ -174,6 +183,7 @@ def daily_EVSchedule(Network,paths,quant,factor):
                 EVTDSample=EVTDSample.append(EVTDs[EVTDs['name']==s])        
             EV_Avg=(EVTDSample['EEnd']-EVTDSample['EStart']).sum()/len(EVSample)
             
+            ########----------------Making V2G Easier-----------##########
             if (hdrm<0).sum() >0:
                 for b in EVTDSample.index:
                     EVTDSample['EEnd'][b]=max((EVTDSample['EEnd'][b]*0.95),EVTDSample['EStart'][b])
@@ -197,17 +207,17 @@ def daily_EVSchedule(Network,paths,quant,factor):
                 status[k][l]='Fail'
                 b=b+1
                 print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
-                j=1    ###--comment to force V2g
-                nEVs=nEVs-1  ###--comment to force V2g
+                #j=1    ###--comment to force V2g
+                #nEVs=nEVs-1  ###--comment to force V2g
                 #######------- For Forcing V2G--------#####
-#                j=j+1
-#                if j>10:
-#                    nEVs=nEVs-1
-#                    j=0
+                j=j+1
+                if j>10:
+                    nEVs=nEVs-1
+                    j=0
                     
             if status[k][l]=='Success':
                 b=0
-                j=j+1    ###--comment to force V2g
+                #j=j+1    ###--comment to force V2g
                 results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
             EVCapacitySummary['EV Capacity New'][i]=nEVs
 

@@ -137,7 +137,14 @@ def EVRealiser(networks,paths,quant,factor):
             pick_in = open(paths+Network+Case+"_WinterFtrm_All.pickle", "rb")
             WinterFtRm = pickle.load(pick_in)
             
-            a=WinterHdRm[i].quantile(quant)*0.95*factor
+            if nEVs>45:  #### specifically aimed at network 17 zone 16
+                nEVs=45
+                factor=0.3
+            dds=WinterHdRm[i].quantile(quant)
+            dds[dds<0]=dds[dds<0]/0.95
+            dds[dds>0]=dds[dds>0]*0.95      
+            
+            a=dds*factor
             a.index=dt2
             hdrm=a[74:].append(a[:74])
             

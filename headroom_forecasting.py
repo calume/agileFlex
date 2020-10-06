@@ -289,6 +289,9 @@ def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
     r = 0
     plt.figure(Network+'Winter headroom, All Cases')           
     for c in DailyDelta.keys():
+        dds=DailyDelta[c].quantile(quant)
+        dds[dds<0]=dds[dds<0]/0.95
+        dds[dds>0]=dds[dds>0]*0.95
         ncs=len(Customer_Summary[Customer_Summary['zone']==c])
         r = r + 1
         ax=plt.subplot(3, int(n_zones/3), r)
@@ -301,7 +304,7 @@ def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(range(0,tsamp+24,int(tsamp/6)),times)
-        plt.plot(0.95*factor*DailyDelta[c].quantile(quant).values, linewidth=1, color=cols[n], label=lbls[n])
+        plt.plot(dds.values, linewidth=1, color=cols[n], label=lbls[n])
         #plt.plot(DailyDeltaPercentiles['Median'].values, linestyle="--", linewidth=1, color=cols[g], label='Median - '+str(names[g]))
         #plt.ylim(-40, 40)
         plt.ylim(-40, 50)
@@ -310,9 +313,7 @@ def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     plt.tight_layout()
-    plt.legend()    
-    
-    return DailyDelta
+    plt.legend()
 
 
 
@@ -320,7 +321,6 @@ def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
 def HP_vs_Headroom(networks, Cases,paths,quant,factor):
     Customer_Summary={}
     DailyDelta={}
-    Y=14
     HdrmSum={}
     HPSum={}  
     HdrmAnyBelow={}   
@@ -334,7 +334,7 @@ def HP_vs_Headroom(networks, Cases,paths,quant,factor):
         HPSum[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
         HdrmAnyBelow[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
         for C in Cases:        
-            pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
+            pick_in = open("../Data/"+N+"Customer_Summary"+C+"14.pickle", "rb")
             Customer_Summary[N][C]= pickle.load(pick_in)
             
             pick_in = open(paths+N+C+"_WinterHdrm_All.pickle", "rb")
@@ -342,9 +342,11 @@ def HP_vs_Headroom(networks, Cases,paths,quant,factor):
             
             
             for i in DailyDelta[N][C].keys():
+                aboves = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)>=0].sum()
+                belows = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)<0].sum()
                 #HdrmSum[N][C][i]=(DailyPercentiles[N][C][i]['P5'][:60].sum()+DailyPercentiles[N][C][i]['P5'][96:].sum())/6  ##-- Day PV effect removed
-                HdrmSum[N][C][i]=(0.95*factor*DailyDelta[N][C][i].quantile(quant).sum())/6
-                HdrmAnyBelow[N][C][i]=(0.95*factor*DailyDelta[N][C][i].quantile(quant)[DailyDelta[N][C][i].quantile(quant)<0].sum())/6
+                HdrmSum[N][C][i]=((aboves*0.95)+(belows/0.95) *factor)/6
+                HdrmAnyBelow[N][C][i]=factor*(belows/0.95)/6
                 HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum()
         r = 0    
         
@@ -422,22 +424,21 @@ def limit_table(networks):
         All_VCs[N]=All_VCs[N].fillna('N/A')   
         print(All_VCs[N].to_latex())
         
-
 def headroom_percentiles(networks,Cases,paths,quant,factor):
-    q=0
+    q=5
     for N in networks:
     ###### ------------------ Create Daily Headroom Profiles -------------
         for C in Cases:
             print(N, C)
             ##DailyDelta=percentiles(C,N,paths)
             q=q+1
-
-
-    HPSum, HdrmSum,HdrmAnyBelow, DailyPercentiles, Customer_Summary=HP_vs_Headroom(networks, Cases,paths,quant,factor)
+    
+    
+    HPSum, HdrmSum,HdrmAnyBelow, DailyDelta, Customer_Summary=HP_vs_Headroom(networks, Cases,paths,quant,factor)
     
     
     EVAvg=14.2 #kWh charge / day
-    Thresh=140
+    Thresh=120
     
     ########================ CALCULATE number of EVs ==============#######
     
@@ -452,7 +453,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     count=1
     for N in networks:
         #plt.figure(N)
-        nEVs[N]=((0.5*HdrmSum[N])/EVAvg).astype(int)
+        nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
         nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
         for c in nEVs[N].columns:
             for j in nEVs[N][c].index:
@@ -469,8 +470,8 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     Allsums=Allsums.join(ab.astype(int))
     Allsums[N]['Total Customers']=HPSum[N]['50PV100HP'].sum()
     count=count+1
-
-
+    
+    
     #######================= Calculate  Number of Heatpumps and V2G ZOnes =##################
     
     assign={}
@@ -493,7 +494,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
         
         q=0
         for C in Cases:
-            ##DailyDeltaPercentiles=headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
+            ##headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
             q=q+1
     
         assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
@@ -536,11 +537,12 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
             Case=assign[N][k]
             nEVs_Final[N][k]=nEVs[N][Case][k]
             nHPs_Final[N][k]=HPSum[N][Case][k]
-    
+    nEVs_Final['network_17/']['27']=0
+    nEVs_Final['network_5/']['13']=0
     pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
     pickle.dump(nEVs_Final, pickle_out)
     pickle_out.close()
-
+    
     pickle_out = open(paths+"nHPs_final.pickle", "wb")
     pickle.dump(nHPs_Final, pickle_out)
     pickle_out.close()
@@ -552,13 +554,13 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     
     print('---------------Number of EVs----------------------')
     for N in networks:
-        print(N,nEVs_Final[N], sum(nEVs_Final[N]))
+        print(N,'\n',nEVs_Final[N],'\n Total', sum(nEVs_Final[N]))
     print('')
     
     print('---------------Number of Heat Pumps-----------------------')
     for N in networks:
         Customer_Summary[N]['Final']['heatpump_ID']
-        print(N,nHPs_Final[N], sum(nHPs_Final[N]))
+        print(N,'\n',nHPs_Final[N],'\n Total', sum(nHPs_Final[N]))
     
     print('-----------------Assignation---------------------------------')
     print(assign)
@@ -567,7 +569,6 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     print(v2gZones)
     print('-------------------------------------------------------------------------------------------------')        
     
-    return nHPs_Final
 
 ####==============---------- Calculate Max HPs and Max Possible EVs------------================
 

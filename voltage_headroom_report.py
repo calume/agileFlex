@@ -22,7 +22,7 @@ pd.options.mode.chained_assignment = None
 
 #def voltage_headroom(Pflow,Vmin):
 
-networks=['network_1/','network_10/','network_5/','network_18/','network_17/']
+networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 Y=14
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
@@ -66,7 +66,7 @@ for N in networks:
                 V_data['C_Violations'][k]=0
         ##### Count Vmins < 0.9 and 0.94 ################
         VlowPerc[N][C]=round((V_data['Vmin']<0.9).sum()/len(V_data['Vmin'].index)*100,2)   
-        TransPerc[N][C]=round((V_data['Trans_kVA']>800).sum()/len(V_data['Trans_kVA'].index)*100,2)   
+        TransPerc[N][C]=round((abs(V_data['Trans_kVA'])>800).sum()/len(V_data['Trans_kVA'].index)*100,2)   
         #ChighPerc[N][C]=round(V_data['C_Violations'].sum()/len(V_data['C_Violations']),2) 
         ChighPerc[N][C]=round((V_data['C_Violations']>0).sum()/len(V_data['C_Violations'].index)*100,2) 
 
@@ -138,12 +138,6 @@ for N in networks:
     c=c+1
 
 plt.grid(linewidth=0.2)
-custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 10',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 5',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 18',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#d62728",fillstyle='none', label='Network 17',linestyle = 'None')]
-
 leg2=plt.legend(handles=custom,loc=6,fontsize=12)
 plt.gca().add_artist(leg2)
 plt.legend(fontsize=12)
@@ -161,13 +155,26 @@ for n in allcusts:
 summary=pd.DataFrame(index=VlowPerc[N].columns[1:].append(pd.Index(['Total'])))
 bycusts={}
 FullSum=pd.DataFrame(index=networks, columns=['HPs','Total Customers'])
-
+replace={}
+ReplaceSum=pd.DataFrame(index=VlowPerc[N].columns[1:].append(pd.Index(['Total'])),columns=networks)
+probzones={}
 for N in networks:
+    replace[N]=pd.DataFrame(index=VlowPerc[N].columns[1:], columns=VlowPerc[N].index)    
+    for r in replace[N].index:
+        for c in replace[N].columns:
+            replace[N][c][r] = (VlowPerc[N][r][c]>0) or (ChighPerc[N][r][c]>0)
+        ReplaceSum[N].loc[r]=(replace[N].loc[r]>0).sum(axis=0)
+    probzones[N]={}
+    probzones[N]['LV']=VlowPerc[N]['00PV00HP'][VlowPerc[N]['00PV00HP']>0]
+    probzones[N]['HC']=ChighPerc[N]['00PV00HP'][ChighPerc[N]['00PV00HP']>0]
     bycusts[N]=pd.Series(index=VlowPerc[N].index)
     summary[N]=(VlowPerc[N][VlowPerc[N].columns[1:]]>0).sum()
     summary[N].loc['Total']=len(VlowPerc[N])
-    for k in summary[N].index[:-1]:
-        summary[N][k]=str(int(summary[N][k]))+' ('+str((ChighPerc[N]>0.01).sum()[k])+')'
+    
+#    for k in summary[N].index[:-1]:
+#        summary[N][k]['Total']= summary[N][k].sum()
+#        summary[N][k]=str(int(summary[N][k]))+' ('+str((ChighPerc[N]>0.01).sum()[k])+')'
+#        summary[N][k]['Total']= str(summary[N][k]['Total'])+' ('+str((ChighPerc[N]>0.01).sum()[k].sum())+')'
     #plt.xticks(VlowPerc[N].columns,times)
     
     for h in VlowPerc[N].index:
@@ -192,6 +199,11 @@ for N in networks:
     FullSum['Total Customers'][N]=len(Customer_Summary)
 FullSum.append(pd.Series(FullSum.sum(),name='Total'))
 
+pickle_out = open("../Data/Problem_Zones.pickle", "wb")
+pickle.dump(probzones, pickle_out)
+pickle_out.close()   
+        
+
 # ########==============Histogram of number of costomers per zone=============#######
 
 # # all_means=allcusts['00PV00HP']
@@ -212,26 +224,26 @@ FullSum.append(pd.Series(FullSum.sum(),name='Total'))
 # # plt.legend()
 # # plt.tight_layout()
 
-# plt.figure()
-# u=0
-# for N in networks:
-#     pick_in = open("../Data/"+N+"50PV100HPWinter"+str(Y)+"_V_Data.pickle", "rb")
-#     V_data = pickle.load(pick_in)
+plt.figure()
+u=0
+for N in networks:
+     pick_in = open("../Data/"+N+"50PV100HPWinter"+str(Y)+"_V_Data.pickle", "rb")
+     V_data = pickle.load(pick_in)
 
-#     transmax[N]=[]
-#     for n in range(0,24):
-#         # transmins.append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].min())
-#         # transmedian.append(np.quantile(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n],0.5))
-#         transmax[N].append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].max())
+     transmax[N]=[]
+     for n in range(0,24):
+         # transmins.append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].min())
+         # transmedian.append(np.quantile(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n],0.5))
+         transmax[N].append(abs(V_data['Trans_kVA']).loc[V_data['Trans_kVA'].index.hour==n].max())
     
-#     plt.plot(transmax[N],label=N[:-1],color=cols[u],linestyle=style[u])
-#     u=u+1
-# plt.plot(np.full(24,800), label='Tx Rating (kVA)',color='black',linewidth=0.5,linestyle=':')
-# plt.ylabel('Max Transformer Power Flow (kVA)')
-# plt.legend(fontsize=9,)
-# plt.grid(linewidth=0.2)
-# plt.xlim([0, 23])
-# plt.xticks(range(0,24,6),times2)
+     plt.plot(transmax[N],label=N[:-1],color=cols[u],linestyle=style[u])
+     u=u+1
+plt.plot(np.full(24,800), label='Tx Rating (kVA)',color='black',linewidth=0.5,linestyle=':')
+plt.ylabel('Max Transformer Power Flow (kVA)')
+plt.legend(fontsize=9,)
+plt.grid(linewidth=0.2)
+plt.xlim([0, 23])
+plt.xticks(range(0,24,6),times2)
 
 # plt.figure()
 
