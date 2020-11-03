@@ -50,7 +50,7 @@ def create_gens(Network_Path):
     )
 
 ####### Compile the OpenDSS file using the Master.txt directory#########
-def runDSS(Network_Path, demand, pv):
+def runDSS(Network_Path, demand, pv,ev):
       
     dss.Basic.ClearAll()
     dss.Basic.Start(0)
@@ -65,10 +65,15 @@ def runDSS(Network_Path, demand, pv):
     iterations=100
     v_delta=0
     c=0
+    print(sum(pv))
     while iterations==100 and v_delta<0.05:
         iLoad = DSSLoads.First()
         while iLoad > 0:
             DSSLoads.kW(demand[iLoad - 1])
+            if ev[iLoad - 1]>0:
+                kva=(demand[iLoad - 1]-ev[iLoad - 1])/0.95+ev[iLoad - 1]/0.98
+                DSSLoads.kvar((kva**2-demand[iLoad - 1]**2)**0.5)
+            ##print(DSSLoads.kW(),'kW',DSSLoads.kvar(),'kvar',DSSLoads.PF())
             DSSLoads.Vmaxpu(50)
             DSSLoads.Vminpu(0.02)
             DSSLoads.kV(0.24)
@@ -77,6 +82,7 @@ def runDSS(Network_Path, demand, pv):
                 DSSLoads.Model(2)
         ################### Calculating Gen for each Demand ############################
         iGen = DSSGens.First()
+        
         while iGen > 0:
             DSSGens.kV(0.24+v_delta)
             DSSGens.kW(pv[iGen - 1])
@@ -85,8 +91,10 @@ def runDSS(Network_Path, demand, pv):
             DSSGens.Vminpu(0.02)
             DSSGens.Phases(1)
             DSSGens.Model(1)
+            if pv[iGen - 1]>0:
+                DSSGens.Model(3)
             iGen = DSSGens.Next()
-        
+
         ######### Solve the Circuit ############
         dss.Solution.Mode(0)
         dss.Solution.Convergence(0.0001)
@@ -126,7 +134,8 @@ def runDSS(Network_Path, demand, pv):
             np.sign(pows[2]) * (pows[2] ** 2 + pows[3] ** 2) ** 0.5,
             np.sign(pows[4]) * (pows[4] ** 2 + pows[5] ** 2) ** 0.5,
         )
-    
+        
+       
         Rates[i_Line] = dss.CktElement.NormalAmps()
         i_Line = DSSLines.Next()
     
@@ -135,57 +144,13 @@ def runDSS(Network_Path, demand, pv):
     PowArray = np.array(list(Powers.values()), dtype=float)
     Losses = dss.Circuit.Losses()[0] / 1000
     RateArray = np.array(list(Rates.values()), dtype=float)
-    TranskVA = (dss.Circuit.TotalPower()[0])
-    #        np.sign(dss.Circuit.TotalPower()[0])
-    #        * (dss.Circuit.TotalPower()[0] ** 2 + dss.Circuit.TotalPower()[1] ** 2) ** 0.5
-    #    )
+    TranskVA = np.sign(dss.Circuit.TotalPower()[0]) * (dss.Circuit.TotalPower()[0] ** 2 + dss.Circuit.TotalPower()[1] ** 2) ** 0.5
     TransRatekVA = DSSTransformers.kVA()
     converged=dss.Solution.Converged()
     return CurArray, VoltArray, PowArray, Losses, TranskVA, RateArray, TransRatekVA,genres,converged
 
 ###------- Using the network outputs (voltage and current) from Opendss
 ###------- network summary is generated including overvoltage and current locations
-
-
-def network_outputs(N,CurArray, RateArray, VoltArray, PowArray, TransKVA, TransRatekVA, pinchClist,All_VC):
-
-    network_summary = {}   
-    for i in range(1, 4):
-        network_summary[i] = {}
-        Cseries = pd.Series(CurArray[:, i - 1])
-        Vseries = pd.Series(VoltArray[:, i - 1])
-        Pseries = pd.Series(PowArray[:, i - 1])
-
-        Chigh_lines = list(Cseries[Cseries > RateArray].index)
-        Vhigh_nodes = list(Vseries[Vseries > 1.1].index)
-        Vlow_nodes = list(Vseries[Vseries < 0.9].index)
-
-        network_summary[i]["Chigh_lines"] = Chigh_lines
-        network_summary[i]["C_Flow"] = {}
-        network_summary[i]["C_Rate"] = {}
-        network_summary[i]["V_Rate"] = {}
-
-        ##------- To indicate direction of power flow. When Importing supply voltage will be higher
-        # ---------Negative power flow represents export.
-
-        for n in range(1, len(pinchClist)+1):
-            network_summary[i]["C_Rate"][n] = 0.9*RateArray[pinchClist[n - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
-            if (str(i)+str(n)) in All_VC[N]:
-                network_summary[i]["V_Rate"][n] = All_VC[N][str(i)+str(n)]
-            else:
-                network_summary[i]["V_Rate"][n] = network_summary[i]["C_Rate"][n]
-            network_summary[i]["C_Flow"][n] = Pseries[pinchClist[n - 1]]
-            
-        network_summary[i]["Vhigh_nodes"] = Vhigh_nodes
-        network_summary[i]["Vlow_nodes"] = Vlow_nodes
-
-        network_summary[i]["Chigh_vals"] = list(Cseries[Cseries > RateArray])
-        network_summary[i]["Vhigh_vals"] = list(Vseries[Vseries > 1.1])
-        network_summary[i]["Vlow_vals"] = list(Vseries[Vseries < 0.9])
-
-    network_summary["Trans_kVA"] = -TransKVA
-    return network_summary
-
 
             
 

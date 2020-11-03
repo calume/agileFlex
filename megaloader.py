@@ -13,23 +13,25 @@ import pickle
 from congestion_probability_validation import runvalid
 import pandas as pd
 
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
-#networks=['network_17/','network_18/']
-Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
-paths="../Data/Upper/perc0.05/"
-desc=['225 V limit (Conservative)','216 V Limit (Lower Less conservative)','']
-#runbatch(networks,Cases,'Pre')
-#voltage_limits(networks,Cases,paths)
-#runbatch(networks,Cases,'Post',paths)
+networks=['network_1/']#,'network_5/','network_10/','network_17/','network_18/']
 
-quant=0
-factor=0.5
+Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
+#Txs=pd.Series([750,500,1000,1000,750],index=networks)
+paths="../Data/Upper/"
+desc=['225 V limit (Upper Conservative)','216 V Limit (Lower Less conservative)','']
+#runbatch(networks,Cases,'Pre',paths,VC=False)
+#runbatch(networks,Cases,'Post',paths,VC=True)
+voltage_limits(networks,Cases,paths)
+#runbatch(networks,Cases,'Post',paths, VC=False)
+
+quant=0.02
+factor=1
 #headroom_percentiles(networks,Cases,paths,quant,factor)
 #EVRealiser(networks, paths,quant,factor)
-#runvalid(networks, paths,quant,factor)
+#timers=runvalid(networks, paths,quant,factor)
 
 
-###MEGA SUMMARY OF HPs and EVS ############
+#MEGA SUMMARY OF HPs and EVS ############
 
 
 print(paths,desc[1])

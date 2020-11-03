@@ -152,20 +152,17 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors,
 
 #######----------- This function returns Dataframes for plotting results
 def Headroom_calc(
-    network_summary,
+    RateArray,
+    VoltArray,
+    All_VC,
+    Flow,
+    Trans_kVA,
     Customer_Summary,
-    smartmeter,
-    heatpump,
-    pv,
-    demand,
-    pinchClist
+    pinchClist,
+    TransRatekVA,
+    sims
 ):
-    Headrm = {}
-    Footrm = {}
-    Flow = {}
-    Rate = {}
-    Headrm[0] = pd.Series(index=network_summary.keys())
-    Headrm[len(pinchClist)+1] = pd.Series(index=network_summary.keys())
+         
     custph = {}
     Customer_Summary["feeder"] = Customer_Summary["Node"].astype(str).str[0]
     cs=[]
@@ -175,78 +172,38 @@ def Headroom_calc(
         for f in range(1, len(pinchClist)+1):
             custph[p][f] = custs[custs["feeder"].astype(int) == f]
             cs.append(str(p)+str(f))
+
+    Txhdrm=pd.Series(index=VoltArray.keys())
+    Headrm = pd.DataFrame(index=VoltArray.keys(), columns=cs)
+    Footrm = pd.DataFrame(index=VoltArray.keys(), columns=cs)
+    Rate = pd.DataFrame(index=VoltArray.keys(), columns=cs)
+    Flag = pd.DataFrame(index=VoltArray.keys(), columns=cs)
     
-    # InputsbyFP = {}
-    # InputsbyFP["SM"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-    # InputsbyFP["HP"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-    # InputsbyFP["PV"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-    # InputsbyFP["demand"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-    # InputsbyFP["demand_delta"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-    # InputsbyFP["pv_delta"] = pd.DataFrame(
-    #     index=network_summary.keys(),
-    #     columns=cs,
-    # )
-
-    for i in network_summary:
-        Headrm[0][i] = network_summary[i]["Trans_kVA"]
-###        Headrm[len(pinchClist)+1][i] = network_summary[i]["Trans_kW"]
-        # for p in range(1, 4):
-        #     for f in range(1, len(pinchClist)+1):
-        #         InputsbyFP["SM"][str(p) + str(f)][i] = np.nan_to_num(smartmeter[i])[
-        #             custph[p][f].index
-        #         ].sum()
-        #         InputsbyFP["HP"][str(p) + str(f)][i] = np.nan_to_num(heatpump[i])[
-        #             custph[p][f].index
-        #         ].sum()
-        #         InputsbyFP["PV"][str(p) + str(f)][i] = np.nan_to_num(pv[i])[
-        #             custph[p][f].index
-        #         ].sum()
-        #         InputsbyFP["demand"][str(p) + str(f)][i] = np.nan_to_num(demand[i])[
-        #             custph[p][f].index
-        #         ].sum()
-        #         InputsbyFP["demand_delta"][str(p) + str(f)][i] = np.nan_to_num(
-        #             demand_delta[i]
-        #         )[custph[p][f].index].sum()
-        #         InputsbyFP["pv_delta"][str(p) + str(f)][i] = np.nan_to_num(pv_delta[i])[
-        #             custph[p][f].index
-        #         ].sum()
-
-    for z in range(1, len(pinchClist)+1):
-        Headrm[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
-        Footrm[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
-        Flow[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
-        Rate[z] = pd.DataFrame(index=network_summary.keys(), columns=[1, 2, 3])
+    for i in sims.tolist():
+        Txhdrm[i] = TransRatekVA+Trans_kVA[i]
+        print('hdrm calc ', i, round(TransRatekVA,1),'tx_flow',round(Trans_kVA[i],1),'tx_hdrm', round(Txhdrm[i],1))
         for p in range(1, 4):
-            for i in network_summary:
-                print('hdrm calc ', i)
-                Flow[z][p][i] = network_summary[i][p]["C_Flow"][z]
-                Rate[z][p][i] = min(network_summary[i][p]["C_Rate"][z],network_summary[i][p]["V_Rate"][z])
-                Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i]
-                Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i]
-                # if (Rate[z][p][i] - 10) <= Flow[z][p][i] <= (Rate[z][p][i] + 10):
-                #     Headrm[z][p][i] = Rate[z][p][i] - Flow[z][p][i] - 5
+            Vseries = pd.Series(VoltArray[i][:, p - 1])
+            for f in range(1, len(pinchClist)+1):
+                C_rate= 0.9*RateArray[pinchClist[f - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
+                if (str(p)+str(f)) in All_VC:
+                    V_rate = All_VC[str(p)+str(f)]
+                else:
+                    V_rate = C_rate
+                Rate[str(p) + str(f)][i] = min(C_rate,V_rate)
+                Headrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  - Flow[str(p) + str(f)][i] 
+                Footrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  + Flow[str(p) + str(f)][i] 
+                if Rate[str(p) + str(f)][i] == C_rate and Headrm[str(p) + str(f)][i]<0:
+                    Flag[str(p) + str(f)][i]='c'
+                if Rate[str(p) + str(f)][i] == V_rate and Headrm[str(p) + str(f)][i]<0:
+                    Flag[str(p) + str(f)][i]='v'
+                Flag[str(p) + str(f)][i]
+        if Txhdrm[i]<0 and sum(Headrm.loc[i]) > Txhdrm[i]:
+            Headrm.loc[i]=Headrm.loc[i]+((Txhdrm[i]-Headrm.loc[i].sum())/len(Headrm.loc[i]))
+            Flag.loc[i]='t'
+            print(sum(Headrm.loc[i]),'Transformer_Constrained')
 
-                # if (-Rate[z][p][i] - 3) <= Flow[z][p][i] <= (-Rate[z][p][i] + 3):
-                #     Footrm[z][p][i] = Rate[z][p][i] + Flow[z][p][i] - 1.5
-                # if Flow[z][p][i] < (-Rate[z][p][i] - 3):
-                #     Footrm[z][p][i] = abs(Rate[z][p][i] + Flow[z][p][i]) ** 0.73 * np.sign(Flow[z][p][i])
-
-    return Headrm, Footrm, Flow, Rate, Customer_Summary, custph
+    return Headrm, Footrm, Txhdrm, Flag
 
 
 ###---------- The secondary headroom, adjustments and per phase headrooms are shown
@@ -456,7 +413,7 @@ def plot_flex(InputsbyFP,pinchClist,colors,k):
 ####-------- Maximum voltage, Minimum Voltage and Current are put in a dataframe (slow again) and plotted.
 
 
-def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pinchClist,colors):
+def calc_current_voltage(CurArray, VoltArray, Coords, Lines, RateArray,pinchClist,colors,sims):
     cs=[]
     for p in range(1, 4):
         for f in range(1, len(pinchClist)+1):
@@ -464,35 +421,35 @@ def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
     pinchVlist=pinchClist.copy()        
     pinchVlist.append(len(RateArray)-1)
     #print(pinchVlist)
-    Vmax = pd.DataFrame(
-        index=CurArray.keys(),
-        columns=cs,
-    )
+#    Vmax = pd.DataFrame(
+#        index=sims.tolist(),
+#        columns=cs,
+#    )
 #    Vpinch = pd.DataFrame(
 #        index=CurArray.keys(),
 #        columns=cs,
 #    )
     Vmin = pd.DataFrame(
-        index=CurArray.keys(),
+        index=sims.tolist(),
         columns=cs,
     )
-    Cmax = pd.DataFrame(
-        index=CurArray.keys(),
-        columns=cs,
-    )
+#    Cmax = pd.DataFrame(
+#        index=CurArray.keys(),
+#        columns=cs,
+#    )
     C_Violations = pd.DataFrame(
-        index=CurArray.keys(),
+        index=sims.tolist(),
         columns=cs,
     )
-    for i in CurArray.keys():
+    for i in sims.tolist():
         print('vmin calc', i)
         for p in range(1, 4):
 
             for f in range(1, len(pinchClist)+1):
-                Cmax[str(p) + str(f)][i] = (
-                np.sign(Flow[f][p][i]) * CurArray[i][pinchClist[f - 1], p - 1]
-                )
-                Vmax[str(p) + str(f)][i] = VoltArray[i][Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,p - 1].max()
+#                Cmax[str(p) + str(f)][i] = (
+#                np.sign(Flow[str(p) + str(f)][i]) * CurArray[i][pinchClist[f - 1], p - 1]
+#                )
+                #Vmax[str(p) + str(f)][i] = VoltArray[i][Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,p - 1].max()
                 Vmin[str(p) + str(f)][i] = VoltArray[i][
                     Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
                     p - 1,
@@ -500,7 +457,7 @@ def calc_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
                 curs=CurArray[i][Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values,p - 1]
                 rates=RateArray[Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values]
                 C_Violations[str(p) + str(f)][i] = sum(curs>rates)
-    return Vmax, Vmin, Cmax, C_Violations
+    return Vmin, C_Violations
 
 def plot_current_voltage(Vmax, Vmin, Cmax,RateArray,pinchClist, colors,N,k):
     # ------- PLot of maximum voltages per phase and feeder

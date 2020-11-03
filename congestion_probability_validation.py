@@ -20,7 +20,7 @@ from datetime import timedelta, date, datetime
 import random
 import pickle
 from Test_Network.network_plot import customer_summary
-from runDSS import runDSS, network_outputs, create_gens
+from runDSS import runDSS, create_gens
 import matplotlib.pyplot as plt
 # from multiprocessing import Pool
 import multiprocessing
@@ -42,9 +42,9 @@ def runvalid(networks,paths,quant,factor):
     ####----------Set Test Network ------------
     start=datetime.now()
     
-    pick_in = open(paths+"All_VC_Limits.pickle", "rb")
-    All_VC = pickle.load(pick_in)
-    
+#    pick_in = open(paths+"All_VC_Limits.pickle", "rb")
+#    All_VC = pickle.load(pick_in)
+#    
     pick_in = open(paths+"Assign_Final.pickle", "rb")
     assign = pickle.load(pick_in)
     
@@ -90,8 +90,6 @@ def runvalid(networks,paths,quant,factor):
             pick_in = open("../Data/SM_byAcorn_NH.pickle", "rb")
             SM_DataFrame = pickle.load(pick_in)
             
-            pick_in = open("../Data/HP_DataFrame_hh_mean.pickle", "rb")
-            HP_DataFrame = pickle.load(pick_in)
             
             pick_in = open("../Data/PV_BySiteName.pickle", "rb")
             PV_DataFrame = pickle.load(pick_in)
@@ -100,7 +98,7 @@ def runvalid(networks,paths,quant,factor):
             # pick_in = open('../Data/'+Network+'EV_Dispatch_OneDay.pickle', "rb")
             # EV_DataFrame = pickle.load(pick_in)
     
-            EVCapacitySummary, EV_DataFrame, V2G_Perc = daily_EVSchedule(Network,paths,quant,factor)
+            EVCapacitySummary, EV_DataFrame, V2G_Perc,timers = daily_EVSchedule(Network,paths,quant,factor)
             
             Y=14
             start_date = d#date(2013, 12, 2)
@@ -109,7 +107,7 @@ def runvalid(networks,paths,quant,factor):
             sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
             
             sims=sims_tenminutes
-            pick_in = open("../Data/HP_DataFrame_10mins.pickle", "rb")
+            pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
             HP_DataFrame = pickle.load(pick_in)
             HP_DataFrame = HP_DataFrame.loc[sims]
             
@@ -164,20 +162,13 @@ def runvalid(networks,paths,quant,factor):
             CurArray = {}
             VoltArray = {}
             PowArray = {}
-            CurArray_new = {}
-            VoltArray_new = {}
-            PowArray_new = {}
-            Trans_kVA_new = {}
             Losses = {}
             Trans_kVA = {}
-            network_summary = {}
-            network_summary_new = {}
+
             
             genres=pd.Series(index=sims.tolist(), dtype=float)
-            genresnew=pd.Series(index=sims.tolist(), dtype=float)
             colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
-            bad_halfhours=[] 
-                
+
             pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
             if Network=='network_10/':
                 pinchClist.remove(34)
@@ -208,12 +199,14 @@ def runvalid(networks,paths,quant,factor):
                         )
                     if Customer_Summary["EV_ID"][z] != 0:
                         ev[i][z] = EV_DataFrame[Customer_Summary["zone"][z]][Customer_Summary["EV_ID"][z]][i]
-                    ev[i] = np.nan_to_num(ev[i])    
-                    demand[i][z] = smartmeter[i][z] + heatpump[i][z] + ev[i][z]
-            
-                ###------ Demand includes Smartmeter and heatpump
+                ev[i] = np.nan_to_num(ev[i])   
                 demand[i] = np.nan_to_num(demand[i])
                 pv[i] = np.nan_to_num(pv[i])
+                
+                demand[i] = smartmeter[i] + heatpump[i] + ev[i]
+            
+                ###------ Demand includes Smartmeter and heatpump
+
             
                 ###---- Load Flow is run and currents, voltages etc are rteurned
                 (
@@ -227,48 +220,21 @@ def runvalid(networks,paths,quant,factor):
                     genres[i],
                     converged
                 ) = runDSS(
-                    Network_Path, demand[i], pv[i]
+                    Network_Path, demand[i], pv[i],ev[i]
                 )
                         
-                ###--- These are converted into headrooms and summarised in network_summary
-                network_summary[i] = network_outputs(
-                    Network,CurArray[i], RateArray, VoltArray[i], PowArray[i], Trans_kVA[i], TransRatekVA, pinchClist,All_VC
-                )
-                
-                if converged==False:   
-                    j=i-timedelta(minutes=10)
-                    bad_halfhours.append(i)
-                    network_summary[i]=network_summary[j]
-                    CurArray[i],VoltArray[i],PowArray[i],Trans_kVA[i] = CurArray[j],VoltArray[j],PowArray[j],Trans_kVA[j]
-                ###---- A new network summary is created to store any adjustments
-                network_summary_new[i] = network_summary[i]
-                genresnew[i]=genres[i]
-                CurArray_new[i], VoltArray_new[i], PowArray_new[i], Trans_kVA_new[i] = CurArray[i], VoltArray[i], PowArray[i], Trans_kVA[i]
-                TransAll[i]=network_summary[i]['Trans_kVA']
-            #####----- Data is converted to DataFrames (Slow process could be removed to speed things up)
-            Headrm, Footrm, Flow, Rate, Customer_Summary, custph, InputsbyFP = Headroom_calc(
-                network_summary,
-                Customer_Summary,
-                smartmeter,
-                heatpump,
-                pv,
-                ev,
-                demand,
-                pinchClist
-            )
-            
-            Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
-            #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors)
-            Vmax,Vmin,Cmax, C_Violations=plot_current_voltage(CurArray,VoltArray,Coords,Lines,Flow,RateArray, pinchClist,colors)
+                TransAll[i]=Trans_kVA[i]
+            Vmax,Vmin, C_Violations=plot_current_voltage(CurArray,VoltArray,Coords,Lines,RateArray, pinchClist,colors)
             #plot_flex(InputsbyFP,pinchClist,colors)
             labels = {"col": "red", "style": "--", "label": "Initial", "TranskVA": TransRatekVA}
             #plot_headroom(Headrm, Footrm, Flow, Rate, labels,pinchClist,InputsbyFP,genres,colors)
+            
             
             if daycount==0:
                 Voltage_data['EV_summary']=pd.DataFrame(columns=days)
                 Voltage_data['EV_summary'][d]=EVCapacitySummary['EV Capacity New']
                 Voltage_data['Vmin']=Vmin
-                Voltage_data['Flow']=Flow
+                #Voltage_data['Flow']=Flow
                 Voltage_data['C_Violations']=C_Violations
                 Voltage_data['Trans_kVA']=TransAll
                 Voltage_data['V2gPerc']=pd.Series(index=days,dtype=float)
@@ -279,8 +245,8 @@ def runvalid(networks,paths,quant,factor):
                 Voltage_data['C_Violations']=Voltage_data['C_Violations'].append(C_Violations)
                 Voltage_data['Trans_kVA']=Voltage_data['Trans_kVA'].append(TransAll)
                 Voltage_data['V2gPerc'][d]=np.mean(V2G_Perc)
-                for f in Flow:
-                    Voltage_data['Flow'][f]=Voltage_data['Flow'][f].append(Flow[f])
+#                for f in Flow:
+#                    Voltage_data['Flow'][f]=Voltage_data['Flow'][f].append(Flow[f])
             
             daycount=daycount+1
         
@@ -293,3 +259,4 @@ def runvalid(networks,paths,quant,factor):
         print(str(len(days))+' Days Validation took '+str(time))
         print('Total Current Violations', Voltage_data['C_Violations'].sum())
         print('Total Low Voltages', (Voltage_data['Vmin']<0.9).sum())
+        return timers

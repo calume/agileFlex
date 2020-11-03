@@ -23,9 +23,9 @@ pd.options.mode.chained_assignment = None
 #def voltage_headroom(Pflow,Vmin):
 
 ## Network 17 done up to 25HP and 30EV
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_18/']
 #networks=['network_17/']
-Cases=['00PV00HP','00PV25HP']#,'25PV50HP']#,'25PV75HP','50PV100HP']
+Cases=['00PV00HP','00PV25HP','25PV50HP']#,'25PV75HP','50PV100HP']
 #Cases=['25PV75HP','50PV100HP']
 EVPens=[10,20,30,40]
 
@@ -80,7 +80,7 @@ for N in networks:
             ChighPerc[N][C][E]=round((V_data['C_Violations']>0).sum()/len(V_data['C_Violations'].index)*100,2) 
             oks[N][C][E]=ChighPerc[N][C][E]
             for k in VlowPerc[N][C][E].index:
-                oks[N][C][E][k]=(VlowPerc[N][C][E][k]==0) and (TransPerc[N][C]['All'][E]==0) and (ChighPerc[N][C][E][k]==0)
+                oks[N][C][E][k]=(VlowPerc[N][C][E][k]==0) and (TransPerc[N][C]['All'][E]<=0.1) and (ChighPerc[N][C][E][k]<0.5)
             maxi[N][C]=VlowPerc[N][C][10]
         for k in VlowPerc[N][C].index:
             if len(oks[N][C].loc[k][oks[N][C].loc[k]==True])>0:

@@ -27,8 +27,7 @@ Y=14
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
 All_VC_Limits={}
 #for Y in [14,15]:
-pick_in = open("../Data/All_VC_Limits.pickle", "rb")
-All_VC = pickle.load(pick_in)
+
 VlowPerc={}
 ChighPerc={}
 Y=14
@@ -45,53 +44,54 @@ transmax={}
 TransPerc={}
 TransCusts=pd.Series(index=networks)
 times2 = ["00:00", "06:00", "12:00", "18:00"]
+paths="../Data/Upper/"
+
 for N in networks:
+    pick_in = open(paths+N+"All_VC_Limits.pickle", "rb")
+    All_VC = pickle.load(pick_in)
+    
     AllVmin=pd.DataFrame()
     VlowPerc[N]=pd.DataFrame()
     ChighPerc[N]=pd.DataFrame()
     TransPerc[N]=pd.Series(dtype=float)
     AllPflow=pd.DataFrame()
+    
     for C in Cases:
+
+        pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_Trans_kVA.pickle", "rb")
+        TransKVA = pickle.load(pick_in)
+        
+        pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_TransRatekVA.pickle", "rb")
+        TransRateKVA = pickle.load(pick_in)
+        
+        TransKVA_S=pd.Series(index=TransKVA.keys())
+        for i in TransKVA.keys():
+            TransKVA_S[i]=TransKVA[i]
+            
         pick_in = open("../Data/"+N+"Customer_Summary"+C+str(Y)+".pickle", "rb")
         Customer_Summary= pickle.load(pick_in)   
         TransCusts[N]=len(Customer_Summary)
-        pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
-        #pick_in = open("../Data/"+N+"validation/Winter"+str(Y)+"_V_Data.pickle", "rb")
-        V_data = pickle.load(pick_in)
+        
+        pick_in = open("../Data/"+N+C+"_C_Violations.pickle", "rb")
+        C_Violations = pickle.load(pick_in)
+        
+        pick_in = open("../Data/"+N+C+"_Vmin_DF.pickle", "rb")
+        V_min = pickle.load(pick_in)
+        
+        pick_in = open("../Data/"+N+C+"_PFlow_DF.pickle", "rb")
+        Flow = pickle.load(pick_in)
 
         VlowPerc[N]['nCusts']=0
-        for k in V_data['Vmin'].columns:
+        for k in V_min.columns:
             VlowPerc[N]['nCusts'][k]=len(Customer_Summary[Customer_Summary['zone']==k])
             if k[1]=='1':
-                V_data['C_Violations'][k]=0
+                C_Violations[k]=0
         ##### Count Vmins < 0.9 and 0.94 ################
-        VlowPerc[N][C]=round((V_data['Vmin']<0.9).sum()/len(V_data['Vmin'].index)*100,2)   
-        TransPerc[N][C]=round((abs(V_data['Trans_kVA'])>800).sum()/len(V_data['Trans_kVA'].index)*100,2)   
-        #ChighPerc[N][C]=round(V_data['C_Violations'].sum()/len(V_data['C_Violations']),2) 
-        ChighPerc[N][C]=round((V_data['C_Violations']>0).sum()/len(V_data['C_Violations'].index)*100,2) 
+        VlowPerc[N][C]=round((V_min<0.9).sum()/len(V_min.index)*100,2)   
+        TransPerc[N][C]=round((abs(TransKVA_S)>TransRateKVA).sum()/len(TransKVA_S.index)*100,2)   
+        #ChighPerc[N][C]=round(C_Violations.sum()/len(C_Violations),2) 
+        ChighPerc[N][C]=round((C_Violations>0).sum()/len(C_Violations.index)*100,2) 
 
-        cs=[]
-        for p in range(1, 4):
-            for f in range(1, len(V_data['Flow'].keys())+1):
-                cs.append(str(p)+str(f))         
-        Pflow = pd.DataFrame(index=V_data['Vmin'].index,columns=cs)  
-        for p in range(1,4):
-            for f in range(1, len(V_data['Flow'].keys())+1):
-                Pflow[str(p)+str(f)]=V_data['Flow'][f][p]
-    
-        AllVmin=AllVmin.append(V_data['Vmin'])
-        AllPflow=AllPflow.append(Pflow)
-            
-        trues=round(AllPflow.sum(),3)>0
-        trues=trues[trues].index
-         
-        VC_Fits=pd.DataFrame(columns=['m','c'], index=trues)
-        VC_Limit=pd.Series(index=trues, dtype=float)
-        
-        C=np.arange(0,100,step=10)
-            
-        #######only include with Data
-        #plt.figure()
     o=0
     
     for h in VlowPerc[N].columns[1:]:
@@ -227,18 +227,21 @@ pickle_out.close()
 plt.figure()
 u=0
 for N in networks:
-     pick_in = open("../Data/"+N+"50PV100HPWinter"+str(Y)+"_V_Data.pickle", "rb")
-     V_data = pickle.load(pick_in)
+    pick_in = open("../Data/Raw/"+N[:-1]+"_50PV100HP_Trans_kVA.pickle", "rb")
+    TransKVA = pickle.load(pick_in)
+    TransKVA_S=pd.Series(index=TransKVA.keys())
+    for i in TransKVA.keys():
+        TransKVA_S[i]=TransKVA[i]
 
-     transmax[N]=[]
-     for n in range(0,24):
-         # transmins.append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].min())
-         # transmedian.append(np.quantile(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n],0.5))
-         transmax[N].append(abs(V_data['Trans_kVA']).loc[V_data['Trans_kVA'].index.hour==n].max())
+    transmax[N]=[]
+    for n in range(0,24):
+         # transmins.append(TransKVA_S.loc[TransKVA_S.index.hour==n].min())
+         # transmedian.append(np.quantile(TransKVA_S.loc[TransKVA_S.index.hour==n],0.5))
+        transmax[N].append(abs(TransKVA_S).loc[TransKVA_S.index.hour==n].max())
     
-     plt.plot(transmax[N],label=N[:-1],color=cols[u],linestyle=style[u])
-     u=u+1
-plt.plot(np.full(24,800), label='Tx Rating (kVA)',color='black',linewidth=0.5,linestyle=':')
+    plt.plot(transmax[N],label=N[:-1],color=cols[u],linestyle=style[u])
+    u=u+1
+#plt.plot(np.full(24,800), label='Tx Rating (kVA)',color='black',linewidth=0.5,linestyle=':')
 plt.ylabel('Max Transformer Power Flow (kVA)')
 plt.legend(fontsize=9,)
 plt.grid(linewidth=0.2)

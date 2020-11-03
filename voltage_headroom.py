@@ -34,8 +34,18 @@ def Vheaders():
             pickle.dump(All_header_V, pickle_out)
             pickle_out.close()   
 
+    VsMins=pd.DataFrame(index=Cases,columns=range(1,4))
+    VsMax=pd.DataFrame(index=Cases,columns=range(1,4))
+    for N in networks:
+        for C in Cases:
+            pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_headerV_DF.pickle", "rb")
+            V_raws = pickle.load(pick_in)
+            VsMins.loc[C]=V_raws.min()
+            VsMax.loc[C]=V_raws.max()
+
+
 def voltage_limits(networks,Cases,paths):
-    Y=14
+
     All_VC_Limits={}
     
     for N in networks:
@@ -43,21 +53,15 @@ def voltage_limits(networks,Cases,paths):
         AllPflow=pd.DataFrame()
     
         for C in Cases:
-            pick_in = open("../Data/"+N+C+"Winter"+str(Y)+"_V_Data.pickle", "rb")
-            V_data = pickle.load(pick_in)
-        
+            pick_in = open("../Data/"+N+C+"_Vmin_DF.pickle", "rb")
+            V_min = pickle.load(pick_in)
+
+            pick_in = open("../Data/"+N+C+"_PFlow_DF.pickle", "rb")
+            Pflow = pickle.load(pick_in)
 #            pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_headerV_DF.pickle", "rb")
-#            V_headers = pickle.load(pick_in)
-            cs=[]
-            for p in range(1, 4):
-                for f in range(1, len(V_data['Flow'].keys())+1):
-                    cs.append(str(p)+str(f))         
-            Pflow = pd.DataFrame(index=V_data['Vmin'].index,columns=cs)  
-            for p in range(1,4):
-                for f in range(1, len(V_data['Flow'].keys())+1):
-                    Pflow[str(p)+str(f)]=V_data['Flow'][f][p]#*V_headers[p]
-    
-            AllVmin=AllVmin.append(V_data['Vmin'])
+#            V_headers = pickle.load(pick_in)       
+                    
+            AllVmin=AllVmin.append(V_min)
             AllPflow=AllPflow.append(Pflow)
                 
             trues=round(AllPflow.sum(),3)>0
@@ -69,7 +73,7 @@ def voltage_limits(networks,Cases,paths):
             C=np.arange(0,100,step=10)
                 
             #######only include with Data
-            #plt.figure()
+            ##plt.figure()
         for i in trues:#V_data['Pflow'].columns:
             x=AllPflow[i].astype(float).values
             y=AllVmin[i].astype(float).values
@@ -105,13 +109,14 @@ def voltage_limits(networks,Cases,paths):
             plt.xlabel('Supply cable power flow (kVA)',fontsize=11)
             plt.ylabel('Min Voltage (Amps)',fontsize=11)
             plt.ylim(0.88,1)
+            plt.xlim(0,80)
         All_VC_Limits[N]=VC_Limit
         
         """ Note on Vlimits"""
         """ Say 2% drop acceptable, that is 383.2V which is 0.921 p.u."""
         """ Minimum for UK appliances is 216.2 V P-N, which is 374.47 V P-P and 0.9 p.u (for 416 V base)"""
         
-    #    pickle_out = open(paths+"All_VC_Limits.pickle", "wb")
-    #    pickle.dump(All_VC_Limits, pickle_out)
-    #    pickle_out.close()   
+        pickle_out = open(paths+N+"All_VC_Limits.pickle", "wb")
+        pickle.dump(All_VC_Limits, pickle_out)
+        pickle_out.close()   
         

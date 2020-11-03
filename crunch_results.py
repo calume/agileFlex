@@ -151,7 +151,6 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors)
 
 #######----------- This function returns Dataframes for plotting results
 def Headroom_calc(
-    network_summary,
     Customer_Summary,
     smartmeter,
     heatpump,
@@ -403,7 +402,7 @@ def plot_flex(InputsbyFP,pinchClist,colors):
 ####-------- Maximum voltage, Minimum Voltage and Current are put in a dataframe (slow again) and plotted.
 
 
-def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pinchClist,colors):
+def plot_current_voltage(CurArray, VoltArray, Coords, Lines, RateArray,pinchClist,colors):
     cs=[]
     for p in range(1, 4):
         for f in range(1, len(pinchClist)+1):
@@ -415,18 +414,12 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         index=CurArray.keys(),
         columns=cs,
     )
-#    Vpinch = pd.DataFrame(
-#        index=CurArray.keys(),
-#        columns=cs,
-#    )
+
     Vmin = pd.DataFrame(
         index=CurArray.keys(),
         columns=cs,
     )
-    Cmax = pd.DataFrame(
-        index=CurArray.keys(),
-        columns=cs,
-    )
+
     C_Violations = pd.DataFrame(
         index=CurArray.keys(),
         columns=cs,
@@ -435,14 +428,8 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         for p in range(1, 4):
 
             for f in range(1, len(pinchClist)+1):
-                Cmax[str(p) + str(f)][i] = (
-                np.sign(Flow[f][p][i]) * CurArray[i][pinchClist[f - 1], p - 1]
-                )
                 Vmax[str(p) + str(f)][i] = VoltArray[i][Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,p - 1].max()
-                Vmin[str(p) + str(f)][i] = VoltArray[i][
-                    Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,
-                    p - 1,
-                ].min()
+                Vmin[str(p) + str(f)][i] = VoltArray[i][Coords.index[Coords["Node"].astype(str).str[0] == str(f)].values,p - 1].min()
                 curs=CurArray[i][Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values,p - 1]
                 rates=RateArray[Lines.index[Lines["Bus2"].astype(str).str[5] == str(f)].values]
                 C_Violations[str(p) + str(f)][i] = sum(curs>rates)
@@ -470,14 +457,14 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         plt.title("Phase " + str(p))
         plt.ylabel("Max Voltage (p.u.)")
 
-        plt.xlim([0, len(Cmax)])
+#        plt.xlim([0, len(Cmax)])
         plt.ylim([0.9, 1.15])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(
-            range(0, len(Cmax), 24),
-            Cmax.index.strftime("%d/%m %H:%M")[range(0, len(Cmax), 24)],
+            range(0, len(Vmax), 24),
+            Vmax.index.strftime("%d/%m %H:%M")[range(0, len(Vmax), 24)],
         )
     plt.legend()
     plt.tight_layout()
@@ -498,56 +485,56 @@ def plot_current_voltage(CurArray, VoltArray, Coords, Lines, Flow, RateArray,pin
         plt.title("Phase " + str(p))
         plt.ylabel("Min Voltage (p.u.)")
 
-        plt.xlim([0, len(Cmax)])
+        plt.xlim([0, len(Vmax)])
         plt.ylim([0.85, 1.05])
 
         plt.xticks(fontsize=8)
         plt.yticks(fontsize=8)
         plt.xticks(
-            range(0, len(Cmax), 24),
-            Cmax.index.strftime("%d/%m %H:%M")[range(0, len(Cmax), 24)],
+            range(0, len(Vmax), 24),
+            Vmax.index.strftime("%d/%m %H:%M")[range(0, len(Vmax), 24)],
         )
     plt.legend()
     plt.tight_layout()
 
     # ------- PLot of Current in supply branch per phase and feeder
-    plt.figure()
-    for p in range(1, 4):
-        plt.subplot(310 + p)
-        for f in range(1, len(pinchClist)+1):
-            plt.plot(
-                Cmax[str(p) + str(f)].values,
-                linewidth=1,
-                linestyle="-",
-                label="Feeder " + str(f),
-                color=colors[f - 1]
-            )
-            plt.plot(
-                np.full(len(Cmax), RateArray[pinchClist[f - 1]]),
-                color="red",
-                linestyle="--",
-                linewidth=0.5,
-            )
-            plt.plot(
-                np.full(len(Cmax), -RateArray[pinchClist[f - 1]]),
-                color="red",
-                linestyle="--",
-                linewidth=0.5,
-            )
-        plt.title("Phase " + str(p))
-        plt.ylabel("Current (Amps)")
+#    plt.figure()
+#    for p in range(1, 4):
+#        plt.subplot(310 + p)
+#        for f in range(1, len(pinchClist)+1):
+#            plt.plot(
+#                Cmax[str(p) + str(f)].values,
+#                linewidth=1,
+#                linestyle="-",
+#                label="Feeder " + str(f),
+#                color=colors[f - 1]
+#            )
+#            plt.plot(
+#                np.full(len(Cmax), RateArray[pinchClist[f - 1]]),
+#                color="red",
+#                linestyle="--",
+#                linewidth=0.5,
+#            )
+#            plt.plot(
+#                np.full(len(Cmax), -RateArray[pinchClist[f - 1]]),
+#                color="red",
+#                linestyle="--",
+#                linewidth=0.5,
+#            )
+#        plt.title("Phase " + str(p))
+#        plt.ylabel("Current (Amps)")
+#
+#        plt.xlim([0, len(Cmax)])
+#        plt.ylim([-500, 500])
+#
+#        plt.xticks(fontsize=8)
+#        plt.yticks(fontsize=8)
+#        plt.xticks(
+#            range(0, len(Cmax), 24),
+#            Cmax.index.strftime("%d/%m %H:%M")[range(0, len(Cmax), 24)],
+#        )
+#    plt.legend()
+#    plt.tight_layout()
 
-        plt.xlim([0, len(Cmax)])
-        plt.ylim([-500, 500])
-
-        plt.xticks(fontsize=8)
-        plt.yticks(fontsize=8)
-        plt.xticks(
-            range(0, len(Cmax), 24),
-            Cmax.index.strftime("%d/%m %H:%M")[range(0, len(Cmax), 24)],
-        )
-    plt.legend()
-    plt.tight_layout()
-
-    return Vmax, Vmin, Cmax, C_Violations
+    return Vmax, Vmin, C_Violations
 

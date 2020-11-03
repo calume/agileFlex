@@ -46,8 +46,8 @@ def PVLoad():
     # Site_Names = list(PVAll["Substation"].unique())
     Site_Names = [
         "Alverston Close",
-        #"Forest Road",
-        #"Suffolk Road",
+        "Forest Road",
+        "Suffolk Road",
         "Bancroft Close",
         "Maple Drive East",
         "YMCA",
@@ -80,8 +80,8 @@ def PVLoad():
         PVOutput_BySiteName[item] = PVOutput_BySiteName[item].fillna(0)
         PV = PV.append(PVOutput_BySiteName[item]["P_Norm"])
         
-        PVOutput_BySiteName[item]=PVOutput_BySiteName[item].reindex(dt)
-    pickle_out = open("../../Data/PV_BySiteName.pickle", "wb")
+        #PVOutput_BySiteName[item]=PVOutput_BySiteName[item].reindex(dt)
+    pickle_out = open("../../Data/PV_BySiteName_All.pickle", "wb")
     pickle.dump(PVOutput_BySiteName, pickle_out)
     
     # ------------------------ Normalise PV Data by capacity---------------------#
@@ -296,4 +296,4 @@ def PV_Visualisation(NewdistsBySite):
 
 ## ----------to run the functions--------------
 PVOutput_BySiteName,PVS,NewdistsBySite=PVLoad()
-qrts, NewDists, PVOutput_BySiteName=PV_Visualisation(NewdistsBySite)
+#qrts, NewDists, PVOutput_BySiteName=PV_Visualisation(NewdistsBySite)
