@@ -133,8 +133,7 @@ def runDSS(Network_Path, demand, pv,ev):
             np.sign(pows[0]) * (pows[0] ** 2 + pows[1] ** 2) ** 0.5,
             np.sign(pows[2]) * (pows[2] ** 2 + pows[3] ** 2) ** 0.5,
             np.sign(pows[4]) * (pows[4] ** 2 + pows[5] ** 2) ** 0.5,
-        )
-        
+        )      
        
         Rates[i_Line] = dss.CktElement.NormalAmps()
         i_Line = DSSLines.Next()

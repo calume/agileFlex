@@ -353,7 +353,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                                 Flow[str(p) + str(f)][i] = Pseries[pinchClist[f - 1]]
                     
                     
-                    Vmax,Vmin,C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines, RateArray, pinchClist,colors,sims)
+                    Vmin,C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines, RateArray, pinchClist,colors,sims)
                     
                     
                     pickle_out = open("../Data/"+N+C+"_C_Violations.pickle", "wb")
@@ -380,7 +380,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                     Headrm, Footrm, Txhdrm, Flag = Headroom_calc(
                         RateArray,
                         VoltArray,
-                        All_VC,
+                        All_VC[N],
                         Flow,
                         Trans_kVA,
                         Customer_Summary,

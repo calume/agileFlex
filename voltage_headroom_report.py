@@ -78,8 +78,6 @@ for N in networks:
         pick_in = open("../Data/"+N+C+"_Vmin_DF.pickle", "rb")
         V_min = pickle.load(pick_in)
         
-        pick_in = open("../Data/"+N+C+"_PFlow_DF.pickle", "rb")
-        Flow = pickle.load(pick_in)
 
         VlowPerc[N]['nCusts']=0
         for k in V_min.columns:
@@ -89,7 +87,6 @@ for N in networks:
         ##### Count Vmins < 0.9 and 0.94 ################
         VlowPerc[N][C]=round((V_min<0.9).sum()/len(V_min.index)*100,2)   
         TransPerc[N][C]=round((abs(TransKVA_S)>TransRateKVA).sum()/len(TransKVA_S.index)*100,2)   
-        #ChighPerc[N][C]=round(C_Violations.sum()/len(C_Violations),2) 
         ChighPerc[N][C]=round((C_Violations>0).sum()/len(C_Violations.index)*100,2) 
 
     o=0
@@ -110,10 +107,10 @@ for N in networks:
 
 plt.grid(linewidth=0.2)
 custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 10',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 5',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 18',linestyle = 'None'),
-        Line2D([0],[0], marker='o', color="#d62728",fillstyle='none', label='Network 17',linestyle = 'None')]
+        Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 5',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 10',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 17',linestyle = 'None'),
+        Line2D([0],[0], marker='o', color="#d62728",fillstyle='none', label='Network 18',linestyle = 'None')]
     
 leg2=plt.legend(handles=custom,loc=6,fontsize=12)
 plt.gca().add_artist(leg2)

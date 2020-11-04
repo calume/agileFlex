@@ -173,11 +173,11 @@ def Headroom_calc(
             custph[p][f] = custs[custs["feeder"].astype(int) == f]
             cs.append(str(p)+str(f))
 
-    Txhdrm=pd.Series(index=VoltArray.keys())
-    Headrm = pd.DataFrame(index=VoltArray.keys(), columns=cs)
-    Footrm = pd.DataFrame(index=VoltArray.keys(), columns=cs)
-    Rate = pd.DataFrame(index=VoltArray.keys(), columns=cs)
-    Flag = pd.DataFrame(index=VoltArray.keys(), columns=cs)
+    Txhdrm=pd.Series(index=sims.tolist())
+    Headrm = pd.DataFrame(index=sims.tolist(), columns=cs)
+    Footrm = pd.DataFrame(index=sims.tolist(), columns=cs)
+    Rate = pd.DataFrame(index=sims.tolist(), columns=cs)
+    Flag = pd.DataFrame(index=sims.tolist(), columns=cs)
     
     for i in sims.tolist():
         Txhdrm[i] = TransRatekVA+Trans_kVA[i]
@@ -198,7 +198,7 @@ def Headroom_calc(
                 if Rate[str(p) + str(f)][i] == V_rate and Headrm[str(p) + str(f)][i]<0:
                     Flag[str(p) + str(f)][i]='v'
                 Flag[str(p) + str(f)][i]
-        if Txhdrm[i]<0 and sum(Headrm.loc[i]) > Txhdrm[i]:
+        if sum(Headrm.loc[i]) > Txhdrm[i]:
             Headrm.loc[i]=Headrm.loc[i]+((Txhdrm[i]-Headrm.loc[i].sum())/len(Headrm.loc[i]))
             Flag.loc[i]='t'
             print(sum(Headrm.loc[i]),'Transformer_Constrained')

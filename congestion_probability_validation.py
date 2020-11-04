@@ -259,4 +259,4 @@ def runvalid(networks,paths,quant,factor):
         print(str(len(days))+' Days Validation took '+str(time))
         print('Total Current Violations', Voltage_data['C_Violations'].sum())
         print('Total Low Voltages', (Voltage_data['Vmin']<0.9).sum())
-        return timers
+    return timers

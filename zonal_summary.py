@@ -124,6 +124,46 @@ def EVRealiser(networks,paths,quant,factor):
         ###------------Update Assign Dataframe with 10x solvable nEVs -once only-----------######
         
         nEVs_Realised[Network]=nEVs_All[Network]
+#        
+#        allhdrms=pd.DataFrame(columns=nEVs_All[Network].index)
+#        
+#        ###TX Headroom
+#        
+#        pick_in = open(paths+"nHPs_final.pickle", "rb")
+#        nHPs = pickle.load(pick_in)  
+#        
+#        nHPs=nHPs[Network].sum()/len(Customer_summary)*100
+#        C=pd.Series(['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP'])
+#        C_Overall=C[C.str[4:-2].astype(float)>(nHPs-2)].iloc[0]
+#        pick_in = open(paths+Network+C_Overall+"_TxHdrm.pickle", "rb")
+#        TxHdrm= pickle.load(pick_in)
+#
+#        winter_dates = TxHdrm.index[:-1]
+#        DailyTx={}
+#        tsamp=144
+#        dailyrange = range(0, len(winter_dates), tsamp)
+#        DailyTx = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
+#            
+#        for d in DailyTx.index:
+#            mask = (TxHdrm.index >= d) & (TxHdrm.index < (d + timedelta(days=1)))
+#            DailyTx.loc[d] = TxHdrm.loc[mask].values  
+#        
+#        Txmin=DailyTx.min()
+#        
+#        for i in nEVs_All[Network].index:
+#            Case=assign[Network][i]
+#            pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
+#            hdrm= pickle.load(pick_in)            
+#            allhdrms[i]=hdrm[i].quantile(0.02)
+#        
+#        Zonesum=allhdrms.sum()
+#        
+#        for i in Txmin:
+#            
+#        
+#        pickle_out = open(paths+"AllHdrms_Assigned.pickle", "wb")
+#        pickle.dump(allhdrms, pickle_out)
+#        pickle_out.close()     
         
         for i in nEVs_All[Network].index:
             Case=assign[Network][i]

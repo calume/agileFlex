@@ -107,25 +107,22 @@ def percentiles(Case,Network,paths):
     winter_dates = Headrm_DF.index[:-1]
 
     DailyDelta={}
-    DailyDeltaPercentiles = {}
     
     ########-------------- Daily Headroom irrespective of weekday/weekend -------###############
     for c in Headrm_DF.columns:
         print(c)
-        DailyDeltaPercentiles[c]={}
         dailyrange = range(0, len(winter_dates), tsamp)
         DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
         for d in DailyDelta[c].index:
             mask = (Headrm_DF[c].index >= d) & (Headrm_DF[c].index < (d + timedelta(days=1)))
             DailyDelta[c].loc[d] = Headrm_DF[c].loc[mask].values
-        
+  
     pickle_out = open(paths+Network+Case+"_WinterHdrm_All.pickle", "wb")
     pickle.dump(DailyDelta, pickle_out)
     pickle_out.close()
     
     for c in Footrm_DF.columns:
         print(c)
-        DailyDeltaPercentiles[c]={}
         dailyrange = range(0, len(winter_dates), tsamp)
         DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
         for d in DailyDelta[c].index:
@@ -294,7 +291,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     ###### ------------------ Create Daily Headroom Profiles -------------
         for C in Cases:
             print(N, C)
-            ##DailyDelta=percentiles(C,N,paths)
+            DailyDelta=percentiles(C,N,paths)
             q=q+1
     
     
@@ -358,7 +355,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
         
         q=0
         for C in Cases:
-            headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
+            ##headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
             q=q+1
     
         assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
@@ -401,19 +398,19 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
             Case=assign[N][k]
             nEVs_Final[N][k]=nEVs[N][Case][k]
             nHPs_Final[N][k]=HPSum[N][Case][k]
-#    nEVs_Final['network_17/']['27']=0
-#    nEVs_Final['network_5/']['13']=0
-#    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
-#    pickle.dump(nEVs_Final, pickle_out)
-#    pickle_out.close()
-#    
-#    pickle_out = open(paths+"nHPs_final.pickle", "wb")
-#    pickle.dump(nHPs_Final, pickle_out)
-#    pickle_out.close()
-#        
-#    pickle_out = open(paths+"Assign_Final.pickle", "wb")
-#    pickle.dump(assign, pickle_out)
-#    pickle_out.close()
+    nEVs_Final['network_17/']['27']=0
+    nEVs_Final['network_5/']['13']=0
+    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
+    pickle.dump(nEVs_Final, pickle_out)
+    pickle_out.close()
+    
+    pickle_out = open(paths+"nHPs_final.pickle", "wb")
+    pickle.dump(nHPs_Final, pickle_out)
+    pickle_out.close()
+        
+    pickle_out = open(paths+"Assign_Final.pickle", "wb")
+    pickle.dump(assign, pickle_out)
+    pickle_out.close()
 #    
     
     print('---------------Number of EVs----------------------')
