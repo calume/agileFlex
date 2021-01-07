@@ -37,9 +37,9 @@ from itertools import cycle, islice
 from openpyxl import load_workbook
 #from voltage_headroom import voltage_headroom
 
-networks=['network_1/','network_5/','network_10/','network_18/']#,'network_18/']
-Cases=['00PV00HP','00PV25HP','25PV50HP']#,'25PV75HP','50PV100HP']
-EVPens=[10,20,30,40,50]
+networks=['network_10/']#,'network_5/','network_10/','network_18/']#,'network_18/']
+Cases=['25PV75HP','50PV100HP']
+EVPens=[80,100]
 paths="../Data/Dumb/"
 
 
@@ -329,7 +329,7 @@ def runbatch(networks,Cases,PrePost,paths,EVPens):
                     pickle_out.close()     
 
                 if PrePost=='Pre':
-                    #evdailys,ev,evflags,Custmer_Summary=raw_input_data()
+                    raw_input_data()
                     Customer_Summary=raw_input_data()
                     do_loadflows(sims,Customer_Summary)
                 if PrePost=='Post':

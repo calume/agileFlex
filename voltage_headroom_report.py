@@ -244,31 +244,3 @@ plt.legend(fontsize=9,)
 plt.grid(linewidth=0.2)
 plt.xlim([0, 23])
 plt.xticks(range(0,24,6),times2)
-
-# plt.figure()
-
-# c=0
-# for N in networks:
-#     o=0
-#     for C in Cases:
-#         if N!='network_17/':
-#             plt.plot(TransCusts[N],TransPerc[N][C], marker=mk[o], fillstyle=fills[c], color=cols[c],linestyle = 'None')
-#             o=o+1
-#         if N =='network_17/':
-#             plt.plot(TransCusts[N],TransPerc[N][C], marker=mk[o], fillstyle=fills[c], color=cols[c],label=times[o],linestyle = 'None')
-#             o=o+1
-#     c=c+1
-
-# plt.grid(linewidth=0.2)
-# custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
-#         Line2D([0],[0], marker='o', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 10',linestyle = 'None'),
-#         Line2D([0],[0], marker='o', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 5',linestyle = 'None'),
-#         Line2D([0],[0], marker='o', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 18',linestyle = 'None'),
-#         Line2D([0],[0], marker='o', color="#d62728",fillstyle='none', label='Network 17',linestyle = 'None')]
-# leg2=plt.legend(handles=custom,loc=10,fontsize=9)
-# plt.gca().add_artist(leg2)
-# plt.legend(fontsize=9)
-# plt.xscale('log')
-# #plt.yscale('log')
-# plt.xlabel('Number of Customers (log scale)',fontsize=10)
-# plt.ylabel('% of timesteps with Tx thermal violations',fontsize=10)

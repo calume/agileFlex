@@ -88,10 +88,10 @@ def voltage_limits(networks,Cases,paths):
             norm = Normalize(vmin = np.min(z), vmax = np.max(z))
             cbar = plt.colorbar(cm.ScalarMappable(norm = norm))
             cbar.ax.set_ylabel('Density')
-    
+#    
             VC_Fits.loc[i]['m'],VC_Fits.loc[i]['c']=np.polyfit(x,y,1)
-            plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
-            V_lim_u=0.94
+#            plt.plot(C,C*VC_Fits.loc[i]['m']+VC_Fits.loc[i]['c'], linewidth=0.5)
+            V_lim_u=0.9
             VC_Limit[i]=(V_lim_u-VC_Fits.loc[i]['c'])/VC_Fits.loc[i]['m']
             if y.min() >V_lim_u:
                 VC_Limit[i]=max(VC_Limit[i]*0.6,x.max())
@@ -109,7 +109,7 @@ def voltage_limits(networks,Cases,paths):
             plt.xlabel('Supply cable power flow (kVA)',fontsize=11)
             plt.ylabel('Min Voltage (Amps)',fontsize=11)
             plt.ylim(0.88,1)
-            plt.xlim(0,80)
+            plt.xlim(0,120)
         All_VC_Limits[N]=VC_Limit
         
         """ Note on Vlimits"""

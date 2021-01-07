@@ -23,19 +23,17 @@ pd.options.mode.chained_assignment = None
 #def voltage_headroom(Pflow,Vmin):
 
 ## Network 17 done up to 25HP and 30EV
-networks=['network_1/','network_5/','network_10/','network_18/']
+networks=['network_10/']#,'network_5/','network_10/','network_18/']
 #networks=['network_17/']
-Cases=['00PV00HP','00PV25HP','25PV50HP']#,'25PV75HP','50PV100HP']
+Cases=['25PV75HP','50PV100HP']
 #Cases=['25PV75HP','50PV100HP']
-EVPens=[10,20,30,40]
+EVPens=[80,100]
 
 #networks=['network_18/']#,'network_5/','network_10/','network_17/','network_18/']
 Y=14
 #Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']#,'25PV25HP','50PV50HP','75PV75HP','100PV100HP']
-All_VC_Limits={}
-#for Y in [14,15]:
-pick_in = open("../Data/All_VC_Limits.pickle", "rb")
-All_VC = pickle.load(pick_in)
+
+
 VlowPerc={}
 ChighPerc={}
 TransPerc={}
@@ -55,6 +53,8 @@ maxEVs=pd.DataFrame(index=Cases, columns=networks)
 maxi={}
 ncusts=pd.Series(index=networks)
 for N in networks:
+    pick_in = open("../Data/DumbRaw/"+N[:-1]+'_00PV00HPEV10_TransRatekVA.pickle', "rb")
+    TransRateKVA = pickle.load(pick_in)   
     o=0
     oks[N]={}
     VlowPerc[N]={}
@@ -72,16 +72,27 @@ for N in networks:
         Customer_Summary= pickle.load(pick_in)  
         ncusts[N]=len(Customer_Summary)
         for E in EVPens:
-            pick_in = open("../Data/Dumb/"+N+C+'EV'+str(E)+"Winter"+str(Y)+"_V_Data.pickle", "rb")
-            V_data = pickle.load(pick_in)
+            pick_in = open("../Data/Dumb/"+N+C+'EV'+str(E)+"_Vmin_DF.pickle", "rb")
+            Vmin = pickle.load(pick_in)
+            
+            pick_in = open("../Data/Dumb/"+N+C+'EV'+str(E)+"_C_Violations.pickle", "rb")
+            C_Violations = pickle.load(pick_in)
+            
+            pick_in = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_Trans_kVA.pickle", "rb")
+            TransKVA = pickle.load(pick_in)
+            
+            TransKVA_S=pd.Series(index=TransKVA.keys())
+            for i in TransKVA.keys():
+                TransKVA_S[i]=-TransKVA[i]
+                
             ##### Count Vmins < 0.9 and 0.94 ################
-            VlowPerc[N][C][E]=round((V_data['Vmin']<0.9).sum()/len(V_data['Vmin'].index)*100,2)   
-            TransPerc[N][C]['All'][E]=round((abs(V_data['Trans_kVA'])>800).sum()/len(V_data['Trans_kVA'].index)*100,2)   
-            ChighPerc[N][C][E]=round((V_data['C_Violations']>0).sum()/len(V_data['C_Violations'].index)*100,2) 
+            VlowPerc[N][C][E]=round((Vmin<0.9).sum()/len(Vmin.index)*100,2)   
+            TransPerc[N][C]['All'][E]=round((abs(TransKVA_S)>TransRateKVA).sum()/len(TransKVA_S.index)*100,2)   
+            ChighPerc[N][C][E]=round((C_Violations>0).sum()/len(C_Violations.index)*100,2) 
             oks[N][C][E]=ChighPerc[N][C][E]
             for k in VlowPerc[N][C][E].index:
                 oks[N][C][E][k]=(VlowPerc[N][C][E][k]==0) and (TransPerc[N][C]['All'][E]<=0.1) and (ChighPerc[N][C][E][k]<0.5)
-            maxi[N][C]=VlowPerc[N][C][10]
+            maxi[N][C]=VlowPerc[N][C][80]
         for k in VlowPerc[N][C].index:
             if len(oks[N][C].loc[k][oks[N][C].loc[k]==True])>0:
                 maxi[N][C][k]=oks[N][C].loc[k][oks[N][C].loc[k]==True][-1:].index[0]
@@ -107,7 +118,7 @@ for N in networks:
         pick_in = open("../Data/"+N+"Customer_Summary00PV00HP14.pickle", "rb")
         Customer_Summary= pickle.load(pick_in) 
         zcusts[h]=len(Customer_Summary[Customer_Summary['zone']==h])
-        plt.plot(zcusts[h],VlowPerc[N]['00PV25HP'][40].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
+        #plt.plot(zcusts[h],VlowPerc[N]['00PV25HP'][0].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
     c=c+1
 
 plt.grid(linewidth=0.2)
@@ -132,7 +143,7 @@ for N in networks:
     zcusts=pd.Series(index=ChighPerc[N][C].index)
     for h in ChighPerc[N][C].index:
         zcusts[h]=len(Customer_Summary[Customer_Summary['zone']==h])
-        plt.plot(zcusts[h],ChighPerc[N]['00PV25HP'][40].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
+        #plt.plot(zcusts[h],ChighPerc[N]['00PV25HP'][40].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
     c=c+1
 
 plt.grid(linewidth=0.2)
@@ -148,14 +159,11 @@ transmax={}
 plt.figure()
 u=0
 for N in networks:
-     pick_in = open("../Data/Dumb/"+N+"00PV25HPEV40Winter14_V_Data.pickle", "rb")
-     V_data = pickle.load(pick_in)
-
      transmax[N]=[]
      for n in range(0,24):
-         # transmins.append(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n].min())
-         # transmedian.append(np.quantile(V_data['Trans_kVA'].loc[V_data['Trans_kVA'].index.hour==n],0.5))
-         transmax[N].append(abs(V_data['Trans_kVA']).loc[V_data['Trans_kVA'].index.hour==n].max())
+         # transmins.append(TransKVA_S.loc[TransKVA_S.index.hour==n].min())
+         # transmedian.append(np.quantile(TransKVA_S.loc[TransKVA_S.index.hour==n],0.5))
+         transmax[N].append(abs(TransKVA_S).loc[TransKVA_S.index.hour==n].max())
     
      plt.plot(transmax[N],label=N[:-1],color=cols[u],linestyle=style[u])
      u=u+1

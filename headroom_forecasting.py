@@ -291,7 +291,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     ###### ------------------ Create Daily Headroom Profiles -------------
         for C in Cases:
             print(N, C)
-            DailyDelta=percentiles(C,N,paths)
+            ##DailyDelta=percentiles(C,N,paths)
             q=q+1
     
     
@@ -389,29 +389,29 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
                 Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
                 Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
                 Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
-            pickle_out = open(paths+N+"Customer_Summary_Final.pickle", "wb")
-            pickle.dump(Customer_Summary[N], pickle_out)
-            pickle_out.close()
+#            pickle_out = open(paths+N+"Customer_Summary_Final.pickle", "wb")
+#            pickle.dump(Customer_Summary[N], pickle_out)
+#            pickle_out.close()
         nEVs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
         nHPs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
         for k in nEVs[N].index:
             Case=assign[N][k]
             nEVs_Final[N][k]=nEVs[N][Case][k]
             nHPs_Final[N][k]=HPSum[N][Case][k]
-    nEVs_Final['network_17/']['27']=0
-    nEVs_Final['network_5/']['13']=0
-    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
-    pickle.dump(nEVs_Final, pickle_out)
-    pickle_out.close()
-    
-    pickle_out = open(paths+"nHPs_final.pickle", "wb")
-    pickle.dump(nHPs_Final, pickle_out)
-    pickle_out.close()
-        
-    pickle_out = open(paths+"Assign_Final.pickle", "wb")
-    pickle.dump(assign, pickle_out)
-    pickle_out.close()
+#    nEVs_Final['network_17/']['27']=0
+#    nEVs_Final['network_5/']['13']=0
+#    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
+#    pickle.dump(nEVs_Final, pickle_out)
+#    pickle_out.close()
 #    
+#    pickle_out = open(paths+"nHPs_final.pickle", "wb")
+#    pickle.dump(nHPs_Final, pickle_out)
+#    pickle_out.close()
+#        
+#    pickle_out = open(paths+"Assign_Final.pickle", "wb")
+#    pickle.dump(assign, pickle_out)
+#    pickle_out.close()
+##    
     
     print('---------------Number of EVs----------------------')
     for N in networks:

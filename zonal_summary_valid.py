@@ -56,10 +56,10 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     
     lns = lns1+lns2+lns3+lns4+lns5
     labs = [l.get_label() for l in lns]
-    ax2.legend(lns, labs,loc='center')
+    ax2.legend(lns, labs,framealpha=1, bbox_to_anchor=(0, 1.2), loc='upper left', ncol=2)
     ax2.set_xlim(0,144)
     plt.xticks(range(0,168,24),times)
-    plt.title('Zone- '+str(zone)+'. Max EVs - '+str(nEVs)+' / '+str(nCusts)+' customers')
+    #plt.title('Zone- '+str(zone)+'. Max EVs - '+str(nEVs)+' / '+str(nCusts)+' customers')
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
     
@@ -122,7 +122,7 @@ def daily_EVSchedule(Network,paths,quant,factor):
     for i in nEVs_All[Network].index:
         Case=assign[Network][i]
         EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][i]
-        nEVs=int(nEVs_All[Network][i])
+        nEVs=int(nEVs_All[Network][i])-3
         j=1
 
         pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
@@ -234,11 +234,11 @@ def daily_EVSchedule(Network,paths,quant,factor):
             l=l+1
         k=k+1
         
-        
+#        
 #        if status[k-1][l-1]=='Success':
 #            plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
 #                
-            
+#            
             #########----------- Write Outputs for Validation --------############
             
         dems={}

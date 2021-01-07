@@ -73,12 +73,8 @@ def runvalid(networks,paths,quant,factor):
         ########--------- Code to load dates with highest HP demand for testing-------------##########
         days=[]
         for w in assign[Network].index:
-            #if assign[Network][w] != '00PV00HP':
             pick_in = open(paths+Network+assign[Network][w]+"_WinterHdRm_All.pickle", "rb")
-            HdRm = pickle.load(pick_in)
-    #        if assign[Network][w] == '00PV00HP':
-    #            pick_in = open("../Data/"+str(Network+'00PV25HP')+"_WinterHdRm_Raw.pickle", "rb")
-    #            HdRm = pickle.load(pick_in)          
+            HdRm = pickle.load(pick_in)      
             HdRm=HdRm[w]
             days.append(HdRm.sum(axis=1).idxmin().date())
         days=pd.Series(days).unique()
