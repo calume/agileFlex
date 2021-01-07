@@ -14,10 +14,6 @@ from runfile import main
 from shutil import copyfile
 from openpyxl import load_workbook
 import random
-import multiprocessing
-from joblib import Parallel, delayed
-from tqdm import tqdm
-num_cores = multiprocessing.cpu_count()
 
 
 def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):

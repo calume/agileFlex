@@ -37,7 +37,6 @@ from itertools import cycle, islice
 from openpyxl import load_workbook
 #from voltage_headroom import voltage_headroom
 
-
 def runbatch(networks,Cases,PrePost,paths,VC):
    
     ####----------Set Test Network ------------
@@ -417,7 +416,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 #pickle.dump(All_C_Limits, pickle_out)
                 #pickle_out.close()
             if PrePost=='Pre':
-                #raw_input_data()
+                raw_input_data()
                 do_loadflows(sims)
             if PrePost=='Post':
                 post_process(N, C, VC,sims)

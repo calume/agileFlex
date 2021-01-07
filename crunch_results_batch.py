@@ -20,7 +20,6 @@ import os
 import random
 import csv
 import pickle
-import seaborn as sns
 import collections
 import networkx as nx
 

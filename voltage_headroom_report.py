@@ -61,7 +61,7 @@ for N in networks:
         pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_Trans_kVA.pickle", "rb")
         TransKVA = pickle.load(pick_in)
         
-        pick_in = open("../Data/Raw/"+N[:-1]+'_'+C+"_TransRatekVA.pickle", "rb")
+        pick_in = open("../Data/Raw/"+N[:-1]+"_00PV00HP_TransRatekVA.pickle", "rb")
         TransRateKVA = pickle.load(pick_in)
         
         TransKVA_S=pd.Series(index=TransKVA.keys())

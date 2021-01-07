@@ -14,13 +14,13 @@ import pickle
 from congestion_probability_validation import runvalid
 import pandas as pd
 
-networks=['network_1/']#,'network_5/','network_10/','network_17/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
 #Txs=pd.Series([750,500,1000,1000,750],index=networks)
 paths="../Data/Upper/"
 desc=['225 V limit (Upper Conservative)','216 V Limit (Lower Less conservative)','']
-#runbatch(networks,Cases,'Pre',paths,VC=False)
+runbatch(networks,Cases,'Pre',paths,VC=False)
 #runbatch(networks,Cases,'Post',paths,VC=True)
 #voltage_limits(networks,Cases,paths)
 #runbatch(networks,Cases,'Post',paths, VC=False)
@@ -41,7 +41,7 @@ nHPs_Final= pickle.load(pick_in)
 
 ###---- Problem ZOnes----### Results are removed if:  1) issues with 0% HP already and 2) No EVS
 
-pick_in = open("../Data/Problem_Zones.pickle", "rb")
+pick_in = open("../Data/Problem_Zones.pickle", "rb")   ###--- The Problem Zones File is generated from voltage_headroom_report.py
 OPZs= pickle.load(pick_in)  ### Original Problem ZOnes
 summary=pd.DataFrame(index=networks,columns=(['Network','HPs','EVs','C Violations (%)','V Violations (%)','T Violations (%)', 'V2G Delivered (%)']))
 TransRatekVA=pd.Series(index=networks)
@@ -52,7 +52,7 @@ for N in networks:
     
     pick_in = open(paths+N+"validation/Winter14_V_Data.pickle", "rb")
     SumData= pickle.load(pick_in)
-    pick_in = open("../Data/Raw/"+N[:-1]+"_00PV25HP_TransRatekVA.pickle", "rb")
+    pick_in = open("../Data/Raw/"+N[:-1]+"_00PV00HP_TransRatekVA.pickle", "rb")
     TransRatekVA[N]= pickle.load(pick_in)
     
     V_ViolMod=SumData['Vmin']
