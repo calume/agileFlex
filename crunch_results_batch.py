@@ -149,7 +149,7 @@ def plots(Network_Path, Chigh_count, Vhigh_count, Vlow_count, pinchClist,colors,
     return Coords
 
 
-#######----------- This function returns Dataframes for plotting results
+#######----------- This function returns headroom and footroom based on voltage power flow limits
 def Headroom_calc(
     RateArray,
     VoltArray,
@@ -178,28 +178,37 @@ def Headroom_calc(
     Rate = pd.DataFrame(index=sims.tolist(), columns=cs)
     Flag = pd.DataFrame(index=sims.tolist(), columns=cs)
     
+    ###--- We go through every timestep modelled (sims) and calculate the Rate which is a minimum of
+    ###--- C_rate (minimum of supply cable rating coverted to kVA) or V_rate which is the minimum voltage
+    ###--- power flow limit calculated in voltage_headroom.py and stored for all zones in All_VC.pickle for each network
     for i in sims.tolist():
         Txhdrm[i] = TransRatekVA+Trans_kVA[i]
         print('hdrm calc ', i, round(TransRatekVA,1),'tx_flow',round(Trans_kVA[i],1),'tx_hdrm', round(Txhdrm[i],1))
         for p in range(1, 4):
             Vseries = pd.Series(VoltArray[i][:, p - 1])
             for f in range(1, len(pinchClist)+1):
+                ###--- convert supply cable rating (RateArray)
+                ###--- pinchClist is the list of supply cable numbers for each zone
                 C_rate= 0.9*RateArray[pinchClist[f - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
                 if (str(p)+str(f)) in All_VC:
                     V_rate = All_VC[str(p)+str(f)]
+                ###--- some zones have zero customers (zero power flow), in those cases there is no value in All_VC for that zone
+                ###--- In which case V_rate is set to C_rate (but these zones are ignored in future analysis)
                 else:
                     V_rate = C_rate
                 Rate[str(p) + str(f)][i] = min(C_rate,V_rate)
+                ###--- Headroom and footroom are calculated as the difference between the rate and the supply cable power flow
                 Headrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  - Flow[str(p) + str(f)][i] 
                 Footrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  + Flow[str(p) + str(f)][i] 
+                ###--- Flag simply stores a letter corresponding to the binding constraint
                 if Rate[str(p) + str(f)][i] == C_rate and Headrm[str(p) + str(f)][i]<0:
-                    Flag[str(p) + str(f)][i]='c'
+                    Flag[str(p) + str(f)][i]='c'  ##--- 'c' means cable rating (thermal)
                 if Rate[str(p) + str(f)][i] == V_rate and Headrm[str(p) + str(f)][i]<0:
-                    Flag[str(p) + str(f)][i]='v'
+                    Flag[str(p) + str(f)][i]='v' ##--- 'v' means minimum voltage
                 Flag[str(p) + str(f)][i]
         if sum(Headrm.loc[i]) > Txhdrm[i]:
             Headrm.loc[i]=Headrm.loc[i]+((Txhdrm[i]-Headrm.loc[i].sum())/len(Headrm.loc[i]))
-            Flag.loc[i]='t'
+            Flag.loc[i]='t'  ##--- 't' means transformer (thermal)
             print(sum(Headrm.loc[i]),'Transformer_Constrained')
 
     return Headrm, Footrm, Txhdrm, Flag
@@ -409,10 +418,13 @@ def plot_flex(InputsbyFP,pinchClist,colors,k):
     plt.tight_layout()
 
 
-####-------- Maximum voltage, Minimum Voltage and Current are put in a dataframe (slow again) and plotted.
-
+####-------- Maximum voltage, Minimum Voltage and Current per zone are put in a dataframe (slow again) and plotted.
+####---- for speed, Max voltage and Max Current are no longer stored as they werent needed
 
 def calc_current_voltage(CurArray, VoltArray, Coords, Lines, RateArray,pinchClist,colors,sims):
+    
+    ###---- cs stores a list of all zones determined from pinchClist which is the 
+    ###---- list of feeder supply cable numbers. For each feeder (f) there are 3 phases (p)
     cs=[]
     for p in range(1, 4):
         for f in range(1, len(pinchClist)+1):

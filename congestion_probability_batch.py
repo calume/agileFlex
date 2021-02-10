@@ -44,7 +44,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
     end_date = date(2014, 2, 27)
     sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
 
-    sims = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
+    sims = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[:1]
 
     All_C_Limits={}
     for N in networks:
@@ -72,7 +72,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 
                 # ---------- Assign Smart Meter and Heat Pump IDs--------------#
                 #### Smart Meter
-                # --- only include SMs with data for day 2014-3-1
+                #########----- Only profiles with 95% full dataset for dates in question are used.
                 Customer_Summary["smartmeter_ID"] = 0
                 SMlist={}
                 for i in SM_DataFrame.keys():
@@ -90,7 +90,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 
                 ### Heat Pump
                 Customer_Summary["heatpump_ID"] = 0
-                # --- only include HPs with data for the timesteps modelled
+                #### --- only include HPs with 90% full dataset for the timesteps modelled
                 HP_reduced = HP_DataFrame.reindex(sims.tolist()).count()> (0.9*len(sims))
                 
                 HP_reduced = HP_reduced[HP_reduced]
@@ -120,6 +120,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 pickle.dump(Customer_Summary, pickle_out)
                 pickle_out.close()
                 return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
+            
             
             def save_inputs(smartmeter,demand,heatpump,pv,N,C):              
                 pickle_out = open("../Data/Raw/"+N[:-1]+'_'+C+"_smartmeter.pickle", "wb")
@@ -182,8 +183,8 @@ def runbatch(networks,Cases,PrePost,paths,VC):
 
                 return(CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA)
         
-            
-            ######--------- Run power flow Timeseries--------------------------#
+            ###### Create and saving SM, HP, PV demand dataframes 
+            ###### based on the fixed customer summaries and dates selected
             def raw_input_data():
 
                 
@@ -219,7 +220,6 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                     # -------------- Sample for each day weekday/weekend and season -----------#
                     ##-- Needed for SM data, and will be used for sampling --#
                     smartmeter[i] = np.zeros(len(Customer_Summary))
-                    ev[i] = np.zeros(len(Customer_Summary))
                     heatpump[i] = np.zeros(len(Customer_Summary))
                     pv[i] = np.zeros(len(Customer_Summary))
                     demand[i] = np.zeros(len(Customer_Summary))
@@ -240,7 +240,8 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                     pv[i] = np.nan_to_num(pv[i])
                 
                 save_inputs(smartmeter,demand,heatpump,pv,N,C)
-                        
+            
+            ######--------- Run power flow Timeseries--------------------------#
             def do_loadflows(sims):
                 smartmeter,demand,heatpump,pv=load_inputs(N, C)
                 CurArray = {}
@@ -250,6 +251,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 Trans_kVA = {}
                 genres=pd.Series(index=sims.tolist(), dtype=float)
                 for i in sims.tolist():
+                    ev = np.zeros(len(demand[i]))   ###--- blank EV profiles.
                     print(N,C,'LoadFlow', i)
                     ###---- Load Flow is run and currents, voltages etc are rteurned
                     (
@@ -262,7 +264,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                         TransRatekVA,
                         genres[i],
                         converged
-                    ) = runDSS(Network_Path, demand[i], pv[i])
+                    ) = runDSS(Network_Path, demand[i], pv[i], ev)
                     
                 save_outputs(CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA,N,C)
 #                Trans_kVA_Series=pd.Series(index=sims)
@@ -314,13 +316,17 @@ def runbatch(networks,Cases,PrePost,paths,VC):
             def post_process(N,C,VC,sims):
                 smartmeter,demand,heatpump,pv=load_inputs(N, C)
                 Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
+                ### pinchClist is a list of the supply Cables/Lines to each zone 
                 pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
                 
+                ### Network 10 has a duplicate cable that is not a supply cable and is removed
                 if N=='network_10/':
                     pinchClist.remove(28)
-
+                
+                #### Load the outputs of the loadflow
                 CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA = load_outputs(N, C)
                 
+                ###----these functions can be used for plotting results.
                 #Chigh_count, Vhigh_count, Vlow_count, VHpinch =counts(network_summary,Coords,pinchClist)
                 #Coords = plots(Network_Path,Chigh_count, Vhigh_count,Vlow_count,pinchClist,colors,'FirstPass')
                 #plot_current_voltage(Vmax, Vmin, Cmax, RateArray, pinchClist,colors,N,'FirstPass')
@@ -328,7 +334,7 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                 
                 
                 colors = ["#9467bd", "#ff7f0e", "#d62728", "#bcbd22", "#1f77b4", "#bcbd22",'#17becf','#8c564b','#17becf']
-                ############=============== This below code is for creating Current Limits for Voltage======##########
+                ############=============== This below code is for creating Power Flow Limits for Voltage======##########
                 if VC==True:
                     
                     ####=========== Create List of Zones (feeders and phases) for Flow DataFrame Columns
@@ -342,6 +348,9 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                             custph[p][f] = custs[custs["feeder"].astype(int) == f]
                             cs.append(str(p)+str(f))
                     
+
+                    ########## the supply cable power flow Vmin_DF.pickle is stored (Flow) below
+                    
                     Flow = pd.DataFrame(index=sims.tolist(), columns=cs)
                     
                     for i in sims.tolist():
@@ -350,7 +359,9 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                             Pseries = pd.Series(PowArray[i][:, p - 1])
                             for f in range(1, len(pinchClist)+1):
                                 Flow[str(p) + str(f)][i] = Pseries[pinchClist[f - 1]]
-                    
+                                
+                    ########## the minimum voltage Vmin_DF.pickle and number of current violations C_Violations.pickle
+                    ########## this is done in calc_current_voltage function within crunch_results.py                   
                     
                     Vmin,C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines, RateArray, pinchClist,colors,sims)
                     
@@ -367,14 +378,17 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                     pickle.dump(Vmin, pickle_out)
                     pickle_out.close()     
                     
+                ####--- Once you have calculated the Minimum Voltage Power flow limits, this script calculates headroom and footroom.
                 if VC==False:
                     
-                    ### --- All VC Limits is Current limits set by Low Voltage
+                    ### --- All VC Limits is Power flow limits set by Low Voltage
                     
                     pick_in = open(paths+N+"All_VC_Limits.pickle", "rb")
                     All_VC = pickle.load(pick_in)
                     pick_in = open("../Data/"+N+C+"_PFlow_DF.pickle", "rb")
                     Flow = pickle.load(pick_in)
+                    
+                    ### Headroom, footroom are calculated from All_VC_Limits (per network) in Headroom_calc function
                     
                     Headrm, Footrm, Txhdrm, Flag = Headroom_calc(
                         RateArray,
@@ -400,10 +414,12 @@ def runbatch(networks,Cases,PrePost,paths,VC):
                     pickle.dump(Footrm, pickle_out)
                     pickle_out.close()
                     
+                    ###--- Flag is simply a store of when constraints occur, v-voltage, c-current, t-transformer
                     pickle_out = open(paths+N+C+"_Flag.pickle", "wb")
                     pickle.dump(Flag, pickle_out)
                     pickle_out.close()
                 
+                ###########---- Returning current limits is not required, only for reporting purposes.
                 ###############------------return Current Limits-----------------############
                 #aa=list(Customer_Summary['zone'].unique())
                 #aa.sort()

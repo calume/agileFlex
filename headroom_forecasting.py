@@ -4,9 +4,15 @@ Created on Thu May 02 13:48:06 2019
 
 This python script produces forecasts of headroom calculated using OpenDSS. 
 
+Daily profiles of headroom and footroom are produced which are then
+used for taking a percentile (e.g. P2 conservative worst case) headroom profile.
+
+The number of EVs and HPs is also estimated using this headroom profile.
+
+There are also a number of extra scripts below the core functions for reporting and extra calcs
+
 @author: Calum Edmunds
 """
-
 
 ######## Import packages
 import scipy.io
@@ -20,6 +26,217 @@ import datetime
 import pickle
 from sklearn.metrics import mean_absolute_error
 from scipy.optimize import curve_fit
+
+"""-------------------------------CORE Functions------------------------------"""
+
+###---- percentiles converts headroom/footroom timeseries into daily profiles
+def percentiles(Case,Network,paths):    
+    tsamp=144
+    
+    pick_in = open(paths+Network+Case+"_HdRm.pickle", "rb")
+    Headrm_DF = pickle.load(pick_in)
+
+    pick_in = open(paths+Network+Case+"_Ftrm.pickle", "rb")
+    Footrm_DF = pickle.load(pick_in)
+    
+    winter_dates = Headrm_DF.index[:-1]
+
+    DailyDelta={}
+    
+    ###--- Daily Headroom irrespective of weekday/weekend
+    for c in Headrm_DF.columns:
+        print(c)
+        dailyrange = range(0, len(winter_dates), tsamp)
+        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
+        for d in DailyDelta[c].index:
+            mask = (Headrm_DF[c].index >= d) & (Headrm_DF[c].index < (d + timedelta(days=1)))
+            DailyDelta[c].loc[d] = Headrm_DF[c].loc[mask].values
+  
+    pickle_out = open(paths+Network+Case+"_WinterHdrm_All.pickle", "wb")
+    pickle.dump(DailyDelta, pickle_out)
+    pickle_out.close()
+    
+    for c in Footrm_DF.columns:
+        print(c)
+        dailyrange = range(0, len(winter_dates), tsamp)
+        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
+        for d in DailyDelta[c].index:
+            mask = (Footrm_DF[c].index >= d) & (Footrm_DF[c].index < (d + timedelta(days=1)))
+            DailyDelta[c].loc[d] = Footrm_DF[c].loc[mask].values
+
+    pickle_out = open(paths+Network+Case+"_WinterFtrm_All.pickle", "wb")
+    pickle.dump(DailyDelta, pickle_out)
+    pickle_out.close()  
+        
+
+###--- HP_vs_Headroom is important as it calculates the total headroom (HdrmSum) for a given case.
+###--- The total headroom is then used in headroom_percentiles to estimate number of EVs
+def HP_vs_Headroom(networks, Cases,paths,quant,factor):
+    Customer_Summary={}
+    DailyDelta={}
+    HdrmSum={}
+    HPSum={}  
+    HdrmAnyBelow={}   
+    for N in networks:
+        Customer_Summary[N]={}
+        DailyDelta[N]={}
+        pick_in = open(paths+N+'00PV00HP'+"_WinterHdrm_All.pickle", "rb")
+        DailyDeltaKeys= pickle.load(pick_in)
+        HdrmSum[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
+        HPSum[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
+        HdrmAnyBelow[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
+        for C in Cases:        
+            pick_in = open("../Data/"+N+"Customer_Summary"+C+"14.pickle", "rb")
+            Customer_Summary[N][C]= pickle.load(pick_in)
+            
+            pick_in = open(paths+N+C+"_WinterHdrm_All.pickle", "rb")
+            DailyDelta[N][C]= pickle.load(pick_in)
+            
+            ###--- A bit messy, but i am using 0.98 as EV power factor to convert kVA to KWh. 
+            ###--- Positive headroom is *0.98, while negative headroom is /0.98
+            ###--- HdrmSum is the net headroom for a day for the chosen percentile (quantile)
+            ###--- HdrmAnyBelow is the total negative headroom
+            for i in DailyDelta[N][C].keys():
+                aboves = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)>=0].sum()
+                belows = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)<0].sum()
+                HdrmSum[N][C][i]=((aboves*0.98)+(belows/0.98) *factor)/6  ###-- we divide by 6 as to go from kW/10mins to kWh
+                HdrmAnyBelow[N][C][i]=factor*(belows/0.98)/6
+                HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum() 
+        
+    return HPSum, HdrmSum,HdrmAnyBelow, Customer_Summary
+
+###---- headroom_percentiles firstly runs the percentiles script to generate daily profiles
+###---- Once the daily profiles pickle files are created, the line calling percentlines can be commented (not run again unless it needs updated)
+###---- The number of EVs is estimated from the daily headroom profiles, and the number of HPs is assigned
+
+def headroom_percentiles(networks,Cases,paths,quant,factor):
+    for N in networks:
+    ###### ------------------ Create Daily Headroom Profiles -------------
+        for C in Cases:
+            print(N, C)
+            percentiles(C,N,paths)
+    
+    ###--- We Run HP_vs_Headroom to get the HdrmSum and sum of negative headroom HdrmAnyBelow
+    HPSum, HdrmSum,HdrmAnyBelow, Customer_Summary=HP_vs_Headroom(networks, Cases,paths,quant,factor)
+    
+    
+    EVAvg=14.2  ###--- kWh charge / day
+    Thresh=120  ###--- KWh / day headroom threshold. We only allow HP cases with periods of negative headroom 
+                ###--- for a given percentile, if the total positive headroom is above this threshold. 
+                ###--- 120 kWh/day equates to around 8 average EVs.
+    
+    ########================ CALCULATE number of EVs ==============#######
+    
+    nEVs={}
+    EVs={}
+    KVA_HP={}
+    ###----- the nEVs is estiamted by dividing the total headroom for a day by the average daily EV charge
+    for N in networks:
+        #plt.figure(N)
+        nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
+        nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
+        for c in nEVs[N].columns:
+            for j in nEVs[N][c].index:
+                ###--- we limit the number of EVs to the number of customers (no 2 car households on my network sorry)
+                nEVs[N][c].loc[j]=min(nEVs[N][c].loc[j],HPSum[N]['50PV100HP'].loc[j])
+        EVs[N]=nEVs[N].copy()
+        KVA_HP[N]=nEVs[N].copy()
+    
+    #######================= Calculate  Number of Heatpumps and V2G ZOnes =##################
+    ###--- Deciding how many HPs to have in each zone
+    ###--- 'assign' stores the case with the maximum HPs that can be allowed
+    ###--- 'v2gZones' are those where we have some negative headroom but we have enough EVs (with positive headroom above 'thresh' )
+    assign={}
+    v2gZones={}
+    for N in networks:
+        q=0
+        ###---- Just for plotting
+        for C in Cases:
+            ##headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
+            q=q+1
+        
+        ###---- 'assign' is the case we assign to each zone, based on the amount of headroom.
+        ###---- We assign the case with the maximum amount of HPs with positive headroom
+        assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
+        v2gZones[N]=[]
+        for i in HdrmSum[N].index:
+            ###--- HdrmAnyBelow is equal to zero when there is 
+            if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
+                assign[N][i]='00PV00HP'
+            if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
+                assign[N][i]='50PV100HP'
+            if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
+                assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
+            if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]>Thresh)>0:
+                aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
+                assign[N][i]=aa[aa>Thresh].index[-1]
+                v2gZones[N].append(i)
+    
+    
+    nEVs_Final={}
+    nHPs_Final={}
+    #########-------------Create Mixed HP Penetration Customer Summaries--------############
+    for N in networks:
+        
+        Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
+        for i in HdrmSum[N].index:
+            if assign[N][i] != '00PV00HP':
+                ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+                Customer_Summary[N]['Final'].loc[ind]=Customer_Summary[N][assign[N][i]].loc[ind]
+            else:
+                ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
+                Customer_Summary[N]['Final']['heatpump_ID'].loc[ind]=0
+                Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
+                Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
+                Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
+            pickle_out = open(paths+N+"Customer_Summary_Final.pickle", "wb")
+            pickle.dump(Customer_Summary[N], pickle_out)
+            pickle_out.close()
+        nEVs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
+        nHPs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
+        for k in nEVs[N].index:
+            Case=assign[N][k]
+            nEVs_Final[N][k]=nEVs[N][Case][k]
+            nHPs_Final[N][k]=HPSum[N][Case][k]
+    ####--- Problem Zone (no EVs should be allowed as issues happened with 0%HPs)
+    nEVs_Final['network_17/']['27']=0   
+    nEVs_Final['network_5/']['13']=0 
+    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
+    pickle.dump(nEVs_Final, pickle_out)
+    pickle_out.close()
+    
+    pickle_out = open(paths+"nHPs_final.pickle", "wb")
+    pickle.dump(nHPs_Final, pickle_out)
+    pickle_out.close()
+        
+    pickle_out = open(paths+"Assign_Final.pickle", "wb")
+    pickle.dump(assign, pickle_out)
+    pickle_out.close()
+    
+    print('---------------Number of EVs----------------------')
+    for N in networks:
+        print(N,'\n',nEVs_Final[N],'\n Total', sum(nEVs_Final[N]))
+    print('')
+    
+    print('---------------Number of Heat Pumps-----------------------')
+    for N in networks:
+        Customer_Summary[N]['Final']['heatpump_ID']
+        print(N,'\n',nHPs_Final[N],'\n Total', sum(nHPs_Final[N]))
+    
+    print('-----------------Assignation---------------------------------')
+    print(assign)
+    
+    print('--------------------V2G Zones with Headroom for V2G to support HPs-------------------------')
+    print(v2gZones)
+    print('-------------------------------------------------------------------------------------------------')    
+
+"""-------------------------------END CORE Functions------------------------------"""
+
+
+
+#######------------------- Extra Functions-----------------##################
+
+###---- The return_temp function is only needed for forecasting purposes, not currently used
 
 def return_temp(path):
        ###----------------------- Load in Test data Set -------------##########
@@ -95,47 +312,12 @@ def return_temp(path):
     #    plt.ylabel("Frequency")
     return all_temp, all_rad
 
-def percentiles(Case,Network,paths):    
-    tsamp=144
-    
-    pick_in = open(paths+Network+Case+"_HdRm.pickle", "rb")
-    Headrm_DF = pickle.load(pick_in)
-
-    pick_in = open(paths+Network+Case+"_Ftrm.pickle", "rb")
-    Footrm_DF = pickle.load(pick_in)
-    
-    winter_dates = Headrm_DF.index[:-1]
-
-    DailyDelta={}
-    
-    ########-------------- Daily Headroom irrespective of weekday/weekend -------###############
-    for c in Headrm_DF.columns:
-        print(c)
-        dailyrange = range(0, len(winter_dates), tsamp)
-        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
-        for d in DailyDelta[c].index:
-            mask = (Headrm_DF[c].index >= d) & (Headrm_DF[c].index < (d + timedelta(days=1)))
-            DailyDelta[c].loc[d] = Headrm_DF[c].loc[mask].values
-  
-    pickle_out = open(paths+Network+Case+"_WinterHdrm_All.pickle", "wb")
-    pickle.dump(DailyDelta, pickle_out)
-    pickle_out.close()
-    
-    for c in Footrm_DF.columns:
-        print(c)
-        dailyrange = range(0, len(winter_dates), tsamp)
-        DailyDelta[c] = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
-        for d in DailyDelta[c].index:
-            mask = (Footrm_DF[c].index >= d) & (Footrm_DF[c].index < (d + timedelta(days=1)))
-            DailyDelta[c].loc[d] = Footrm_DF[c].loc[mask].values
-
-    pickle_out = open(paths+Network+Case+"_WinterFtrm_All.pickle", "wb")
-    pickle.dump(DailyDelta, pickle_out)
-    pickle_out.close()  
-        
-    return DailyDelta
+###---- This script takes in all the headroom and footroom data and converts
+###---- into daily profiles to allow a percentile to be taken for each 10 minute time of day
 
 
+
+###--- The headroom_plots function is used for plotting the headrooms for each case and network
 def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
     
     pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
@@ -179,62 +361,9 @@ def headroom_plots(Network,Case,n,lbls,kva,paths,quant,factor):
 
 
 
-###################------------ plot HPs vs Headroom ----------###############
-def HP_vs_Headroom(networks, Cases,paths,quant,factor):
-    Customer_Summary={}
-    DailyDelta={}
-    HdrmSum={}
-    HPSum={}  
-    HdrmAnyBelow={}   
-    for N in networks:
-        
-        Customer_Summary[N]={}
-        DailyDelta[N]={}
-        pick_in = open(paths+N+'00PV00HP'+"_WinterHdrm_All.pickle", "rb")
-        DailyDeltaKeys= pickle.load(pick_in)
-        HdrmSum[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
-        HPSum[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
-        HdrmAnyBelow[N]=pd.DataFrame(index=list(DailyDeltaKeys.keys()), columns=Cases)
-        for C in Cases:        
-            pick_in = open("../Data/"+N+"Customer_Summary"+C+"14.pickle", "rb")
-            Customer_Summary[N][C]= pickle.load(pick_in)
-            
-            pick_in = open(paths+N+C+"_WinterHdrm_All.pickle", "rb")
-            DailyDelta[N][C]= pickle.load(pick_in)
-            
-            
-            for i in DailyDelta[N][C].keys():
-                aboves = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)>=0].sum()
-                belows = (DailyDelta[N][C][i].quantile(quant))[DailyDelta[N][C][i].quantile(quant)<0].sum()
-                #HdrmSum[N][C][i]=(DailyPercentiles[N][C][i]['P5'][:60].sum()+DailyPercentiles[N][C][i]['P5'][96:].sum())/6  ##-- Day PV effect removed
-                HdrmSum[N][C][i]=((aboves*0.98)+(belows/0.98) *factor)/6
-                HdrmAnyBelow[N][C][i]=factor*(belows/0.98)/6
-                HPSum[N][C][i]=Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]['Heat_Pump_Flag'].sum()
-        r = 0    
-        
-        #plt.figure('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
-        
-        # for i in HPSum[N].index:  
-        #     r = r + 1
-        #     ax1=plt.subplot(3, int(len(DailyPercentiles[N][C].keys())/3),r)
-        #     ax1.plot(HPSum[N].loc[i],HdrmSum[N].loc[i])
-        #     ax1.set_xlim(HPSum[N].loc[i].min(),HPSum[N].loc[i].max())
-        #     ax2=ax1.twiny()
-        #     if len(Customer_Summary[N][C][Customer_Summary[N][C]['zone']==i]) >0:
-        #         ax2.plot(HPSum[N].loc[i]/HPSum[N].loc[i].max()*100,np.zeros(len(HPSum[N].loc[i])), color="red", linestyle="--", linewidth=1)
-        #         ax2.set_xlim(HPSum[N].loc[i].min()/HPSum[N].loc[i].max()*100,100)
-        #     ax1.set_xlabel('# of heatpumps')
-        #     ax2.set_xlabel('% of customers')
-        #     if r <= int(HPSum[N].index.str[1].max()):
-        #         plt.title("Feeder - " + str(r))
-        #     if (r-1) % int(HPSum[N].index.str[1].max()) == 0:
-        #         ax1.set_ylabel("Phase " + str(i[0]))
-        # plt.title('Number and % of Penetration heatpumps with Total Daily P5 Headroom')
-    return HPSum, HdrmSum,HdrmAnyBelow, DailyDelta, Customer_Summary
-
 
 lbls=['0% HP, 0% PV','25% HP, 0% PV', '50% HP, 25% PV', '75% HP, 25% PV', '100% HP, 50% PV']  
-
+###--- More reporting scripts
 # ########================ PLOT Single ZONE for report===================
 # times = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00", "24:00"]
 # cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"]    
@@ -285,150 +414,7 @@ def limit_table(paths,networks):
         All_VCs[N]=All_VCs[N].fillna('N/A')   
         print(All_VCs[N].to_latex())
         
-def headroom_percentiles(networks,Cases,paths,quant,factor):
-    q=5
-    for N in networks:
-    ###### ------------------ Create Daily Headroom Profiles -------------
-        for C in Cases:
-            print(N, C)
-            ##DailyDelta=percentiles(C,N,paths)
-            q=q+1
     
-    
-    HPSum, HdrmSum,HdrmAnyBelow, DailyDelta, Customer_Summary=HP_vs_Headroom(networks, Cases,paths,quant,factor)
-    
-    
-    EVAvg=14.2 #kWh charge / day
-    Thresh=120
-    
-    ########================ CALCULATE number of EVs ==============#######
-    
-    nEVs={}
-    #nEVs_shift={}
-    EVs={}
-    KVA_HP={}
-    KVA_LIM=pd.Series(index=networks,dtype=float)
-    Allsums=pd.DataFrame(index=Cases+['Total Customers'],dtype=int)
-    cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
-    mk=['o','^','*','P']
-    count=1
-    for N in networks:
-        #plt.figure(N)
-        nEVs[N]=(HdrmSum[N]/EVAvg).astype(int)
-        nEVs[N]=nEVs[N][nEVs[N]>0].fillna(0).astype(float)
-        for c in nEVs[N].columns:
-            for j in nEVs[N][c].index:
-                nEVs[N][c].loc[j]=min(nEVs[N][c].loc[j],HPSum[N]['50PV100HP'].loc[j])
-        EVs[N]=nEVs[N].copy()
-        KVA_HP[N]=nEVs[N].copy()
-        for i in nEVs[N].columns:
-            EVs[N][i]=EVs[N][i]/HPSum[N]['50PV100HP']
-            EVs[N][i]=EVs[N][i].astype(float).round(decimals=2)
-        EVs[N][EVs[N]>1]=1
-    
-    ab=nEVs[N].sum().astype(int)
-    ab.name=N
-    Allsums=Allsums.join(ab.astype(int))
-    Allsums[N]['Total Customers']=HPSum[N]['50PV100HP'].sum()
-    count=count+1
-    
-    
-    #######================= Calculate  Number of Heatpumps and V2G ZOnes =##################
-    
-    assign={}
-    v2gZones={}
-    AllHdRms=pd.DataFrame(index=Cases+['Total Zones'])
-    v2gs=pd.DataFrame(index=Cases+['Total Zones'])
-    for N in networks:
-        aa=HdrmAnyBelow[N][HdrmAnyBelow[N]<0].count()
-        aa.name=N
-        AllHdRms=AllHdRms.join(aa)    
-        AllHdRms[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])
-        
-        aa=(HdrmSum[N][HdrmAnyBelow[N]<0]>Thresh).sum()
-        aa.name=N
-        v2gs=v2gs.join(aa)    
-        v2gs[N]['Total Zones']=len(HdrmSum[N]['00PV25HP'])    
-        
-        # for i in All_VC[N].index:
-        #     All_VC[N].loc[i]=min(All_VC[N].loc[i],All_C[N].loc[i])
-        
-        q=0
-        for C in Cases:
-            ##headroom_plots(N,C,q,lbls,KVA_HP,paths,quant,factor)
-            q=q+1
-    
-        assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
-        v2gZones[N]=[]
-        for i in HdrmSum[N].index:
-            if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
-                assign[N][i]='00PV00HP'
-            if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
-                assign[N][i]='50PV100HP'
-            if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
-                assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
-            if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]>Thresh)>0:
-                aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
-                assign[N][i]=aa[aa>Thresh].index[-1]
-                v2gZones[N].append(i)
-    
-    
-    nEVs_Final={}
-    nHPs_Final={}
-    #########-------------Create Mixed HP Penetration Customer Summaries--------############
-    for N in networks:
-        
-        Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
-        for i in HdrmSum[N].index:
-            if assign[N][i] != '00PV00HP':
-                ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
-                Customer_Summary[N]['Final'].loc[ind]=Customer_Summary[N][assign[N][i]].loc[ind]
-            else:
-                ind=Customer_Summary[N]['Final'][Customer_Summary[N]['Final']['zone']==i].index
-                Customer_Summary[N]['Final']['heatpump_ID'].loc[ind]=0
-                Customer_Summary[N]['Final']['Heat_Pump_Flag'].loc[ind]=0
-                Customer_Summary[N]['Final']['pv_ID'].loc[ind]=0
-                Customer_Summary[N]['Final']['PV_kW'].loc[ind]=0
-#            pickle_out = open(paths+N+"Customer_Summary_Final.pickle", "wb")
-#            pickle.dump(Customer_Summary[N], pickle_out)
-#            pickle_out.close()
-        nEVs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
-        nHPs_Final[N]=pd.Series(index=nEVs[N].index,dtype=int)
-        for k in nEVs[N].index:
-            Case=assign[N][k]
-            nEVs_Final[N][k]=nEVs[N][Case][k]
-            nHPs_Final[N][k]=HPSum[N][Case][k]
-#    nEVs_Final['network_17/']['27']=0
-#    nEVs_Final['network_5/']['13']=0
-#    pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
-#    pickle.dump(nEVs_Final, pickle_out)
-#    pickle_out.close()
-#    
-#    pickle_out = open(paths+"nHPs_final.pickle", "wb")
-#    pickle.dump(nHPs_Final, pickle_out)
-#    pickle_out.close()
-#        
-#    pickle_out = open(paths+"Assign_Final.pickle", "wb")
-#    pickle.dump(assign, pickle_out)
-#    pickle_out.close()
-##    
-    
-    print('---------------Number of EVs----------------------')
-    for N in networks:
-        print(N,'\n',nEVs_Final[N],'\n Total', sum(nEVs_Final[N]))
-    print('')
-    
-    print('---------------Number of Heat Pumps-----------------------')
-    for N in networks:
-        Customer_Summary[N]['Final']['heatpump_ID']
-        print(N,'\n',nHPs_Final[N],'\n Total', sum(nHPs_Final[N]))
-    
-    print('-----------------Assignation---------------------------------')
-    print(assign)
-    
-    print('--------------------V2G Zones with Headroom for V2G to support HPs-------------------------')
-    print(v2gZones)
-    print('-------------------------------------------------------------------------------------------------')        
     
 
 ####==============---------- Calculate Max HPs and Max Possible EVs------------================

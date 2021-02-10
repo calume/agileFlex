@@ -65,7 +65,10 @@ def runDSS(Network_Path, demand, pv,ev):
     iterations=100
     v_delta=0
     c=0
-    print(sum(pv))
+#    print('total PV', sum(pv))
+#    print('total demand', sum(demand))
+#    print('total EV', sum(ev))
+    
     while iterations==100 and v_delta<0.05:
         iLoad = DSSLoads.First()
         while iLoad > 0:
@@ -102,7 +105,7 @@ def runDSS(Network_Path, demand, pv,ev):
         dss.Solution.Solve()
         dss.Monitors.SampleAll()
         iterations=dss.Solution.Iterations()
-        print(iterations)
+        print('iterations',iterations)
         v_delta=v_delta+0.01
         c=c+1
         
