@@ -13,25 +13,34 @@ Then we estimate the headroom and Optimise EVs around the remaining headroom. Fi
 Megaloader is the top level script loading in functions from other scripts. The overall running order is as follows:
     
 1. Create customer data (based on Cases) for all Networks 
+
 ---- raw_input_data() function within congestion_probability_batch.py
     
 2. Power flow then is run using PV, Smartmeter (SM) and heat pump (HP) data for all cases 
+
 ---- do_loadflows(sims) function within congestion_probability_batch.py
 
-3. The zonal minimum voltage and zonal supply cable power flow is determined 
+3. The zonal minimum voltage and zonal supply cable power flow is determined <br/>
 ---- calc_current_voltage function (in crunch_results_batch.py) within congestion_probability_batch.py
     
 4. Using the resulting zonal power flows and minimum voltages, Power flow limits are estimated per zone
+
 ---- voltage_limits(networks,Cases,paths) function
 
 5. Headroom and footroom are calculated for each timestep
+
 ----  Headroom_calc function (in crunch_results_batch.py) called from post_process() within congestion_probability_batch.py
 
 6. Daily profiles of headroom and footroom are calculated, number of EVs and HPs are also calculated and saved in pickle files
+
 ---- headroom_percentiles function within headroom_forecasting.py runs
+
     ---- percentiles() creates daily profiles
+
     ---- HP_vs_Headroom() calculates headroom
+
     ---- EV numbers are estimated per zone based on daily headroom
+
     ---- HP cases are assigned (based on headroom) and new customer summaries created
     
 7. Calculate number of optimised EVs (10 successful attempts).
