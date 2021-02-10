@@ -55,8 +55,8 @@ Megaloader is the top level script loading in functions from other scripts. The 
 ============== Required Data Folder Structure ==================
 
 Data/network_X/------------Stores calculated Zonal Vmin, Pflow and C Violations<br/>
-Data/Raw-------------------Stores the raw data (input dataframes of demand and output results of current, Voltage Arrays)<br/>
+Data/Raw-------------------Stores the raw data (input demand etc and outputs of current, voltage etc)<br/>
 Data/Upper/----------------Stores the calculated nEVs and HPs (assigned cases)<br/>
-----/Upper/network_X/------Stores calculated headrooms, both as timeseries and daily profiles. Also stores All_VC_limits.pickle which is the Power flow limit for minimum voltage <br/>
+Data/Upper/network_X/------Stores calculated headrooms, both as timeseries and daily profiles. Also stores All_VC_limits.pickle which is the Power flow limit for minimum voltage <br/>
 Data/Validation------------Stores validation results arrays<br/>
 Data/Validation/network_X/-Stores new headrooms for validation results <br/>
