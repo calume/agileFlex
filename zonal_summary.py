@@ -62,12 +62,17 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
     
 
 
-def EVRealiser(networks,paths,quant,factor):
-    start=datetime.now()
-    pick_in = open(paths+"nEVs_NoShifting.pickle", "rb")
-    nEVs_All = pickle.load(pick_in)
+def EVRealiser(networks,paths,quant,factor, Valid):
     nEVs_Realised={}
-    for Network in networks:
+    v2gperc=[]
+    if Valid==False:
+        pick_in = open(paths+"nEVs_NoShifting.pickle", "rb")
+        nEVs_All = pickle.load(pick_in)
+    if Valid==True:
+        pick_in = open(paths+"nEVs_Realised.pickle", "rb")
+        nEVs_All = pickle.load(pick_in)
+
+    for N in networks:
         start_date = date(2013, 12, 1)
         end_date = date(2013, 12, 3)
         delta_tenminutes = timedelta(minutes=10)
@@ -75,7 +80,7 @@ def EVRealiser(networks,paths,quant,factor):
         dt2 = pd.date_range(start_date, end_date, freq=delta_tenminutes)[72:216]
 
         
-        pick_in = open(paths+Network+"Customer_Summary_Final.pickle", "rb")
+        pick_in = open(paths+N+"Customer_Summary_Final.pickle", "rb")
         Customer_summary = pickle.load(pick_in)
         
         Customer_summary=Customer_summary['Final']
@@ -88,7 +93,7 @@ def EVRealiser(networks,paths,quant,factor):
         
         ########------ Customers by Phase/Feeder ---------###
         custsbyzone=[]
-        for c in (nEVs_All[Network].index):
+        for c in (nEVs_All[N].index):
             CbyP=Customer_summary[Customer_summary['Phase']==c[0]]
             custsbyzone.append(len(CbyP[CbyP['Feeder']==c[1]]))
         
@@ -99,8 +104,8 @@ def EVRealiser(networks,paths,quant,factor):
         priceIn=priceIn.resample('10T').mean()
         priceIn=priceIn.interpolate(method='pad')[:-1]
         
-        EVCapacitySummary=pd.DataFrame(columns=['Zone','Customers','EV Capacity'], index=nEVs_All[Network].index)
-        EVCapacitySummary['Zone']=nEVs_All[Network].index
+        EVCapacitySummary=pd.DataFrame(columns=['Zone','Customers','EV Capacity'], index=nEVs_All[N].index)
+        EVCapacitySummary['Zone']=nEVs_All[N].index
         EVCapacitySummary['Customers']=custsbyzone
         EVCapacitySummary['EV Capacity']=0
         EVCapacitySummary['EV Capacity New']=0
@@ -108,69 +113,21 @@ def EVRealiser(networks,paths,quant,factor):
         AllEVs={}
         k=0
         
-        # if -1.2 <= temp <= 1.9:
-        #     TR=1
-        # if 1.9 < temp <= 4.9:
-        #     TR=2
-        # if 4.9 < temp <= 8:
-        #     TR=3
-        # if 8 < temp <= 11:
-        #     TR=2
         
         ###------------Update Assign Dataframe with 10x solvable nEVs -once only-----------######
         
-        nEVs_Realised[Network]=nEVs_All[Network]
-#        
-#        allhdrms=pd.DataFrame(columns=nEVs_All[Network].index)
-#        
-#        ###TX Headroom
-#        
-#        pick_in = open(paths+"nHPs_final.pickle", "rb")
-#        nHPs = pickle.load(pick_in)  
-#        
-#        nHPs=nHPs[Network].sum()/len(Customer_summary)*100
-#        C=pd.Series(['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP'])
-#        C_Overall=C[C.str[4:-2].astype(float)>(nHPs-2)].iloc[0]
-#        pick_in = open(paths+Network+C_Overall+"_TxHdrm.pickle", "rb")
-#        TxHdrm= pickle.load(pick_in)
-#
-#        winter_dates = TxHdrm.index[:-1]
-#        DailyTx={}
-#        tsamp=144
-#        dailyrange = range(0, len(winter_dates), tsamp)
-#        DailyTx = pd.DataFrame(index=winter_dates[dailyrange], columns=range(0, tsamp),dtype=float)
-#            
-#        for d in DailyTx.index:
-#            mask = (TxHdrm.index >= d) & (TxHdrm.index < (d + timedelta(days=1)))
-#            DailyTx.loc[d] = TxHdrm.loc[mask].values  
-#        
-#        Txmin=DailyTx.min()
-#        
-#        for i in nEVs_All[Network].index:
-#            Case=assign[Network][i]
-#            pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
-#            hdrm= pickle.load(pick_in)            
-#            allhdrms[i]=hdrm[i].quantile(0.02)
-#        
-#        Zonesum=allhdrms.sum()
-#        
-#        for i in Txmin:
-#            
-#        
-#        pickle_out = open(paths+"AllHdrms_Assigned.pickle", "wb")
-#        pickle.dump(allhdrms, pickle_out)
-#        pickle_out.close()     
-        
-        for i in nEVs_All[Network].index:
-            Case=assign[Network][i]
-            EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[Network][i]
-            nEVs=int(nEVs_All[Network][i])
+        nEVs_Realised[N]=nEVs_All[N]
+
+        for i in nEVs_All[N].index:
+            C=assign[N][i]
+            EVCapacitySummary['EV Capacity'].loc[i]=nEVs_All[N][i]
+            nEVs=int(nEVs_All[N][i])
             j=1
 
-            pick_in = open(paths+Network+Case+"_WinterHdrm_All.pickle", "rb")
+            pick_in = open(paths+N+C+"_WinterHdrm_All.pickle", "rb")
             WinterHdRm = pickle.load(pick_in)
             
-            pick_in = open(paths+Network+Case+"_WinterFtrm_All.pickle", "rb")
+            pick_in = open(paths+N+C+"_WinterFtrm_All.pickle", "rb")
             WinterFtRm = pickle.load(pick_in)
             
             if nEVs>45:  #### specifically aimed at network 17 zone 16
@@ -192,9 +149,12 @@ def EVRealiser(networks,paths,quant,factor):
             status[k][0]='Fail'
             l=1
             b=0
-    
-            while (status[k][l-1]=='Fail' and nEVs>0) or (j<10 and nEVs>0): 
-                net=Network[8:-1]
+            if Valid==False:
+                count=10
+            if Valid==True:
+                count=2
+            while (status[k][l-1]=='Fail' and nEVs>0) or (j<count and nEVs>0): 
+                net=N[8:-1]
                 optfile='testcases/timeseries/EVDay01_mix'+net+'.xlsx'
                 copyfile('testcases/timeseries/EVDay01_base.xlsx', optfile)        
                 gen=pd.read_excel(optfile, sheet_name='genseries')
@@ -210,7 +170,6 @@ def EVRealiser(networks,paths,quant,factor):
                 gen['Grid'][gen['Grid']<0]=0
                 
                 genmin['Grid']=-ftrm.values
-                #genmin['Grid'][genmin['Grid']>0]=0
                 EVSample=EVs.sample(n=nEVs)
                 EVTDSample=pd.DataFrame()
                 for s in EVSample['name']:
@@ -234,7 +193,7 @@ def EVRealiser(networks,paths,quant,factor):
                 except:
                     status[k][l]='Fail'
                     b=b+1
-                    print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
+                    print(N, C,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Fail')
                     j=1
                     nEVs=nEVs-1
                 
@@ -243,7 +202,7 @@ def EVRealiser(networks,paths,quant,factor):
                     j=j+1
                     results=pd.read_excel('results/results'+net+'.xlsx', sheet_name='EVs')
                 EVCapacitySummary['EV Capacity New'][i]=nEVs
-                nEVs_Realised[Network][i]=nEVs
+                nEVs_Realised[N][i]=nEVs
                 
                 l=l+1
             k=k+1
@@ -256,6 +215,21 @@ def EVRealiser(networks,paths,quant,factor):
                 
             dems={}
             if status[k-1][l-1] =='Success':
+                summary=pd.DataFrame(results.groupby(['Time period']).sum()['Charging(kW)'])
+                discharge=pd.DataFrame(results.groupby(['Time period']).sum()['Discharging(kW)'])
+                summary=summary.join(v2g,how='outer')
+                summary=summary.join(discharge,how='outer')
+                genSum=(summary['Charging(kW)']-summary['Discharging(kW)']).fillna(0)
+                genSum.name='Net'
+                summary=summary.join(genSum,how='outer')
+                v2gfulfilled=v2g[v2g<0]
+                v2gfulfilled.name='v2gfulfilled'
+                if len(v2g[v2g<0])>0:
+                    for a in v2g[v2g<0].index:
+                        v2gfulfilled[a]=max(v2g[v2g<0][a],summary['Net'][v2g<0][a])
+                    
+                    summary=summary.join(v2gfulfilled,how='outer')
+                    v2gperc.append(round(v2gfulfilled.sum()/v2g[v2g<0].sum()*100,1))
                 IDs=results['name'].unique()
                 
                 for z in IDs:
@@ -266,21 +240,18 @@ def EVRealiser(networks,paths,quant,factor):
                 
                 for z in IDs:
                     AllEVs[i]=AllEVs[i].join(dems[z], how='outer')
-                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
+                print(N, C,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
             else:
-                print(Network, Case,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh , No EVs')   
-    
-        end=datetime.now()
+                print(N, C,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge', 'No EVs')   
+    if Valid==False:
+        pickle_out = open(paths+"nEVs_Realised.pickle", "wb")
+        pickle.dump(nEVs_Realised, pickle_out)
+        pickle_out.close()
         
-        t_time=end-start
-        print('Days Optimisation took '+str(t_time))
-    
-    pickle_out = open(paths+"nEVs_Realised.pickle", "wb")
-    pickle.dump(nEVs_Realised, pickle_out)
-    pickle_out.close()
+    return EVCapacitySummary, AllEVs, v2gperc
 
 
-##########--- Sample Table for report
+###--- Sample Table for report
 #EVSS=EVTDSample.copy()
 #evsinH=((EVSS['t_in']*10)//60+12).values.astype(str)
 #evsinM=((EVSS['t_in']*10)%60).values.astype(str)

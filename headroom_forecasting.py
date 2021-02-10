@@ -145,7 +145,7 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
     #######================= Calculate  Number of Heatpumps and V2G ZOnes =##################
     ###--- Deciding how many HPs to have in each zone
     ###--- 'assign' stores the case with the maximum HPs that can be allowed
-    ###--- 'v2gZones' are those where we have some negative headroom but we have enough EVs (with positive headroom above 'thresh' )
+    ###--- 'v2gZones' are those where we have some negative headroom but we have enough EVs (with positive headroom above 'Thresh' )
     assign={}
     v2gZones={}
     for N in networks:
@@ -159,23 +159,36 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
         ###---- We assign the case with the maximum amount of HPs with positive headroom
         assign[N]=pd.Series(index=HdrmSum[N].index,dtype=object)
         v2gZones[N]=[]
-        for i in HdrmSum[N].index:
-            ###--- HdrmAnyBelow is equal to zero when there is 
-            if sum(HdrmAnyBelow[N].loc[i]==0) ==0:
-                assign[N][i]='00PV00HP'
-            if sum(HdrmAnyBelow[N].loc[i]<0) ==0:
-                assign[N][i]='50PV100HP'
+        ####---- In HdrmSum[N], the columns are the cases, the index are the zones
+        for i in HdrmSum[N].index:  ##- for each zone (which has results for the cases)
+            
+            ###--- If HdrmAnyBelow==0 there is no negative headroom (only positive headroom)
+            if sum(HdrmAnyBelow[N].loc[i]==0) ==0:  ###--- If sum(HdrmAnyBelow==0) for all cases. This means they all have negative headroom.
+                assign[N][i]='00PV00HP'    ###--- So we set the number of HPs to zero
+            
+            ###---If HdrmAnyBelow<0 means there is negative headroom
+            if sum(HdrmAnyBelow[N].loc[i]<0) ==0:  ###--- If we have no cases with negative headroom. 
+                assign[N][i]='50PV100HP' ###--- Then we can have 100% heatpumps
+            
+            ###---If We have negative headroom in some cases, and positive headroom in some cases
             if sum(HdrmAnyBelow[N].loc[i]<0) >0 and sum(HdrmAnyBelow[N].loc[i]==0)>0:
-                assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1]
+                ###--- Then we assign the case with the most heatpumps that had no negative headroom
+                assign[N][i]=HdrmAnyBelow[N].loc[i][HdrmAnyBelow[N].loc[i]==0].index[-1] 
+            
+            ###--- This is the V2G case. Where we say we can have a case with some negative headrom. 
+            ###--- But Only if the total Net headroom is above 'Thresh', the threshold
+            ###--- Idea being if Hdrm>Thresh, then we have EVs that can provide V2G during periods of -ve headroom
             if sum(HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]>Thresh)>0:
                 aa=HdrmSum[N].loc[i][HdrmAnyBelow[N].loc[i]<0]
                 assign[N][i]=aa[aa>Thresh].index[-1]
-                v2gZones[N].append(i)
+                v2gZones[N].append(i)  ###--- We store these special zones for reporting purposes (and in calculating how much V2G was delivered)
     
     
     nEVs_Final={}
     nHPs_Final={}
     #########-------------Create Mixed HP Penetration Customer Summaries--------############
+    #---- The customer summaries are updated to include the assigned level of heatpumps 'assign' per zone
+    
     for N in networks:
         
         Customer_Summary[N]['Final']=Customer_Summary[N]['00PV25HP']
@@ -198,17 +211,22 @@ def headroom_percentiles(networks,Cases,paths,quant,factor):
             Case=assign[N][k]
             nEVs_Final[N][k]=nEVs[N][Case][k]
             nHPs_Final[N][k]=HPSum[N][Case][k]
-    ####--- Problem Zone (no EVs should be allowed as issues happened with 0%HPs)
+    ####--- Problem Zones (no EVs should be allowed as issues happened with 0%HPs)
     nEVs_Final['network_17/']['27']=0   
     nEVs_Final['network_5/']['13']=0 
+    ###--- End problem zones---###
+    
+    ####----- We return our initial estimate of the number of EVs per Zone
     pickle_out = open(paths+"nEVs_NoShifting.pickle", "wb")
     pickle.dump(nEVs_Final, pickle_out)
     pickle_out.close()
     
+    ####----- We return our initial estimate of the number of HPs per Zone
     pickle_out = open(paths+"nHPs_final.pickle", "wb")
     pickle.dump(nHPs_Final, pickle_out)
     pickle_out.close()
-        
+    
+    ####----- We return the assigned cases
     pickle_out = open(paths+"Assign_Final.pickle", "wb")
     pickle.dump(assign, pickle_out)
     pickle_out.close()

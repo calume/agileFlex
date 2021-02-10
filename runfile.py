@@ -46,9 +46,8 @@ def main(network):
     status=runcase(testcase,model,network,opt)
     logging.info("Done!")
     return status
-#main('k_5')
+
 # start=datetime.now()
-# #main()
 # end=datetime.now()
 #print(end-start)
 

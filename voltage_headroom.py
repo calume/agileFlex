@@ -56,11 +56,11 @@ def voltage_limits(networks,Cases,paths):
     All_VC_Limits={}
     
     for N in networks:
+        print(N)
         AllVmin=pd.DataFrame()
         AllPflow=pd.DataFrame()
     
         for C in Cases:
-            print(N)
             pick_in = open("../Data/"+N+C+"_Vmin_DF.pickle", "rb")
             V_min = pickle.load(pick_in)
 

@@ -5,22 +5,45 @@ Created on Thu Sep 24 14:16:25 2020
 Megaloader is the top level script loading in functions from other scripts. The overall running order is as follows:
     
 1. Create customer data (based on Cases) for all Networks 
----- raw_input_data() function within runbatch(networks,Cases,'Pre',paths,VC=False))
+---- raw_input_data() function within congestion_probability_batch.py
     
 2. Power flow then is run using PV, Smartmeter (SM) and heat pump (HP) data for all cases 
----- do_loadflows(sims) function within runbatch(networks,Cases,'Pre',paths,VC=False))
+---- do_loadflows(sims) function within congestion_probability_batch.py
 
 3. The zonal minimum voltage and zonal supply cable power flow is determined 
----- calc_current_voltage function (in crunch_results_batch.py) within post_process() within runbatch(networks,Cases,'Post',paths, VC=True)
+---- calc_current_voltage function (in crunch_results_batch.py) within congestion_probability_batch.py
     
 4. Using the resulting zonal power flows and minimum voltages, Power flow limits are estimated per zone
 ---- voltage_limits(networks,Cases,paths) function
 
 5. Headroom and footroom are calculated for each timestep
-----  Headroom_calc function (in crunch_results_batch.py) within post_process() within runbatch(networks,Cases,'Post',paths, VC=False)
+----  Headroom_calc function (in crunch_results_batch.py) called from post_process() within congestion_probability_batch.py
 
-6. 
-headroom_percentiles(networks,Cases,paths,quant,factor)
+6. Daily profiles of headroom and footroom are calculated, number of EVs and HPs are also calculated and saved in pickle files
+---- headroom_percentiles function within headroom_forecasting.py runs
+    ---- percentiles() creates daily profiles
+    ---- HP_vs_Headroom() calculates headroom
+    ---- EV numbers are estimated per zone based on daily headroom
+    ---- HP cases are assigned (based on headroom) and new customer summaries created
+    
+7. Calculate number of optimised EVs (10 successful attempts).
+---- EVRealiser function within zonal_summary.py
+
+8. Do EV optimisation for successful EV number. Then validate using congestion_probability_validation.py
+--Load flow is run and headroom is re-calculated for comparison
+----- EVRealiser function within zonal_summary.py (with flag to say its not 10 attempts, but 2 instead)
+----- runvalid within congestion_probability_validation.py 
+-----------runvalid calls save_outputs, post_process from congestion_probability_batch.py
+
+
+============== Required Data Folder Structure ==================
+
+Data/network_X/       ------------ Stores calculated Zonal Vmin, Pflow and C Violations
+Data/Raw              -------------Stores the raw data (input dataframes of demand and output results of current, Voltage Arrays)
+Data/Upper/           -------------Stores the calculated nEVs and HPs (assigned cases)
+-----Upper/network_X/ -------------Stores calculated headrooms, both as timeseries and daily profiles. Also stores All_VC_limits.pickle which is the Power flow limit for minimum voltage
+Data/Validation       -------------Stores validation results arrays
+Data/Validation/network_X/ --------Stores new headrooms for validation results 
 
 @author: Calum Edmunds
 """
@@ -29,7 +52,6 @@ from congestion_probability_batch import runbatch
 from voltage_headroom import voltage_limits
 from headroom_forecasting import headroom_percentiles
 from zonal_summary import EVRealiser
-from zonal_summary_valid import daily_EVSchedule
 import pickle
 from congestion_probability_validation import runvalid
 import pandas as pd
@@ -38,36 +60,50 @@ networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
 
 Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
 #Txs=pd.Series([750,500,1000,1000,750],index=networks)  ###---- These are the Tx ratings, not needed as they are stored in the OpenDSS files but there for reference
-paths="../Data/Upper/"
 desc=['225 V limit (Upper Conservative)','216 V Limit (Lower Less conservative)','']   ####---- 225 V corresponds to 0.94 p.u in voltage_headroom.py, 216 V corresponds to 0.9 p.u.
 
-""" Steps 1 and 2"""
+###--- Within function runbatch(data_path,networks,Cases,PrePost,paths,VC)
+###--- 'data_path' is the path where Load flow outputs are stored
+###--- 'paths' sets the path for output headroom data that is specific to the Upper Minimum Voltage Power flow limit
+upath="../Data/Upper/"
+""" Steps 1 and 2 - Customer Data and Load Flow"""
 ###---runbatch function with ‘Pre’ generates the data from the OpenDSS loadflow 
 ###---(including dataframes of SM,HP,PV data assigned 10minutely per customer) 
 
-#runbatch(networks,Cases,'Pre',paths,VC=False)
+runbatch('../Data/Raw/',networks,Cases,'Pre',paths='',VC=False)
 
-"""Step 3"""
+"""Step 3 - Zonal Minimum voltage"""
 ###---runbatch function with ‘Post’ with VC==True. This outputs the Vmin_DF, 
 ###---and PFlow_DF per zone. (Minimum voltage and supply cable power flow)
 
-#runbatch(networks,Cases,'Post',paths,VC=True)
+runbatch('../Data/Raw/',networks,Cases,'Post','../Data/',VC=True)
 
-"""Step 4"""
-#voltage_limits(networks,Cases,paths)
+"""Step 4 - Zonal power flow Limit"""
+###--- Power flow limits for minimum voltage are estimated per zone.
 
-"""Step 5"""
-#runbatch(networks,Cases,'Post',paths, VC=False)
+voltage_limits(networks,Cases,upath)
 
-"""Step 6"""
-quant=0
-factor=0.5
-headroom_percentiles(networks,Cases,paths,quant,factor)
-#EVRealiser(networks, paths,quant,factor)
-####daily_EVSchedule(networks[0], paths,quant,factor)
-#timers=runvalid(networks, paths,quant,factor)
+"""Step 5 - Headroom and Footroom"""
+###--- Using the power flow limits the headroom and footroom are calculated
+
+runbatch('../Data/',networks,Cases,'Post',upath, VC=False)
+
+"""Step 6 - Headroom/Footroom Daily, and Number of EVs and HPs"""
+quant=0.02
+factor=1
+headroom_percentiles(networks,Cases,upath,quant,factor)
+
+"""Step 7 - Optimise EVs: 10 Successfull attempts """
+
+EVRealiser(networks, upath,quant,factor,Valid=False)
+
+"""Step 8 - Optimise EVs: Validate on Network with maximum HPs """
+
+####--- Function runvalid(data_path,networks,paths,quant,factor)
+runvalid('../Data/Validation/',networks, upath,quant,factor)
 
 
+'''Below is the summary of validated results, this wont work any more, at least not the summary of violations for validation'''
 # ###########MEGA SUMMARY OF HPs and EVS ############
 
 # print(paths,desc[1])

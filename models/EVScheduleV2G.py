@@ -126,7 +126,7 @@ model.OBJ = Objective(rule=objective, sense=minimize)
 # --- cost components of the objective function ---
 def precontingency_cost(model,t):
     return model.CostTP[t] == sum(model.cost[g,t]*model.baseMVA*model.pG[g,t] for g in model.G)\
-    +sum(model.baseMVA*model.VOLL[d]*(1-model.alpha[d,t])*model.PD[d,t] for d in model.D)+10000*model.eps
+    +sum(model.baseMVA*model.VOLL[d]*(1-model.alpha[d,t])*model.PD[d,t] for d in model.D)
 model.precontingency_cost_const = Constraint(model.T,rule=precontingency_cost)
 
 # --- Kirchoff's current law Definition at each bus b ---
