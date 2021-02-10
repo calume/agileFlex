@@ -5,6 +5,10 @@
 - [Python 3.7]
 - See the requirements.txt file
 
+## Overall Project Description
+
+We start with some data of PV, Heat Pump and Smartmeter Data (See Data folder). Then we do load flows using OpenDSS.
+Then we estimate the headroom and Optimise EVs around the remaining headroom. Finally we validate the results with more load flows and recalculate the headroom.
 
 Megaloader is the top level script loading in functions from other scripts. The overall running order is as follows:
     
