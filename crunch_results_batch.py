@@ -177,7 +177,7 @@ def Headroom_calc(
     Footrm = pd.DataFrame(index=sims.tolist(), columns=cs)
     Rate = pd.DataFrame(index=sims.tolist(), columns=cs)
     Flag = pd.DataFrame(index=sims.tolist(), columns=cs)
-    
+    C_rate = pd.DataFrame(index=sims.tolist(), columns=cs)
     ###--- We go through every timestep modelled (sims) and calculate the Rate which is a minimum of
     ###--- C_rate (minimum of supply cable rating coverted to kVA) or V_rate which is the minimum voltage
     ###--- power flow limit calculated in voltage_headroom.py and stored for all zones in All_VC.pickle for each network
@@ -189,19 +189,19 @@ def Headroom_calc(
             for f in range(1, len(pinchClist)+1):
                 ###--- convert supply cable rating (RateArray)
                 ###--- pinchClist is the list of supply cable numbers for each zone
-                C_rate= 0.9*RateArray[pinchClist[f - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
+                C_rate[str(p) + str(f)][i]= 0.9*RateArray[pinchClist[f - 1]] * Vseries[1] * 0.416 / (3 ** 0.5)
                 if (str(p)+str(f)) in All_VC:
                     V_rate = All_VC[str(p)+str(f)]
                 ###--- some zones have zero customers (zero power flow), in those cases there is no value in All_VC for that zone
                 ###--- In which case V_rate is set to C_rate (but these zones are ignored in future analysis)
                 else:
-                    V_rate = C_rate
-                Rate[str(p) + str(f)][i] = min(C_rate,V_rate)
+                    V_rate = C_rate[str(p) + str(f)][i]
+                Rate[str(p) + str(f)][i] = min(C_rate[str(p) + str(f)][i],V_rate)
                 ###--- Headroom and footroom are calculated as the difference between the rate and the supply cable power flow
                 Headrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  - Flow[str(p) + str(f)][i] 
                 Footrm[str(p) + str(f)][i] = Rate[str(p) + str(f)][i]  + Flow[str(p) + str(f)][i] 
                 ###--- Flag simply stores a letter corresponding to the binding constraint
-                if Rate[str(p) + str(f)][i] == C_rate and Headrm[str(p) + str(f)][i]<0:
+                if Rate[str(p) + str(f)][i] == C_rate[str(p) + str(f)][i] and Headrm[str(p) + str(f)][i]<0:
                     Flag[str(p) + str(f)][i]='c'  ##--- 'c' means cable rating (thermal)
                 if Rate[str(p) + str(f)][i] == V_rate and Headrm[str(p) + str(f)][i]<0:
                     Flag[str(p) + str(f)][i]='v' ##--- 'v' means minimum voltage
@@ -211,7 +211,7 @@ def Headroom_calc(
             Flag.loc[i]='t'  ##--- 't' means transformer (thermal)
             print(sum(Headrm.loc[i]),'Transformer_Constrained')
 
-    return Headrm, Footrm, Txhdrm, Flag
+    return Headrm, Footrm, Txhdrm, Flag,C_rate
 
 
 ###---------- The secondary headroom, adjustments and per phase headrooms are shown

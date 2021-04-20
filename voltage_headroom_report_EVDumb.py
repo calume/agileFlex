@@ -23,11 +23,11 @@ pd.options.mode.chained_assignment = None
 #def voltage_headroom(Pflow,Vmin):
 
 ## Network 17 done up to 25HP and 30EV
-networks=['network_10/']#,'network_5/','network_10/','network_18/']
+networks=['network_1/','network_5/','network_10/','network_18/']
 #networks=['network_17/']
-Cases=['25PV75HP','50PV100HP']
+Cases=['00PV00HP','00PV25HP','25PV50HP']#,'25PV75HP','50PV100HP']
 #Cases=['25PV75HP','50PV100HP']
-EVPens=[80,100]
+EVPens=[10,20,30,40]
 
 #networks=['network_18/']#,'network_5/','network_10/','network_17/','network_18/']
 Y=14
@@ -40,7 +40,7 @@ TransPerc={}
 Y=14
 c=0
 cols = ["grey","#9467bd", "#bcbd22","#ff7f0e","#d62728"] 
-mk=['o','^','*','P','s']
+mk=['+','x','o','s']
 style = ["--", ":", "-.", "--","-"]
 fills = ["full", "left", "bottom", "right","none"]
 times = ["0% HP", "25% HP", "50% HP","75% HP", "100%HP"]
@@ -52,6 +52,14 @@ allcusts={}
 maxEVs=pd.DataFrame(index=Cases, columns=networks)
 maxi={}
 ncusts=pd.Series(index=networks)
+
+VlowAllZone={}
+ChighAllZone={}
+s=6
+for C in Cases:
+    VlowAllZone[C]=pd.DataFrame(index=EVPens, columns=networks)
+    ChighAllZone[C]=pd.DataFrame(index=EVPens, columns=networks)
+CP='00PV25HP'
 for N in networks:
     pick_in = open("../Data/DumbRaw/"+N[:-1]+'_00PV00HPEV10_TransRatekVA.pickle', "rb")
     TransRateKVA = pickle.load(pick_in)   
@@ -63,7 +71,6 @@ for N in networks:
     AllPflow=[]
     maxi[N]=pd.DataFrame(columns=Cases)
     for C in Cases:
-        
         oks[N][C]=pd.DataFrame(columns=EVPens)
         VlowPerc[N][C]=pd.DataFrame(columns=EVPens)
         ChighPerc[N][C]=pd.DataFrame(columns=EVPens)
@@ -73,7 +80,7 @@ for N in networks:
         ncusts[N]=len(Customer_Summary)
         for E in EVPens:
             pick_in = open("../Data/Dumb/"+N+C+'EV'+str(E)+"_Vmin_DF.pickle", "rb")
-            Vmin = pickle.load(pick_in)
+            V_min = pickle.load(pick_in)
             
             pick_in = open("../Data/Dumb/"+N+C+'EV'+str(E)+"_C_Violations.pickle", "rb")
             C_Violations = pickle.load(pick_in)
@@ -86,13 +93,15 @@ for N in networks:
                 TransKVA_S[i]=-TransKVA[i]
                 
             ##### Count Vmins < 0.9 and 0.94 ################
-            VlowPerc[N][C][E]=round((Vmin<0.9).sum()/len(Vmin.index)*100,2)   
+            VlowPerc[N][C][E]=round((V_min<0.9).sum()/len(V_min.index)*100,2)   
             TransPerc[N][C]['All'][E]=round((abs(TransKVA_S)>TransRateKVA).sum()/len(TransKVA_S.index)*100,2)   
-            ChighPerc[N][C][E]=round((C_Violations>0).sum()/len(C_Violations.index)*100,2) 
+            ChighPerc[N][C][E]=round((C_Violations>0).sum()/len(C_Violations.index)*100,2)
+            VlowAllZone[C][N][E]=sum((V_min<0.9).sum(axis=1)>0)/len(V_min)*100
+            ChighAllZone[C][N][E]=sum(C_Violations.sum(axis=1)>0)/len(V_min)*100
             oks[N][C][E]=ChighPerc[N][C][E]
             for k in VlowPerc[N][C][E].index:
-                oks[N][C][E][k]=(VlowPerc[N][C][E][k]==0) and (TransPerc[N][C]['All'][E]<=0.1) and (ChighPerc[N][C][E][k]<0.5)
-            maxi[N][C]=VlowPerc[N][C][80]
+                oks[N][C][E][k]=(VlowPerc[N][C][E][k]==0) and (TransPerc[N][C]['All'][E]<=0.5) and (ChighPerc[N][C][E][k]<0.5)
+            maxi[N][C]=VlowPerc[N][C][10]
         for k in VlowPerc[N][C].index:
             if len(oks[N][C].loc[k][oks[N][C].loc[k]==True])>0:
                 maxi[N][C][k]=oks[N][C].loc[k][oks[N][C].loc[k]==True][-1:].index[0]
@@ -118,16 +127,16 @@ for N in networks:
         pick_in = open("../Data/"+N+"Customer_Summary00PV00HP14.pickle", "rb")
         Customer_Summary= pickle.load(pick_in) 
         zcusts[h]=len(Customer_Summary[Customer_Summary['zone']==h])
-        #plt.plot(zcusts[h],VlowPerc[N]['00PV25HP'][0].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
+        plt.plot(zcusts[h],VlowPerc[N][CP][40].loc[h], markersize=s, fillstyle='none', marker=mk[c], color=cols[c],linestyle = 'None')
     c=c+1
 
 plt.grid(linewidth=0.2)
-custom=[Line2D([0],[0], marker='o', color="grey",fillstyle='full', markerfacecolor='grey', label='Network 1',linestyle = 'None'),
-        Line2D([0],[0], marker='^', color="#9467bd",fillstyle='left', markerfacecolor='#9467bd', label='Network 5',linestyle = 'None'),
-        Line2D([0],[0], marker='*', color="#bcbd22",fillstyle='bottom', markerfacecolor='#bcbd22', label='Network 10',linestyle = 'None'),
-        Line2D([0],[0], marker='P', color="#ff7f0e",fillstyle='right', markerfacecolor='#ff7f0e', label='Network 17',linestyle = 'None'),
-        Line2D([0],[0], marker='s', color="#d62728",fillstyle='none', label='Network 18',linestyle = 'None')]
-
+custom=[Line2D([0],[0], marker=mk[0], markersize=s,color=cols[0], fillstyle='none', label='Network 1',linestyle = 'None'),
+        Line2D([0],[0], marker=mk[1], markersize=s,color=cols[1], fillstyle='none', label='Network 5',linestyle = 'None'),
+        #Line2D([0],[0], marker=mk[2], markersize=s,color=cols[2], fillstyle='none', label='Network 10',linestyle = 'None'),
+        Line2D([0],[0], marker=mk[2], markersize=s,color=cols[2], fillstyle='none', label='Network 17',linestyle = 'None'),
+        Line2D([0],[0], marker=mk[3], markersize=s,color=cols[3], fillstyle='none', label='Network 18',linestyle = 'None')]
+    
 leg2=plt.legend(handles=custom,loc=2,fontsize=12)
 plt.gca().add_artist(leg2)
 plt.xlabel('Number of Customers',fontsize=12)
@@ -143,7 +152,7 @@ for N in networks:
     zcusts=pd.Series(index=ChighPerc[N][C].index)
     for h in ChighPerc[N][C].index:
         zcusts[h]=len(Customer_Summary[Customer_Summary['zone']==h])
-        #plt.plot(zcusts[h],ChighPerc[N]['00PV25HP'][40].loc[h], marker=mk[c], fillstyle=fills[c], color=cols[c],linestyle = 'None')
+        plt.plot(zcusts[h],ChighPerc[N][CP][40].loc[h], markersize=s, fillstyle='none', marker=mk[c], color=cols[c],linestyle = 'None')
     c=c+1
 
 plt.grid(linewidth=0.2)
@@ -173,3 +182,50 @@ plt.legend(fontsize=9,)
 plt.grid(linewidth=0.2)
 plt.xlim([0, 23])
 plt.xticks(range(0,24,6),times2)
+
+
+plt.figure()
+
+#mk=['+','x','o','2']
+lbls=['Network 1','Network 5','Network 17','Network 18']
+cases = ["10", "20","30", "40"]
+styles=[':','--','-']
+
+s=6
+plt.subplot(3,1,1)
+c=0
+for N in networks:
+    plt.plot(VlowAllZone[CP][N],marker=mk[c],color=cols[c],markersize=s, fillstyle='none', label=lbls[c],linestyle='none')
+    c=c+1
+    plt.xticks(TransPerc[N][CP].index,labels=cases)
+    plt.grid(linewidth=0.2)
+    plt.legend(framealpha=1,bbox_to_anchor=(0, 1.6), loc='upper left', ncol=2)
+    plt.ylabel('Low Voltage',fontsize=12)
+    plt.ylim(-0.5,100)
+    plt.yscale('symlog')
+    
+plt.subplot(3,1,2)
+c=0
+for N in networks:
+    plt.plot(ChighAllZone[CP][N],marker=mk[c],markersize=s,color=cols[c], fillstyle='none', label=lbls[c],linestyle='none')
+    #plt.errorbar(ChighPerc[N].columns,ChighPerc[N].mean(),ChighPerc[N].mean()-ChighPerc[N].max(),uplims=True, marker=mk[c],fmt='.k', color=cols[c], ecolor=cols[c], lw=1, capsize=3)
+    c=c+1
+    plt.xticks(TransPerc[N][CP].index,labels=cases)
+    plt.grid(linewidth=0.2)
+    plt.ylabel('Cable',fontsize=12)
+    plt.ylim(-0.5,100)
+    plt.yscale('symlog')
+
+plt.subplot(3,1,3)
+c=0
+for N in networks:
+    plt.plot(TransPerc[N][CP],marker=mk[c],markersize=s,color=cols[c], fillstyle='none', label=lbls[c],linestyle='none')
+    c=c+1
+    plt.xticks(TransPerc[N][CP].index,labels=cases)
+    plt.grid(linewidth=0.2)
+    plt.xlabel('% EV Penetration',fontsize=12)
+    plt.ylabel('Transformer',fontsize=12)
+    plt.ylim(-0.5,100)
+    plt.yscale('symlog')
+
+        

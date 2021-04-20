@@ -151,10 +151,7 @@ def runDSS(Network_Path, demand, pv,ev):
     converged=dss.Solution.Converged()
     return CurArray, VoltArray, PowArray, Losses, TranskVA, RateArray, TransRatekVA,genres,converged
 
-###------- Using the network outputs (voltage and current) from Opendss
-###------- network summary is generated including overvoltage and current locations
-
-            
+###------- Using the network outputs (voltage and current) from Opendss           
 
 # from feedbackplot import plots
 # plots(Network_Path,VoltArray,CurArray,RateArray)

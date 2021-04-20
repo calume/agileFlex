@@ -41,7 +41,7 @@ def runbatch(data_path,networks,Cases,PrePost,paths,VC):
    
     ####----------Set Test Network ------------
     start_date = date(2013, 12, 1)
-    end_date = date(2014, 2, 27)
+    end_date = date(2013, 12, 2)
     sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
 
     sims = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))
@@ -266,6 +266,7 @@ def do_loadflows(data_path,sims,N,C,Network_Path):
     save_outputs(data_path,CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA,N,C)
     
 def post_process(paths,data_path,N,C,VC,sims,Network_Path,raw_data_path):
+    All_C_Limits={}
     Customer_Summary, Coords, Lines, Loads = customer_summary(Network_Path, C)
     ### pinchClist is a list of the supply Cables/Lines to each zone 
     pinchClist=list(Lines[Lines['Bus1']=='Bus1=11'].index)
@@ -347,7 +348,7 @@ def post_process(paths,data_path,N,C,VC,sims,Network_Path,raw_data_path):
         
         ### Headroom, footroom are calculated from All_VC_Limits (per network) in Headroom_calc function
         
-        Headrm, Footrm, Txhdrm, Flag = Headroom_calc(
+        Headrm, Footrm, Txhdrm, Flag,C_rate = Headroom_calc(
             RateArray,
             VoltArray,
             All_VC[N],
@@ -377,16 +378,9 @@ def post_process(paths,data_path,N,C,VC,sims,Network_Path,raw_data_path):
         pickle.dump(Flag, pickle_out)
         pickle_out.close()
                 
-        ###########---- Returning current limits is not required, only for reporting purposes.
-        ###############------------return Current Limits-----------------############
-        #aa=list(Customer_Summary['zone'].unique())
-        #aa.sort()
-        #All_C_Limits[N]=pd.Series(index=aa)
-        #for k in range(1,4): 
-        #   for l in network_summary[i][k]['C_Rate'].keys():
-        #       All_C_Limits[N][str(k)+str(l)]=network_summary[i][k]['C_Rate'][l]
-
-        #pickle_out = open("../Data/All_C_Limits.pickle", "wb")
-        #pickle.dump(All_C_Limits, pickle_out)
-        #pickle_out.close()
+        ##########---- Returning current limits is not required, only for reporting purposes.
+        ##############------------return Current Limits-----------------############
+        pickle_out = open(paths+N+C+"_C_rate.pickle", "wb")
+        pickle.dump(C_rate, pickle_out)
+        pickle_out.close()
 

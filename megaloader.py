@@ -56,9 +56,9 @@ import pickle
 from congestion_probability_validation import runvalid
 import pandas as pd
 
-networks=['network_1/','network_5/','network_10/','network_17/','network_18/']
+networks=['network_18/']#,'network_5/','network_10/','network_17/','network_18/']
 
-Cases=['00PV00HP','00PV25HP','25PV50HP','25PV75HP','50PV100HP']
+Cases=['25PV50HP']#,'00PV25HP','25PV50HP','25PV75HP','50PV100HP']
 #Txs=pd.Series([750,500,1000,1000,750],index=networks)  ###---- These are the Tx ratings, not needed as they are stored in the OpenDSS files but there for reference
 desc=['225 V limit (Upper Conservative)','216 V Limit (Lower Less conservative)','']   ####---- 225 V corresponds to 0.94 p.u in voltage_headroom.py, 216 V corresponds to 0.9 p.u.
 
@@ -70,37 +70,37 @@ upath="../Data/Upper/"
 ###---runbatch function with ‘Pre’ generates the data from the OpenDSS loadflow 
 ###---(including dataframes of SM,HP,PV data assigned 10minutely per customer) 
 
-runbatch('../Data/Raw/',networks,Cases,'Pre',paths='',VC=False)
+# runbatch('../Data/Raw/',networks,Cases,'Pre',paths='',VC=False)
 
-"""Step 3 - Zonal Minimum voltage"""
-###---runbatch function with ‘Post’ with VC==True. This outputs the Vmin_DF, 
-###---and PFlow_DF per zone. (Minimum voltage and supply cable power flow)
+# """Step 3 - Zonal Minimum voltage"""
+# ###---runbatch function with ‘Post’ with VC==True. This outputs the Vmin_DF, 
+# ###---and PFlow_DF per zone. (Minimum voltage and supply cable power flow)
 
-runbatch('../Data/Raw/',networks,Cases,'Post','../Data/',VC=True)
+# runbatch('../Data/Raw/',networks,Cases,'Post','../Data/',VC=True)
 
-"""Step 4 - Zonal power flow Limit"""
-###--- Power flow limits for minimum voltage are estimated per zone.
+# """Step 4 - Zonal power flow Limit"""
+# ###--- Power flow limits for minimum voltage are estimated per zone.
 
-voltage_limits(networks,Cases,upath)
+# voltage_limits(networks,Cases,upath)
 
-"""Step 5 - Headroom and Footroom"""
-###--- Using the power flow limits the headroom and footroom are calculated
+# """Step 5 - Headroom and Footroom"""
+# ###--- Using the power flow limits the headroom and footroom are calculated
 
-runbatch('../Data/',networks,Cases,'Post',upath, VC=False)
+# runbatch('../Data/',networks,Cases,'Post',upath, VC=False)
 
-"""Step 6 - Headroom/Footroom Daily, and Number of EVs and HPs"""
+# """Step 6 - Headroom/Footroom Daily, and Number of EVs and HPs"""
 quant=0.02
 factor=1
-headroom_percentiles(networks,Cases,upath,quant,factor)
+# headroom_percentiles(networks,Cases,upath,quant,factor)
 
-"""Step 7 - Optimise EVs: 10 Successfull attempts """
+# """Step 7 - Optimise EVs: 10 Successfull attempts """
 
 EVRealiser(networks, upath,quant,factor,Valid=False)
 
 """Step 8 - Optimise EVs: Validate on Network with maximum HPs """
 
 ####--- Function runvalid(data_path,networks,paths,quant,factor)
-runvalid('../Data/Validation/',networks, upath,quant,factor)
+#runvalid('../Data/Validation/',networks, upath,quant,factor)
 
 
 '''Below is the summary of validated results, this wont work any more, at least not the summary of violations for validation'''
