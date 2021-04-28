@@ -37,9 +37,9 @@ from itertools import cycle, islice
 from openpyxl import load_workbook
 #from voltage_headroom import voltage_headroom
 
-networks=['network_10/']#,'network_5/','network_10/','network_18/']#,'network_18/']
-Cases=['25PV75HP','50PV100HP']
-EVPens=[80,100]
+networks=['network_18/']#,'network_5/','network_18/']
+Cases=['00PV00HP']#,'00PV25HP','25PV50HP']
+EVPens=[30,40]
 paths="../Data/Dumb/"
 
 
@@ -134,23 +134,23 @@ def runbatch(networks,Cases,PrePost,paths,EVPens):
                     pickle_out.close()
                     return Coords, Lines, Customer_Summary,HP_reduced,HPlist, SMlist
                 
-                #def save_inputs(smartmeter,demand,heatpump,pv,ev,N,C,E):  
-                def save_inputs(heatpump,N,C,E):       
-#                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_smartmeter.pickle", "wb")
-#                    pickle.dump(smartmeter, pickle_out)
-#                    pickle_out.close()
-#                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_demand.pickle", "wb")
-#                    pickle.dump(demand, pickle_out)
-#                    pickle_out.close()
+                def save_inputs(smartmeter,demand,heatpump,pv,ev,N,C,E):  
+                #def save_inputs(heatpump,N,C,E):       
+                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_smartmeter.pickle", "wb")
+                    pickle.dump(smartmeter, pickle_out)
+                    pickle_out.close()
+                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_demand.pickle", "wb")
+                    pickle.dump(demand, pickle_out)
+                    pickle_out.close()
                     pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_heatpump.pickle", "wb")
                     pickle.dump(heatpump, pickle_out)
                     pickle_out.close()
-#                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_pv.pickle", "wb")
-#                    pickle.dump(pv, pickle_out)
-#                    pickle_out.close()
-#                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_ev.pickle", "wb")
-#                    pickle.dump(ev, pickle_out)
-#                    pickle_out.close()
+                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_pv.pickle", "wb")
+                    pickle.dump(pv, pickle_out)
+                    pickle_out.close()
+                    pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_ev.pickle", "wb")
+                    pickle.dump(ev, pickle_out)
+                    pickle_out.close()
     
                 def save_outputs(CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA,N,C,E):
                     pickle_out = open("../Data/DumbRaw/"+N[:-1]+'_'+C+'EV'+str(E)+"_CurArray.pickle", "wb")
@@ -228,52 +228,51 @@ def runbatch(networks,Cases,PrePost,paths,EVPens):
                     smartmeter = {}
                     heatpump = {}
                     pv = {}
-#                    evdailys=pd.DataFrame(index=np.unique(sims.date), columns=range(0,len(Customer_Summary)))
-#                    ev={}
-#                    evflags=np.zeros(len(Customer_Summary))
+                    evdailys=pd.DataFrame(index=np.unique(sims.date), columns=range(0,len(Customer_Summary)))
+                    ev={}
+                    evflags=np.zeros(len(Customer_Summary))
                     demand = {}  # Sum of smartmeter, heatpump and EV
                     #####-------------Initialise Output --------------
                     #####-- These are produced by the OpenDSS Load Flow
                     c=1
-#                    for a in evdailys.columns:
-#                        evdailys[a]=EV_DataFrame.columns[len(evdailys)*(c-1):len(evdailys)*c]
-#                        c=c+1
-#                        if len(evdailys)*c > len(EV_DataFrame.columns):
-#                            c=1
+                    for a in evdailys.columns:
+                        evdailys[a]=EV_DataFrame.columns[len(evdailys)*(c-1):len(evdailys)*c]
+                        c=c+1
+                        if len(evdailys)*c > len(EV_DataFrame.columns):
+                            c=1
                     
-#                    for u in Customer_Summary['zone'].unique():
-#                        idx=Customer_Summary[Customer_Summary['zone']==u].index[::(int(100/E))]
-#                        evflags[idx]=1
+                    for u in Customer_Summary['zone'].unique():
+                        idx=Customer_Summary[Customer_Summary['zone']==u].index[::(int(100/E))]
+                        evflags[idx]=1
                     for i in sims.tolist():
                         print(i)
                         # -------------- Sample for each day weekday/weekend and season -----------#
                         ##-- Needed for SM data, and will be used for sampling --#
-                        #smartmeter[i] = np.zeros(len(Customer_Summary))
-                        #ev[i] = np.zeros(len(Customer_Summary))
+                        smartmeter[i] = np.zeros(len(Customer_Summary))
+                        ev[i] = np.zeros(len(Customer_Summary))
                         heatpump[i] = np.zeros(len(Customer_Summary))
-                        #pv[i] = np.zeros(len(Customer_Summary))
-#                        demand[i] = np.zeros(len(Customer_Summary))
+                        pv[i] = np.zeros(len(Customer_Summary))
+                        demand[i] = np.zeros(len(Customer_Summary))
                         # -----for each customer set timestep demand and PV output----#
-#                        EVRel=EV_DataFrame.loc[i.time()]
-#                        dailysrel=evdailys.loc[i.date()]
+                        EVRel=EV_DataFrame.loc[i.time()]
+                        dailysrel=evdailys.loc[i.date()]
                         
                         for z in range(0, len(Customer_Summary)):
-                            #ev[i][z]=EVRel[dailysrel].iloc[z]*evflags[z]
-                            #smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][Customer_Summary["smartmeter_ID"][z]][i]
+                            ev[i][z]=EVRel[dailysrel].iloc[z]*evflags[z]
+                            smartmeter[i][z] = SM_DataFrame[Customer_Summary["Acorn_Group"][z]][Customer_Summary["smartmeter_ID"][z]][i]
                             if Customer_Summary["heatpump_ID"][z] != 0:
                                 heatpump[i][z] = HP_DataFrame[str(Customer_Summary["heatpump_ID"][z])][i]
-#                            if Customer_Summary["PV_kW"][z] != 0:
-#                                pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]) 
-                            #demand[i][z] = smartmeter[i][z] + heatpump[i][z] +ev[i][z]
+                            if Customer_Summary["PV_kW"][z] != 0:
+                                pv[i][z] = (Customer_Summary["PV_kW"][z] * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]) 
+                            demand[i][z] = smartmeter[i][z] + heatpump[i][z] +ev[i][z]
                     
                         ###------ Demand includes Smartmeter and heatpump
-                        #demand[i] = np.nan_to_num(demand[i])
-                        #pv[i] = np.nan_to_num(pv[i])
+                        demand[i] = np.nan_to_num(demand[i])
+                        pv[i] = np.nan_to_num(pv[i])
                     
-#                    save_inputs(smartmeter,demand,heatpump,pv,ev, N,C, E)
-                    save_inputs(heatpump,N,C, E)
-#                    return evdailys,ev,evflags,Customer_Summary
-                    return Customer_Summary
+                    save_inputs(smartmeter,demand,heatpump,pv,ev, N,C, E)
+                    #save_inputs(heatpump,N,C, E)
+                    return evdailys,ev,evflags,Customer_Summary
                             
                 def do_loadflows(sims,Customer_Summary):
                     smartmeter,demand,heatpump,pv,ev=load_inputs(N, C,E)
@@ -335,5 +334,5 @@ def runbatch(networks,Cases,PrePost,paths,EVPens):
                 if PrePost=='Post':
                     post_process(N, C, E)
 
-runbatch(networks,Cases,'Pre',paths,EVPens)
+#runbatch(networks,Cases,'Pre',paths,EVPens)
 runbatch(networks,Cases,'Post',paths,EVPens)

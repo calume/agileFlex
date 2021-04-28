@@ -23,55 +23,55 @@ Pdc={}
 E={}
 Ptrace={}
 
-for i in EVTDs.index:
-    timerange=range(EVTDs['t_in'][i],EVTDs['t_out'][i])
-    EStart = EVTDs['EStart'][i]
-    EEnd = EVTDs['EEnd'][i]
-    bsize=EVs['battery(kWh)'][EVs['name']==EVTDs['name'][i]].values
-    Pmax=EVs['capacity(kW)'][EVs['name']==EVTDs['name'][i]].values
-    dt=1/6
-    gamma=0.8
+# for i in EVTDs.index:
+#     timerange=range(EVTDs['t_in'][i],EVTDs['t_out'][i])
+#     EStart = EVTDs['EStart'][i]
+#     EEnd = EVTDs['EEnd'][i]
+#     bsize=EVs['battery(kWh)'][EVs['name']==EVTDs['name'][i]].values
+#     Pmax=EVs['capacity(kW)'][EVs['name']==EVTDs['name'][i]].values
+#     dt=1/6
+#     gamma=0.8
     
-    E[i] = EStart
-    Ptrace[i]=[]
+#     E[i] = EStart
+#     Ptrace[i]=[]
     
-    for t in timerange:
+#     for t in timerange:
         
-        S = E[i]/bsize
+#         S = E[i]/bsize
         
-        if S < gamma:
+#         if S < gamma:
             
-            Pdc[i] = Pmax
+#             Pdc[i] = Pmax
             
-        else:
+#         else:
             
-            Pdc[i] = Pmax*(1/(1-gamma))*(1-S)
+#             Pdc[i] = Pmax*(1/(1-gamma))*(1-S)
             
-        dE = Pdc[i]*dt
+#         dE = (Pdc[i]*dt)*0.88
         
-        E[i]+=dE
+#         E[i]+=dE
         
-        Ptrace[i].append(Pdc[i][0])
+#         Ptrace[i].append(Pdc[i][0])
         
-        if E[i] > bsize:
+#         if E[i] > bsize:
             
-            E[i]=bsize
+#             E[i]=bsize
             
-            break
+#             break
     
-    Summary[EVTDs['name'][i]][EVTDs['t_in'][i]:EVTDs['t_out'][i]]=Ptrace[i]
+#     Summary[EVTDs['name'][i]][EVTDs['t_in'][i]:EVTDs['t_out'][i]]=Ptrace[i]
 
-#Summary = Summary.loc[:, Summary.columns[(Summary.sum() > 50)]]
-Summary.fillna(0)
-SumN=Summary.iloc[72:144,:]
-SumN=SumN.append(Summary.iloc[0:72,:])
-SumN.index=datelist[0:144]
-SumN=SumN.asfreq('10T')
-#SumN=SumN.resample('60T').sum()/6
+# #Summary = Summary.loc[:, Summary.columns[(Summary.sum() > 50)]]
+# Summary.fillna(0)
+# SumN=Summary.iloc[72:144,:]
+# SumN=SumN.append(Summary.iloc[0:72,:])
+# SumN.index=datelist[0:144]
+# SumN=SumN.asfreq('10T')
+# #SumN=SumN.resample('60T').sum()/6
 
-pickle_out = open("../Data/JDEVResampled.pickle", "wb")
-pickle.dump(SumN, pickle_out)
-pickle_out.close()
+# pickle_out = open("../Data/JDEVResampled.pickle", "wb")
+# pickle.dump(SumN, pickle_out)
+# pickle_out.close()
 
 pick_in = open("../Data/JDEVResampled.pickle", "rb")
 SumN = pickle.load(pick_in)
@@ -80,7 +80,7 @@ times = ['00:00','04:00','08:00','12:00','16:00','20:00','00:00']
 SumN=SumN.fillna(0)
 plt.plot(SumN.quantile(q=0.5,axis=1).values,linestyle="--",label='Median')
 plt.plot(SumN.mean(axis=1).values,label='Mean')
-plt.plot(SumN.quantile(q=0.75,axis=1).values,linestyle=":",label='P75')
+#plt.plot(SumN.quantile(q=0.75,axis=1).values,linestyle=":",label='P75')
 plt.ylabel('EV Charge Demand (kW)',fontsize=11)
 plt.legend()
 plt.xlim(0,144)
