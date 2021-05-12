@@ -335,7 +335,7 @@ def post_process(paths,data_path,N,C,VC,sims,Network_Path,raw_data_path):
         
         ### --- All VC Limits is Power flow limits set by Low Voltage
         
-        if C=='OptEV':
+        if C=='OptEV' or 'Dumb':
             npaths='../Data/Upper/'
         else:
             npaths=paths

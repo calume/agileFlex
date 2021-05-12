@@ -28,7 +28,7 @@ from itertools import cycle, islice
 from congestion_probability_batch import save_outputs, post_process
 from crunch_results_batch import calc_current_voltage
 
-def runvalid(data_path,networks,paths,quant,factor):
+def runvalid(data_path,networks,paths,quant,factor,evtype):
     ####----------Set Test Network ------------
     start=datetime.now()
     
@@ -65,18 +65,31 @@ def runvalid(data_path,networks,paths,quant,factor):
         
         pick_in = open("../Data/PV_BySiteName.pickle", "rb")
         PV_DataFrame = pickle.load(pick_in)
-
-       
-
-        EVCapacitySummary, EV_DataFrame, V2G_Perc = EVRealiser(networks, paths,quant,factor,True)
         
-        Y=14
-        start_date = date(2013, 12, 2)
-        end_date = date(2013, 12, 4)
+
+        start_date = date(2014, 1, 10)
+        end_date = date(2014, 1, 12)
         sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
         sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
         
         sims=sims_tenminutes
+        
+        ###--- Load in Dumb and Smart EV profiles and reindex
+        pick_in = open("../Data/JDEVResampled.pickle", "rb")
+        EV_DataFrame_Dumb = pickle.load(pick_in)
+        EV_DataFrame_Dumb=EV_DataFrame_Dumb.fillna(0)
+        EV_DataFrame_Dumb.index=sims
+
+
+        # pick_in = open(paths+str(N)+"EV_DataFrame_Smart.pickle", "rb")
+        # EV_DataFrame = pickle.load(pick_in)
+        
+        EVCapacitySummary, EV_DataFrame, V2G_Perc = EVRealiser(networks, paths,quant,factor,True)
+        
+        for i in EV_DataFrame:
+            EV_DataFrame[i]=EV_DataFrame[i][~EV_DataFrame[i].index.duplicated(keep='first')]
+            EV_DataFrame[i].index=sims
+        
         pick_in = open("../Data/HP_DataFrame_10mins_pad.pickle", "rb")
         HP_DataFrame = pickle.load(pick_in)
         HP_DataFrame = HP_DataFrame.loc[sims]
@@ -109,6 +122,7 @@ def runvalid(data_path,networks,paths,quant,factor):
                 sub=sub.index[0:len(EV_DataFrame[u].columns)]
                 Customer_Summary['EV_ID'].loc[sub]=EV_DataFrame[u].columns.values
         
+
         #####------------ Initialise Input--------------------
         smartmeter = {}
         heatpump = {}
@@ -160,6 +174,13 @@ def runvalid(data_path,networks,paths,quant,factor):
                     )
                 if Customer_Summary["EV_ID"][z] != 0:
                     ev[i][z] = EV_DataFrame[Customer_Summary["zone"][z]][Customer_Summary["EV_ID"][z]][i]
+                    ####--- For Dumb EV Validation---#####
+                    ###--- Now we have assigned the same EV IDs as for smart charging----##
+                    ###--- If we are running Dumb charging we now load dumb EV data----##
+                    
+                    if evtype=='Dumb':
+                        ev[i][z] = EV_DataFrame_Dumb[Customer_Summary["EV_ID"][z]][i]
+        
             ev[i] = np.nan_to_num(ev[i])   
             demand[i] = np.nan_to_num(demand[i])
             pv[i] = np.nan_to_num(pv[i])
@@ -183,15 +204,21 @@ def runvalid(data_path,networks,paths,quant,factor):
             ) = runDSS(
                 Network_Path, demand[i], pv[i],ev[i]
             )
-                
-        save_outputs(data_path,CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA,N,'OptEV')
         
-        ###-- -post_process(paths,data_path,N,C,VC,sims,Network_Path,raw_data_path)
+        save_outputs(data_path,CurArray, RateArray, VoltArray, PowArray, Trans_kVA, TransRatekVA,N,evtype)
+               
+        post_process('../Data/Validation/',data_path,N, evtype, True,sims,Network_Path,'../Data/Validation/')  
+        post_process('../Data/Validation/',data_path,N, evtype, False,sims,Network_Path,'../Data/Validation/')         
         
-        post_process('../Data/Validation/',data_path,N, 'OptEV', True,sims,Network_Path,'../Data/Validation/')  
-        post_process('../Data/Validation/',data_path,N, 'OptEV', False,sims,Network_Path,'../Data/Validation/')         
-
-            
+        pick_in = open('../Data/Validation/'+N+evtype+"_C_Violations.pickle", "rb")
+        C_violations = pickle.load(pick_in)
+        
+        pick_in = open('../Data/Validation/'+N+evtype+"_Vmin_DF.pickle", "rb")
+        Vmin = pickle.load(pick_in)
+        
+        print(evtype,'C Violations', C_violations.sum().sum())
+        print(evtype,'Low Voltage Violations', C_violations.sum().sum())
+        
      ####--------------------- Below is the Old Way I stored the Results which links in with the code in Megaloader to summarise Results
      ####----------------------I have left in, this is a duplication of data and i may remove at some point and store one copy of data.
 #             Vmin,C_Violations=calc_current_voltage(CurArray,VoltArray,Coords,Lines, RateArray, pinchClist,colors,sims)      

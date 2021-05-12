@@ -205,11 +205,11 @@ def Headroom_calc(
                     Flag[str(p) + str(f)][i]='c'  ##--- 'c' means cable rating (thermal)
                 if Rate[str(p) + str(f)][i] == V_rate and Headrm[str(p) + str(f)][i]<0:
                     Flag[str(p) + str(f)][i]='v' ##--- 'v' means minimum voltage
-                Flag[str(p) + str(f)][i]
+        if Txhdrm[i]<0:
+            Flag.loc[i]='t'  ##--- 't' means transformer (thermal)
         if sum(Headrm.loc[i]) > Txhdrm[i]:
             Headrm.loc[i]=Headrm.loc[i]+((Txhdrm[i]-Headrm.loc[i].sum())/len(Headrm.loc[i]))
-            Flag.loc[i]='t'  ##--- 't' means transformer (thermal)
-            print(sum(Headrm.loc[i]),'Transformer_Constrained')
+            print(sum(Headrm.loc[i]),'Zonal Headroom reduced by transformer limit')
 
     return Headrm, Footrm, Txhdrm, Flag,C_rate
 

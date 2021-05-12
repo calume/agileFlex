@@ -63,16 +63,16 @@ def plotDay(prices, gen, genmin,v2g,zone,nEVs,nCusts,results):
 
 
 def EVRealiser(networks,paths,quant,factor, Valid):
-    nEVs_Realised={}
     v2gperc=[]
-    if Valid==False:
-        pick_in = open(paths+"nEVs_NoShifting.pickle", "rb")
-        nEVs_All = pickle.load(pick_in)
-    if Valid==True:
-        pick_in = open(paths+"nEVs_Realised.pickle", "rb")
-        nEVs_All = pickle.load(pick_in)
-
     for N in networks:
+        nEVs_Realised={}
+        if Valid==False:
+            pick_in = open(paths+N+"nEVs_NoShifting.pickle", "rb")
+            nEVs_All = pickle.load(pick_in)
+        if Valid==True:
+            pick_in = open(paths+N+"nEVs_Realised.pickle", "rb")
+            nEVs_All = pickle.load(pick_in)
+
         start_date = date(2013, 12, 1)
         end_date = date(2013, 12, 3)
         delta_tenminutes = timedelta(minutes=10)
@@ -243,10 +243,14 @@ def EVRealiser(networks,paths,quant,factor, Valid):
                 print(N, C,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge',round(EV_Avg,1), 'kWh ,Success')
             else:
                 print(N, C,',Zone',i,', nEVs ', nEVs,', run',j,'Avg Charge', 'No EVs')   
-    if Valid==False:
-        pickle_out = open(paths+"nEVs_Realised.pickle", "wb")
-        pickle.dump(nEVs_Realised, pickle_out)
-        pickle_out.close()
+        if Valid==False:
+            pickle_out = open(paths+N+"nEVs_Realised.pickle", "wb")
+            pickle.dump(nEVs_Realised, pickle_out)
+            pickle_out.close()
+        
+            pickle_out = open(paths+N+"EV_DataFrame_Smart.pickle", "wb")
+            pickle.dump(AllEVs, pickle_out)
+            pickle_out.close()
         
     return EVCapacitySummary, AllEVs, v2gperc
 

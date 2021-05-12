@@ -95,13 +95,17 @@ factor=1
 
 # """Step 7 - Optimise EVs: 10 Successfull attempts """
 
-EVRealiser(networks, upath,quant,factor,Valid=False)
+#EVRealiser(networks, upath,quant,factor,Valid=False)
 
 """Step 8 - Optimise EVs: Validate on Network with maximum HPs """
 
 ####--- Function runvalid(data_path,networks,paths,quant,factor)
-#runvalid('../Data/Validation/',networks, upath,quant,factor)
 
+##runvalid('../Data/Validation/',networks, upath,quant,factor,evtype='OptEV')
+
+###--- For Dumb EV Validation
+
+runvalid('../Data/Validation/',networks, upath,quant,factor,evtype='Dumb')
 
 '''Below is the summary of validated results, this wont work any more, at least not the summary of violations for validation'''
 # ###########MEGA SUMMARY OF HPs and EVS ############
