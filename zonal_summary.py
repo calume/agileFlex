@@ -207,8 +207,8 @@ def EVRealiser(networks,paths,quant,factor, Valid):
                 l=l+1
             k=k+1
             
-            if status[k-1][l-1]=='Success':
-                plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
+            # if status[k-1][l-1]=='Success':
+            #     plotDay(prices, gen, genmin,v2g,i,nEVs,len(Customer_summary[Customer_summary['zone']==i]),results)
                     
                 
                 #########----------- Write Outputs for Validation --------############
@@ -247,7 +247,7 @@ def EVRealiser(networks,paths,quant,factor, Valid):
             pickle_out = open(paths+N+"nEVs_Realised.pickle", "wb")
             pickle.dump(nEVs_Realised, pickle_out)
             pickle_out.close()
-        
+        if Valid==True:
             pickle_out = open(paths+N+"EV_DataFrame_Smart.pickle", "wb")
             pickle.dump(AllEVs, pickle_out)
             pickle_out.close()

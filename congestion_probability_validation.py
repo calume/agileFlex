@@ -24,17 +24,10 @@ from runDSS import runDSS, create_gens
 import matplotlib.pyplot as plt
 #from Forecasting.Headroom_forecasting import return_temp
 from zonal_summary import EVRealiser
-from itertools import cycle, islice
 from congestion_probability_batch import save_outputs, post_process
-from crunch_results_batch import calc_current_voltage
 
-def runvalid(data_path,networks,paths,quant,factor,evtype):
+def runvalid(data_path,networks,paths,quant,factor,evtype,start_date,end_date):
     ####----------Set Test Network ------------
-    start=datetime.now()
-    
-
-    pick_in = open(paths+"Assign_Final.pickle", "rb")
-    assign = pickle.load(pick_in)
     
     EVCapacitySummary={}
     
@@ -66,9 +59,6 @@ def runvalid(data_path,networks,paths,quant,factor,evtype):
         pick_in = open("../Data/PV_BySiteName.pickle", "rb")
         PV_DataFrame = pickle.load(pick_in)
         
-
-        start_date = date(2014, 1, 10)
-        end_date = date(2014, 1, 12)
         sims_halfhours = pd.date_range(start_date, end_date, freq=timedelta(hours=0.5))
         sims_tenminutes = pd.date_range(start_date, end_date, freq=timedelta(minutes=10))[72:216]
         
@@ -80,11 +70,14 @@ def runvalid(data_path,networks,paths,quant,factor,evtype):
         EV_DataFrame_Dumb=EV_DataFrame_Dumb.fillna(0)
         EV_DataFrame_Dumb.index=sims
 
-
-        # pick_in = open(paths+str(N)+"EV_DataFrame_Smart.pickle", "rb")
-        # EV_DataFrame = pickle.load(pick_in)
+        if evtype=='OptEV':
+            print('optimised #############')
+            EVCapacitySummary, EV_DataFrame, V2G_Perc = EVRealiser(networks, paths,quant,factor,True)
         
-        EVCapacitySummary, EV_DataFrame, V2G_Perc = EVRealiser(networks, paths,quant,factor,True)
+        if evtype=='Dumb':
+            print('Dumb #############')
+            pick_in = open(paths+str(N)+"EV_DataFrame_Smart.pickle", "rb")
+            EV_DataFrame = pickle.load(pick_in)
         
         for i in EV_DataFrame:
             EV_DataFrame[i]=EV_DataFrame[i][~EV_DataFrame[i].index.duplicated(keep='first')]
@@ -173,11 +166,11 @@ def runvalid(data_path,networks,paths,quant,factor,evtype):
                         * PV_DataFrame[Customer_Summary["pv_ID"][z]]["P_Norm"][i]#-timedelta(days=364)]
                     )
                 if Customer_Summary["EV_ID"][z] != 0:
-                    ev[i][z] = EV_DataFrame[Customer_Summary["zone"][z]][Customer_Summary["EV_ID"][z]][i]
-                    ####--- For Dumb EV Validation---#####
-                    ###--- Now we have assigned the same EV IDs as for smart charging----##
-                    ###--- If we are running Dumb charging we now load dumb EV data----##
                     
+                    if evtype=='OptEV':
+                        ev[i][z] = EV_DataFrame[Customer_Summary["zone"][z]][Customer_Summary["EV_ID"][z]][i]
+
+                    ###--- We have assigned the same EV IDs as for smart charging----##                   
                     if evtype=='Dumb':
                         ev[i][z] = EV_DataFrame_Dumb[Customer_Summary["EV_ID"][z]][i]
         
@@ -216,8 +209,15 @@ def runvalid(data_path,networks,paths,quant,factor,evtype):
         pick_in = open('../Data/Validation/'+N+evtype+"_Vmin_DF.pickle", "rb")
         Vmin = pickle.load(pick_in)
         
-        print(evtype,'C Violations', C_violations.sum().sum())
-        print(evtype,'Low Voltage Violations', C_violations.sum().sum())
+        pick_in = open('../Data/Validation/'+N+evtype+"_TxHdrm.pickle", "rb")
+        Tx = pickle.load(pick_in)
+        
+        C_Viol=round(C_violations.sum(axis=1).sum()/144*100,1)
+        V_Viol=round((Vmin<0.9).sum(axis=1).sum()/144*100,1)
+        T_Viol=round((Tx<0).sum()/144*100,1)
+         
+        return C_Viol, V_Viol, T_Viol
+
         
      ####--------------------- Below is the Old Way I stored the Results which links in with the code in Megaloader to summarise Results
      ####----------------------I have left in, this is a duplication of data and i may remove at some point and store one copy of data.

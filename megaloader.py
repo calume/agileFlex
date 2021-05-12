@@ -55,6 +55,7 @@ from zonal_summary import EVRealiser
 import pickle
 from congestion_probability_validation import runvalid
 import pandas as pd
+from datetime import timedelta, date, datetime
 
 networks=['network_18/']#,'network_5/','network_10/','network_17/','network_18/']
 
@@ -100,12 +101,23 @@ factor=1
 """Step 8 - Optimise EVs: Validate on Network with maximum HPs """
 
 ####--- Function runvalid(data_path,networks,paths,quant,factor)
-
-##runvalid('../Data/Validation/',networks, upath,quant,factor,evtype='OptEV')
+start = date(2013, 12, 20)
+end = date(2013, 12, 22)
+        
+evtype_O='OptEV'
+C_Viol_O, V_Viol_O, T_Viol_O=runvalid('../Data/Validation/',networks, upath,quant,factor,evtype_O,start,end)
 
 ###--- For Dumb EV Validation
+evtype='Dumb'
+C_Viol, V_Viol, T_Viol=runvalid('../Data/Validation/',networks, upath,quant,factor,evtype,start,end)
 
-runvalid('../Data/Validation/',networks, upath,quant,factor,evtype='Dumb')
+print(evtype_O,'C Violations', C_Viol_O, '% of timesteps')
+print(evtype_O,'Low Voltage Violations', V_Viol_O, '% of timesteps')
+print(evtype_O,'Tx Violations', T_Viol_O, '% of timesteps')
+
+print(evtype,'C Violations', C_Viol, '% of timesteps')
+print(evtype,'Low Voltage Violations', V_Viol, '% of timesteps')
+print(evtype,'Tx Violations', T_Viol, '% of timesteps')
 
 '''Below is the summary of validated results, this wont work any more, at least not the summary of violations for validation'''
 # ###########MEGA SUMMARY OF HPs and EVS ############
