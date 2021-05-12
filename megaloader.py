@@ -101,8 +101,8 @@ factor=1
 """Step 8 - Optimise EVs: Validate on Network with maximum HPs """
 
 ####--- Function runvalid(data_path,networks,paths,quant,factor)
-start = date(2013, 12, 20)
-end = date(2013, 12, 22)
+start = date(2013, 12, 25)
+end = date(2013, 12, 27)
         
 evtype_O='OptEV'
 C_Viol_O, V_Viol_O, T_Viol_O=runvalid('../Data/Validation/',networks, upath,quant,factor,evtype_O,start,end)
