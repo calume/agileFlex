@@ -212,8 +212,8 @@ def runvalid(data_path,networks,paths,quant,factor,evtype,start_date,end_date):
         pick_in = open('../Data/Validation/'+N+evtype+"_TxHdrm.pickle", "rb")
         Tx = pickle.load(pick_in)
         
-        C_Viol=round(C_violations.sum(axis=1).sum()/144*100,1)
-        V_Viol=round((Vmin<0.9).sum(axis=1).sum()/144*100,1)
+        C_Viol=round((C_violations.sum(axis=1)>0).sum()/144*100,1)
+        V_Viol=round((((Vmin<0.9).sum(axis=1)>0).sum())/144*100,1)
         T_Viol=round((Tx<0).sum()/144*100,1)
          
         return C_Viol, V_Viol, T_Viol

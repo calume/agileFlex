@@ -1845,3 +1845,292 @@ Wed, 12 May 2021 16:02:38 INFO     Model selected: EVScheduleV2G
 Wed, 12 May 2021 16:02:38 INFO     Given model file found and selected from the models library
 Wed, 12 May 2021 16:02:38 INFO     Given testcase file found and selected from the testcase library
 Wed, 12 May 2021 16:02:41 INFO     Done!
+Wed, 12 May 2021 16:21:40 INFO     EV Scheduling log file
+Wed, 12 May 2021 16:21:42 INFO     Program started
+Wed, 12 May 2021 16:21:42 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:21:42 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:21:42 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:21:42 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:21:42 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:21:47 INFO     Done!
+Wed, 12 May 2021 16:21:48 INFO     Program started
+Wed, 12 May 2021 16:21:48 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:21:48 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:21:48 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:21:48 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:21:48 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:21:50 INFO     Done!
+Wed, 12 May 2021 16:21:50 INFO     Program started
+Wed, 12 May 2021 16:21:50 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:21:50 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:21:50 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:21:50 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:21:51 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:21:52 INFO     Program started
+Wed, 12 May 2021 16:21:52 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:21:52 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:21:52 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:21:52 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:21:52 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:21:55 INFO     Done!
+Wed, 12 May 2021 16:21:56 INFO     Program started
+Wed, 12 May 2021 16:21:56 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:21:56 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:21:56 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:21:56 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:21:56 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:21:59 INFO     Done!
+Wed, 12 May 2021 16:22:00 INFO     Program started
+Wed, 12 May 2021 16:22:00 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:00 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:00 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:00 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:00 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:04 INFO     Done!
+Wed, 12 May 2021 16:22:04 INFO     Program started
+Wed, 12 May 2021 16:22:04 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:04 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:04 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:04 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:04 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:06 INFO     Done!
+Wed, 12 May 2021 16:22:06 INFO     Program started
+Wed, 12 May 2021 16:22:06 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:06 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:06 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:06 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:06 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:09 INFO     Done!
+Wed, 12 May 2021 16:22:10 INFO     Program started
+Wed, 12 May 2021 16:22:10 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:10 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:10 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:10 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:10 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:11 INFO     Done!
+Wed, 12 May 2021 16:22:12 INFO     Program started
+Wed, 12 May 2021 16:22:12 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:12 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:12 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:12 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:12 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:16 INFO     Done!
+Wed, 12 May 2021 16:22:16 INFO     Program started
+Wed, 12 May 2021 16:22:16 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:16 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:16 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:16 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:17 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:21 INFO     Done!
+Wed, 12 May 2021 16:22:22 INFO     Program started
+Wed, 12 May 2021 16:22:22 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:22 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:22 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:22 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:22 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:26 INFO     Done!
+Wed, 12 May 2021 16:22:26 INFO     Program started
+Wed, 12 May 2021 16:22:26 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:26 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:26 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:26 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:26 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:32 INFO     Done!
+Wed, 12 May 2021 16:22:32 INFO     Program started
+Wed, 12 May 2021 16:22:32 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:32 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:32 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:32 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:32 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:36 INFO     Done!
+Wed, 12 May 2021 16:22:37 INFO     Program started
+Wed, 12 May 2021 16:22:37 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:37 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:37 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:37 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:37 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:38 INFO     Program started
+Wed, 12 May 2021 16:22:38 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:38 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:38 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:38 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:38 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:39 INFO     Program started
+Wed, 12 May 2021 16:22:39 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:39 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:39 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:39 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:39 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:42 INFO     Done!
+Wed, 12 May 2021 16:22:42 INFO     Program started
+Wed, 12 May 2021 16:22:42 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:42 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:42 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:42 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:42 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:44 INFO     Done!
+Wed, 12 May 2021 16:22:44 INFO     Program started
+Wed, 12 May 2021 16:22:44 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:44 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:44 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:44 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:45 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:48 INFO     Done!
+Wed, 12 May 2021 16:22:48 INFO     Program started
+Wed, 12 May 2021 16:22:48 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:48 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:48 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:48 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:48 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:52 INFO     Done!
+Wed, 12 May 2021 16:22:52 INFO     Program started
+Wed, 12 May 2021 16:22:52 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:52 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:52 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:52 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:53 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:22:55 INFO     Done!
+Wed, 12 May 2021 16:22:56 INFO     Program started
+Wed, 12 May 2021 16:22:56 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:22:56 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:22:56 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:22:56 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:22:56 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:01 INFO     Done!
+Wed, 12 May 2021 16:23:02 INFO     Program started
+Wed, 12 May 2021 16:23:02 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:02 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:02 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:02 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:02 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:06 INFO     Done!
+Wed, 12 May 2021 16:23:06 INFO     Program started
+Wed, 12 May 2021 16:23:06 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:06 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:06 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:06 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:06 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:10 INFO     Done!
+Wed, 12 May 2021 16:23:11 INFO     Program started
+Wed, 12 May 2021 16:23:11 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:11 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:11 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:11 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:11 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:15 INFO     Done!
+Wed, 12 May 2021 16:23:16 INFO     Program started
+Wed, 12 May 2021 16:23:16 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:16 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:16 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:16 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:16 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:20 INFO     Done!
+Wed, 12 May 2021 16:23:20 INFO     Program started
+Wed, 12 May 2021 16:23:20 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:20 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:20 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:20 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:20 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:23 INFO     Done!
+Wed, 12 May 2021 16:23:24 INFO     Program started
+Wed, 12 May 2021 16:23:24 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:24 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:24 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:24 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:24 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:27 INFO     Done!
+Wed, 12 May 2021 16:23:27 INFO     Program started
+Wed, 12 May 2021 16:23:27 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:23:27 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:23:27 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:23:27 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:23:27 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:23:31 INFO     Done!
+Wed, 12 May 2021 16:29:17 INFO     EV Scheduling log file
+Wed, 12 May 2021 16:29:19 INFO     Program started
+Wed, 12 May 2021 16:29:19 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:19 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:19 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:19 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:19 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:24 INFO     Done!
+Wed, 12 May 2021 16:29:24 INFO     Program started
+Wed, 12 May 2021 16:29:24 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:24 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:24 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:24 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:25 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:27 INFO     Done!
+Wed, 12 May 2021 16:29:27 INFO     Program started
+Wed, 12 May 2021 16:29:27 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:27 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:27 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:27 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:27 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:31 INFO     Done!
+Wed, 12 May 2021 16:29:32 INFO     Program started
+Wed, 12 May 2021 16:29:32 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:32 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:32 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:32 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:32 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:33 INFO     Program started
+Wed, 12 May 2021 16:29:33 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:33 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:33 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:33 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:33 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:35 INFO     Done!
+Wed, 12 May 2021 16:29:36 INFO     Program started
+Wed, 12 May 2021 16:29:36 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:36 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:36 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:36 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:36 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:37 INFO     Program started
+Wed, 12 May 2021 16:29:37 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:37 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:37 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:37 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:37 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:41 INFO     Done!
+Wed, 12 May 2021 16:29:41 INFO     Program started
+Wed, 12 May 2021 16:29:41 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:41 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:41 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:41 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:42 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:43 INFO     Done!
+Wed, 12 May 2021 16:29:44 INFO     Program started
+Wed, 12 May 2021 16:29:44 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:44 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:44 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:44 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:44 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:47 INFO     Done!
+Wed, 12 May 2021 16:29:47 INFO     Program started
+Wed, 12 May 2021 16:29:47 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:47 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:47 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:47 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:47 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:49 INFO     Done!
+Wed, 12 May 2021 16:29:49 INFO     Program started
+Wed, 12 May 2021 16:29:49 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:49 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:49 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:49 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:50 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:53 INFO     Done!
+Wed, 12 May 2021 16:29:54 INFO     Program started
+Wed, 12 May 2021 16:29:54 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:54 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:54 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:54 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:54 INFO     Given testcase file found and selected from the testcase library
+Wed, 12 May 2021 16:29:59 INFO     Program started
+Wed, 12 May 2021 16:29:59 INFO     Solver selected: cplex
+Wed, 12 May 2021 16:29:59 INFO     Testcase selected: /timeseries/EVDay01_mix18.xlsx
+Wed, 12 May 2021 16:29:59 INFO     Model selected: EVScheduleV2G
+Wed, 12 May 2021 16:29:59 INFO     Given model file found and selected from the models library
+Wed, 12 May 2021 16:29:59 INFO     Given testcase file found and selected from the testcase library
